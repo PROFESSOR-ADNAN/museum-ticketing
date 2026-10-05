@@ -1,0 +1,25 @@
+# Local stack: API (SQLite file in a volume) + web app.
+#   cp backend/.env.example backend/.env     # then fill in CHAPA_SECRET_KEY and CHAPA_WEBHOOK_SECRET
+#   docker compose up --build
+#   docker compose exec api node src/seed.js
+# No database server is needed: SQLite is a single file stored in the "museum-data" volume (/app/data).
+services:
+  api:
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      DB_PATH: /app/data/museum.sqlite
+      BACKUP_DIR: /app/data/backups
+      TICKET_KEY_PATH: /app/data/ticket-signing-key.pem
+      PORT: 4000
+    ports: ["4000:4000"]
+    volumes: [museum-data:/app/data]
+    restart: unless-stopped
+  web:
+    build:
+      context: ./web
+      args: { VITE_API_URL: "http://localhost:4000" }
+    depends_on: [api]
+    ports: ["5173:80"]
+volumes:
+  museum-data:

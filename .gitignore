@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.expo/
+.bundle-check/
+*.log
+.DS_Store
+# runtime data: database, backups, QR signing key — never commit these
+backend/data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.pem
+
+docs/

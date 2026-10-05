@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Science Museum",
+    "slug": "museum-ticketing",
+    "version": "2.0.0",
+    "scheme": "museum",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      ["expo-camera", { "cameraPermission": "The camera is used only to scan visitors' ticket QR codes." }],
+      "expo-secure-store",
+      "expo-sqlite"
+    ],
+    "ios": { "supportsTablet": true, "bundleIdentifier": "et.museum.tickets" },
+    "android": { "package": "et.museum.tickets" },
+    "extra": { "apiUrl": "http://10.0.2.2:4000" }
+  }
+}
