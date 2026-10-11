@@ -38,5 +38,23 @@ export const paymentReturn = handle(async (req, res) => {
   const out = await tryConfirm(p.provider_ref);
   const outcome = out?.outcome || (Payments.byRef(p.provider_ref).status === 'succeeded' ? 'success' : 'pending');
   const back = p.client_return_url || `${config.webUrl}/bookings/${p.booking_id}`;
-  res.redirect(302, `${back}${back.includes('?') ? '&' : '?'}payment=${outcome}`);
+  const target = `${back}${back.includes('?') ? '&' : '?'}payment=${outcome}`;
+  if (!/^(museum|exp|exps):\/\//.test(back)) return res.redirect(302, target);      // web: unchanged
+  res.type('html').send(appReturnPage(outcome, target));                              // phone app: a page with a button (browsers block automatic jumps to app links)
 });
+
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const PAGE = {
+  success: ['✓ Payment received', 'ክፍያ ደርሷል', 'Your booking is confirmed. Go back to the app to see your ticket and QR code.', 'ቦታ ማስያዣዎ ተረጋግጧል። ትኬትዎን እና QR ኮድዎን ለማየት ወደ መተግበሪያው ይመለሱ።', '#0b7a75'],
+  pending: ['… Confirming your payment', 'ክፍያዎን በማረጋገጥ ላይ', 'Chapa has not confirmed it yet. Go back to the app and pull down to refresh in a moment.', 'Chapa ገና አላረጋገጠውም። ወደ መተግበሪያው ተመልሰው ከጥቂት ጊዜ በኋላ ወደ ታች ጎትተው ያድሱ።', '#b27a00'],
+  failed: ['✗ Payment not completed', 'ክፍያው አልተጠናቀቀም', 'You have not been charged. Go back to the app and try again.', 'ገንዘብ አልተቀነሰብዎትም። ወደ መተግበሪያው ተመልሰው እንደገና ይሞክሩ።', '#bf3f2b'],
+};
+function appReturnPage(outcome, target) {
+  const [h1, h2, p1, p2, color] = PAGE[outcome] || PAGE.pending;
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Science Museum</title></head>
+<body style="font-family:system-ui,sans-serif;max-width:440px;margin:10vh auto;padding:0 22px;text-align:center;color:#14303a">
+<h1 style="color:${color};margin-bottom:4px">${h1}</h1><h2 style="margin-top:0;font-weight:600">${h2}</h2>
+<p>${p1}</p><p>${p2}</p>
+<p style="margin-top:28px"><a href="${esc(target)}" style="display:inline-block;padding:16px 28px;border-radius:10px;background:#0b7a75;color:#fff;font-weight:700;text-decoration:none;font-size:18px">Open the app / መተግበሪያውን ክፈት</a></p>
+<p style="color:#4b6670;font-size:14px">If the button does nothing, just close this page and open the app. / ቁልፉ ካልሠራ ይህን ገጽ ዘግተው መተግበሪያውን ይክፈቱ።</p></body></html>`;
+}

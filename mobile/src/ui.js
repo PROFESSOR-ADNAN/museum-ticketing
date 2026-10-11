@@ -1,6 +1,8 @@
-import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import { Ionicons } from '@expo/vector-icons';
+import { useApp } from './context';
 
 export const C = { ink: '#14303a', soft: '#4b6670', paper: '#eef3f1', card: '#fff', line: '#c7d5d1', teal: '#0b7a75', amber: '#f2a62b', brick: '#bf3f2b' };
 export const money = (n) => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
@@ -17,14 +19,15 @@ export const s = StyleSheet.create({
   btnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
   ghost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: C.teal }, ghostText: { color: C.teal },
   danger: { backgroundColor: C.brick },
+  dangerGhost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: C.brick }, dangerGhostText: { color: C.brick },
   err: { backgroundColor: '#fbeae6', borderColor: '#e3a79c', borderWidth: 1, color: '#7d2616', padding: 10, borderRadius: 8, marginBottom: 12 },
   ok: { backgroundColor: '#e6f3ea', borderColor: '#a5cdb1', borderWidth: 1, color: '#1f5a30', padding: 10, borderRadius: 8, marginBottom: 12 },
 });
 
 export const Btn = ({ title, onPress, kind, disabled }) => (
   <Pressable accessibilityRole="button" onPress={onPress} disabled={disabled}
-    style={[s.btn, kind === 'ghost' && s.ghost, kind === 'danger' && s.danger, disabled && { opacity: 0.5 }]}>
-    <Text style={[s.btnText, kind === 'ghost' && s.ghostText]}>{title}</Text>
+    style={[s.btn, kind === 'ghost' && s.ghost, kind === 'danger' && s.danger, kind === 'dangerGhost' && s.dangerGhost, disabled && { opacity: 0.5 }]}>
+    <Text style={[s.btnText, kind === 'ghost' && s.ghostText, kind === 'dangerGhost' && s.dangerGhostText]}>{title}</Text>
   </Pressable>
 );
 export const Field = ({ label, ...p }) => (<View><Text style={s.label}>{label}</Text><TextInput style={s.input} placeholderTextColor="#8aa09a" autoCapitalize="none" {...p} /></View>);
@@ -56,3 +59,33 @@ export function Receipt({ doc }) {
     </View>
   );
 }
+
+/** Password box with a show/hide eye. */
+export function PasswordField({ label, value, onChangeText, ...rest }) {
+  const { t } = useApp();
+  const [shown, setShown] = useState(false);
+  return (
+    <View>
+      <Text style={s.label}>{label}</Text>
+      <View style={{ marginBottom: 12, justifyContent: 'center' }}>
+        <TextInput style={[s.input, { marginBottom: 0, paddingRight: 48 }]} secureTextEntry={!shown} autoCapitalize="none" autoCorrect={false}
+          placeholderTextColor="#8aa09a" value={value} onChangeText={onChangeText} {...rest} />
+        <Pressable onPress={() => setShown(!shown)} hitSlop={10} accessibilityRole="button" accessibilityLabel={shown ? t('hidePassword') : t('showPassword')}
+          style={{ position: 'absolute', right: 4, top: 0, bottom: 0, width: 44, alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name={shown ? 'eye-off-outline' : 'eye-outline'} size={22} color={C.soft} />
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+/** Pull-down-to-refresh: `const pull = useRefresh(load);`  then  <ScrollView refreshControl={pullControl(pull)}>
+ * `pullControl` must return a REAL <RefreshControl> element, not a custom component that wraps one: ScrollView
+ * clones whatever is passed here and injects its own children into it, and a wrapping component would silently
+ * swallow those children, making the whole screen render empty (confirmed on-device — see CHANGES.md). */
+export function useRefresh(fn) {
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => { setRefreshing(true); try { await fn(); } finally { setRefreshing(false); } }, [fn]);
+  return { refreshing, onRefresh };
+}
+export const pullControl = ({ refreshing, onRefresh }) => <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[C.teal]} tintColor={C.teal} />;

@@ -7,12 +7,31 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "plugins": [
-      ["expo-camera", { "cameraPermission": "The camera is used only to scan visitors' ticket QR codes." }],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "The camera is used only to scan visitors' ticket QR codes."
+        }
+      ],
       "expo-secure-store",
       "expo-sqlite"
     ],
-    "ios": { "supportsTablet": true, "bundleIdentifier": "et.museum.tickets" },
-    "android": { "package": "et.museum.tickets" },
-    "extra": { "apiUrl": "http://10.0.2.2:4000" }
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "et.museum.tickets"
+    },
+    "android": {
+      "package": "et.museum.tickets",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "extra": {
+      "apiUrl": "http://127.0.0.1:4000",
+      "eas": {
+        "projectId": "698f5733-f160-49ed-8b83-dbe6955aee78"
+      }
+    }
   }
 }

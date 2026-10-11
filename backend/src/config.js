@@ -1,4 +1,12 @@
-import 'dotenv/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
+
+// Everything is resolved from the backend folder, so the SAME database is used no matter where `node` is started from
+// (a relative DB path used to depend on the current folder — two start-up folders meant two different databases).
+export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+dotenv.config({ path: path.join(ROOT, '.env') });
+const fromRoot = (p) => (p === ':memory:' || path.isAbsolute(p) ? p : path.resolve(ROOT, p));
 
 const env = process.env;
 const nodeEnv = env.NODE_ENV || 'development';
@@ -7,10 +15,10 @@ export const config = {
   env: nodeEnv,
   isProd: nodeEnv === 'production',
   port: Number(env.PORT || 4000),
-  dbPath: env.DB_PATH || './data/museum.sqlite',
-  backupDir: env.BACKUP_DIR || './data/backups',
+  dbPath: fromRoot(env.DB_PATH || './data/museum.sqlite'),
+  backupDir: fromRoot(env.BACKUP_DIR || './data/backups'),
   backupKeep: Number(env.BACKUP_KEEP || 30),
-  ticketKeyPath: env.TICKET_KEY_PATH || './data/ticket-signing-key.pem',
+  ticketKeyPath: fromRoot(env.TICKET_KEY_PATH || './data/ticket-signing-key.pem'),
   jwtSecret: env.JWT_SECRET || 'dev-only-secret',
   jwtExpires: '7d',
   corsOrigins: (env.CORS_ORIGINS || '*').split(',').map((s) => s.trim()),
@@ -27,6 +35,7 @@ export const config = {
   mail: { host: env.SMTP_HOST, port: Number(env.SMTP_PORT || 587), user: env.SMTP_USER, pass: env.SMTP_PASS,
     from: env.MAIL_FROM || 'Science Museum <no-reply@example.org>' },
   sms: { url: env.SMS_API_URL, key: env.SMS_API_KEY },
+  authRateLimit: Number(env.AUTH_RATE_LIMIT || (nodeEnv === 'production' ? 100 : 1000)),   // sign-in / register / verify attempts per IP per 15 min
   trustProxy: Number(env.TRUST_PROXY || 0),   // 1 when behind ngrok / nginx so rate limits see the real client address
   noShowGraceDays: 7,          // FR-PAY-005: one week after the notice
   maxAdvanceDays: 180,

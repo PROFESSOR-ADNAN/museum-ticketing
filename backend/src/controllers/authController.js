@@ -8,7 +8,8 @@ const registerSchema = z.object({
   phone: z.string().regex(/^\+?[0-9]{9,15}$/, 'phone'), password: z.string().min(8).max(100),
   language: z.enum(['en', 'am']).default('en'),
 });
-const verifySchema = z.object({ email, emailCode: z.string().length(6).optional(), phoneCode: z.string().length(6).optional() });
+const code = z.preprocess((v) => (v === '' || v === null ? undefined : v), z.string().length(6).optional());   // an empty box = "not entering that one"
+const verifySchema = z.object({ email, emailCode: code, phoneCode: code });
 const loginSchema = z.object({ email, password: z.string().min(1) });
 const profileSchema = z.object({ language: z.enum(['en', 'am']).optional(), name: z.string().min(2).max(100).optional() });
 

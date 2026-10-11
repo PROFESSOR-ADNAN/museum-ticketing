@@ -3,6 +3,7 @@ export const messages = {
   VALIDATION: { en: 'Some fields are missing or invalid.', am: 'አንዳንድ መረጃዎች ጎድለዋል ወይም ትክክል አይደሉም።' },
   UNAUTHENTICATED: { en: 'Please sign in to continue.', am: 'ለመቀጠል እባክዎ ይግቡ።' },
   FORBIDDEN: { en: 'You do not have permission for this action.', am: 'ይህን ተግባር ለማከናወን ፈቃድ የለዎትም።' },
+  RATE_LIMITED: { en: 'Too many attempts. Please wait a few minutes and try again.', am: 'ብዙ ሙከራዎች ተደርገዋል። እባክዎ ጥቂት ደቂቃዎች ጠብቀው እንደገና ይሞክሩ።' },
   DUPLICATE: { en: 'This value already exists.', am: 'ይህ መረጃ አስቀድሞ አለ።' },
   NOT_FOUND: { en: 'Not found.', am: 'አልተገኘም።' },
   BAD_CREDENTIALS: { en: 'Incorrect email or password.', am: 'የተሳሳተ ኢሜይል ወይም የይለፍ ቃል።' },

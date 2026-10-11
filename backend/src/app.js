@@ -1,8 +1,10 @@
+import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { config } from './config.js';
+import { sql } from './db/index.js';
 import { lang } from './middleware/lang.js';
 import { errorHandler, notFound } from './middleware/error.js';
 import auth from './routes/auth.js';
@@ -24,7 +26,13 @@ export function createApp() {
   app.use(express.json({ limit: '200kb', verify: (req, _res, buf) => { req.rawBody = buf.toString('utf8'); } }));
   app.use(lang);
 
-  app.get('/api/health', (_req, res) => res.json({ ok: true }));
+  app.get('/api/health', (_req, res) => {
+    const out = { ok: true };
+    if (!config.isProd) {                 // development only: lets you compare the web app's server with the phone's server
+      try { out.database = path.basename(config.dbPath); out.users = sql('SELECT COUNT(*) AS n FROM users').get().n; } catch { /* database not open yet */ }
+    }
+    res.json(out);
+  });
   app.use('/api/auth', auth);
   app.use('/api', catalog);
   app.use('/api/bookings', bookings);

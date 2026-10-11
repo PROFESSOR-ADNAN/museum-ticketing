@@ -286,5 +286,24 @@ test('visitor -> Chapa payment -> QR check -> visit -> refund -> transfer -> no-
   for (let i = 0; i < 5; i++) await api('POST', '/api/auth/verify', { email: 'sam@t.test', emailCode: '000000' });
   assert.equal((await api('POST', '/api/auth/verify', { email: 'sam@t.test', ...reg2.body.devCodes })).body.error, 'BAD_CODE');
 
+  // ---------- phone-app fixes: verify email and phone separately, app return page, health diagnostics ----------
+  const reg3 = await api('POST', '/api/auth/register', { name: 'Lia M', email: 'lia@t.test', phone: '+251922000003', password: 'Passw0rd!' });
+  const half = await api('POST', '/api/auth/verify', { email: 'lia@t.test', emailCode: reg3.body.devCodes.emailCode, phoneCode: '' });   // empty box = "not entering that one"
+  assert.deepEqual([half.status, half.body.user.emailVerified, half.body.user.phoneVerified], [200, true, false]);
+  assert.equal((await api('POST', '/api/auth/verify', { email: 'lia@t.test', phoneCode: '12345' })).status, 422);                        // a code has 6 digits
+  const full = await api('POST', '/api/auth/verify', { email: 'lia@t.test', emailCode: '', phoneCode: reg3.body.devCodes.phoneCode });
+  assert.deepEqual([full.body.user.emailVerified, full.body.user.phoneVerified], [true, true]);
+
+  const bApp = await book([{ categoryId: student, quantity: 1 }]);
+  const pApp = await api('POST', `/api/bookings/${bApp.id}/pay`, { returnUrl: 'exp://localhost:8081/--/booking/1' }, vt);
+  await chapa.completePayment(pApp.body.providerRef);
+  const page = await fetch(`${base}/api/payments/return/${pApp.body.providerRef}`, { redirect: 'manual' });
+  const html = await page.text();
+  assert.equal(page.status, 200);                                                                                                         // the phone gets a page with a button,
+  assert.match(page.headers.get('content-type'), /text\/html/);                                                                           // not a redirect to exp:// that browsers refuse
+  assert.ok(html.includes('href="exp://localhost:8081/--/booking/1?payment=success"') && html.includes('Payment received'));
+  const hl = await (await fetch(`${base}/api/health`)).json();
+  assert.ok(hl.ok && hl.database && hl.users >= 5);                                                                                       // development: which database, how many users
+
   server.close(); await chapa.close(); closeDb();
 });

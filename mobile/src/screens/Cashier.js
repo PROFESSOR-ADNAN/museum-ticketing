@@ -5,7 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { api, isNetworkError } from '../api';
 import { checkTicket, dismissConflict, downloadGateList, gateListInfo, outboxCounts, queueAdmission, syncOutbox } from '../offline';
 import { useApp } from '../context';
-import { Banner, Btn, C, Err, Field, Loading, Ok, Receipt, Status, money, s } from '../ui';
+import { Banner, Btn, C, Err, Field, Loading, Ok, pullControl, Receipt, Status, money, s, useRefresh } from '../ui';
 
 const TONE = { VALID: 'ok', WRONG_DATE: 'info', UNLISTED: 'info', NO_OFFLINE_DATA: 'info' };
 const when = (iso) => (iso ? new Date(iso).toLocaleTimeString() : '');
@@ -48,6 +48,7 @@ export function Scan() {
   }, [user.id, t, refreshStatus]);
   // every time this screen opens: try to send queued admissions and refresh today's list, silently
   useFocusEffect(useCallback(() => { (async () => { await refreshStatus(); await sync(true); try { await downloadGateList(); } catch { /* offline: keep the saved list */ } await refreshStatus(); })(); }, [refreshStatus, sync]));
+  const pull = useRefresh(async () => { await sync(true); try { await downloadGateList(); } catch { /* offline: keep the saved list */ } await refreshStatus(); });
 
   const check = async (value) => {
     const v = String(value || '').trim();
@@ -62,7 +63,7 @@ export function Scan() {
   };
   const b = res?.booking;
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled" refreshControl={pullControl(pull)}>
       <Err>{err}</Err><Ok>{note}</Ok>
       <View style={s.card}>
         <Text style={[s.muted, { marginBottom: 6 }]}>{t('lastList')}: {info ? `${info.date} · ${info.count} · ${when(info.savedAt)}` : t('none_')}  ·  {counts.pending} {t('waitingToSync')}</Text>
@@ -108,8 +109,9 @@ export function CheckIn() {
     try { setItems((await api(`/cashier/bookings/lookup?${ref ? `ref=${encodeURIComponent(ref.trim())}` : `q=${encodeURIComponent(q.trim())}`}`)).bookings); }
     catch (e) { setErr(isNetworkError(e) ? t('needsInternet') : e.message); }
   }, [ref, q, t]);
+  const pull = useRefresh(async () => { if (items) await find(); });
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
+    <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled" refreshControl={pullControl(pull)}>
       <Text style={s.h1}>{t('cashierCheckin')}</Text><Err>{err}</Err>
       <Field label={t('lookupRef')} value={ref} onChangeText={(v) => setRef(v.toUpperCase())} placeholder="MSB-XXXXXX" />
       <Field label={t('lookupName')} value={q} onChangeText={setQ} />
@@ -131,10 +133,11 @@ export function Transfer() {
   const { t } = useApp(); const [p, setP] = useState(null); const [receipt, setReceipt] = useState(null); const [err, setErr] = useState('');
   const load = useCallback(async () => { try { setP(await api('/cashier/settlements/pending')); } catch (e) { setErr(isNetworkError(e) ? t('needsInternet') : e.message); } }, [t]);
   useFocusEffect(useCallback(() => { load(); }, [load]));
+  const pull = useRefresh(load);
   const go = async () => { setErr(''); try { setReceipt((await api('/cashier/settlements', { method: 'POST' })).receipt); load(); } catch (e) { setErr(isNetworkError(e) ? t('needsInternet') : e.message); } };
   if (!p) return err ? <Text style={s.err}>{err}</Text> : <Loading />;
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad}>
+    <ScrollView style={s.screen} contentContainerStyle={s.pad} refreshControl={pullControl(pull)}>
       <Text style={s.h1}>{t('cashierTransfer')}</Text><Err>{err}</Err>
       <View style={s.card}>
         <View style={s.row}><Text style={s.text}>{t('gross')}</Text><Text style={s.text}>{money(p.gross)}</Text></View>

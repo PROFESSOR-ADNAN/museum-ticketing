@@ -109,3 +109,35 @@ add('off_UNLISTED', 'OFFLINE CHECK — not in the saved list for today. It may b
 add('off_ALREADY_USED', 'ALREADY ADMITTED — these visitors were already let in (this phone or the server).', 'ቀድሞ ገብተዋል — እነዚህ ጎብኚዎች ቀደም ብለው ገብተዋል።');
 add('off_INVALID', 'NOT VALID — this QR code was not issued by this system.', 'ልክ አይደለም — ይህ QR ኮድ በዚህ ሥርዓት አልተሰጠም።');
 add('off_NO_DATA', 'No offline data on this phone yet. Connect to the internet once and tap “Download today’s list”.', 'በዚህ ስልክ ላይ ገና ከመስመር ውጭ መረጃ የለም። አንድ ጊዜ ከበይነመረብ ጋር ይገናኙ እና “የዛሬውን ዝርዝር አውርድ” ይንኩ።');
+
+// ---- added with the mobile fixes ----
+add('tabAccount', 'Account', 'መለያ');
+add('language', 'Language', 'ቋንቋ');
+add('role_visitor', 'Visitor', 'ጎብኚ'); add('role_cashier', 'Cashier', 'ካሸር'); add('role_manager', 'Museum Manager', 'ሥራ አስኪያጅ'); add('role_admin', 'Platform Admin', 'አስተዳዳሪ');
+add('staffWebOnly', 'Dashboards, reports, group approvals, prices, staff accounts and refunds are in the web app. Ticket scanning is done with a cashier account.', 'ዳሽቦርድ፣ ሪፖርቶች፣ የቡድን ፈቃዶች፣ ዋጋዎች፣ የሠራተኛ መለያዎች እና ተመላሾች በድር መተግበሪያ ውስጥ ናቸው። ትኬት መቃኘት በካሸር መለያ ይከናወናል።');
+add('signOutTitle', 'Sign out?', 'መውጣት ይፈልጋሉ?');
+add('signOutBody', 'You will need to sign in again to use the app.', 'መተግበሪያውን ለመጠቀም እንደገና መግባት ያስፈልግዎታል።');
+add('stay', 'Stay signed in', 'እንደገባሁ ልቆይ');
+add('server', 'Server', 'አገልጋይ'); add('connected', 'Connected', 'ተገናኝቷል'); add('cannotReach', 'Cannot reach the server', 'አገልጋዩን ማግኘት አልተቻለም');
+add('checking', 'Checking…', 'በመፈተሽ ላይ…'); add('testConnection', 'Test connection', 'ግንኙነትን ፈትሽ'); add('usersWord', 'users', 'ተጠቃሚዎች');
+add('serverHelp', 'Check that the API is running and that this phone can open this address (SSH tunnel / Wi-Fi).', 'ኤፒአዩ እየሠራ መሆኑን እና ይህ ስልክ ይህን አድራሻ መክፈት እንደሚችል ያረጋግጡ (SSH tunnel / Wi-Fi)።');
+add('errGeneric', 'Something went wrong. Please try again.', 'የሆነ ችግር ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።');
+add('showPassword', 'Show password', 'የይለፍ ቃል አሳይ'); add('hidePassword', 'Hide password', 'የይለፍ ቃል ደብቅ');
+add('verifyFirst', 'Verify your email and phone to continue. Until both are verified you cannot book or pay.', 'ለመቀጠል ኢሜይልዎን እና ስልክዎን ያረጋግጡ። ሁለቱም እስኪረጋገጡ ድረስ ማስያዝም ሆነ መክፈል አይችሉም።');
+add('enterCode', 'Enter at least one 6-digit code.', 'ቢያንስ አንድ ባለ 6 አሃዝ ኮድ ያስገቡ።');
+add('codeSix', 'A code has exactly 6 digits.', 'ኮድ በትክክል 6 አሃዞች አሉት።');
+add('verifiedOne', 'Verified ✓ — now enter the other code.', 'ተረጋግጧል ✓ — አሁን ሌላውን ኮድ ያስገቡ።');
+add('verifiedAll', 'All verified ✓', 'ሁሉም ተረጋግጧል ✓');
+add('codesSent', 'New codes sent.', 'አዲስ ኮዶች ተልከዋል።');
+add('useDevCodes', 'Fill in these codes', 'እነዚህን ኮዶች ሙላ');
+add('notYou', 'Not you? Sign out', 'እርስዎ አይደሉም? ውጣ');
+add('pickDate', 'Pick a day on the calendar', 'ቀኑን ከቀን መቁጠሪያው ይምረጡ');
+add('closedLegend', 'Struck-through days are closed by the museum.', 'የተሰረዙ ቀኖች በሙዚየሙ ተዘግተዋል።');
+add('payStillPending', 'Chapa has not confirmed the payment yet. Pull down to refresh in a moment.', 'Chapa ክፍያውን ገና አላረጋገጠም። ከጥቂት ጊዜ በኋላ ወደ ታች ጎትተው ያድሱ።');
+add('cancelTitle', 'Cancel this booking?', 'ይህን ቦታ ማስያዣ ይሰርዙ?');
+add('cancelWarnPaid', 'You have already paid for this booking. Cancelling it will start a refund and your QR code will stop working.', 'ለዚህ ቦታ ማስያዣ ቀድመው ከፍለዋል። ሲሰርዙ ተመላሽ ይጀምራል እና የQR ኮድዎ መሥራት ያቆማል።');
+add('cancelWarnUnpaid', 'This booking has not been paid yet.', 'ይህ ቦታ ማስያዣ ገና አልተከፈለም።');
+add('refundYouGet', 'You will get back', 'የሚመለስልዎት'); add('providerCharge', 'Payment provider charge', 'የክፍያ አቅራቢ ክፍያ'); add('notRefundable', 'not refundable', 'አይመለስም');
+add('cannotUndo', 'This cannot be undone.', 'ይህ ሊመለስ አይችልም።');
+add('keepBooking', 'Keep my booking', 'ቦታ ማስያዣዬን አቆይ'); add('yesCancel', 'Yes, cancel it', 'አዎ፣ ሰርዝ');
+add('needToCancel', 'Need to cancel?', 'መሰረዝ ያስፈልግዎታል?');
