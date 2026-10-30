@@ -11,15 +11,22 @@ import { config } from '../config.js';
 let keys = null;
 function load() {
   if (keys) return keys;
-  const file = path.resolve(config.ticketKeyPath);
   let privateKey;
-  if (fs.existsSync(file)) privateKey = crypto.createPrivateKey(fs.readFileSync(file));
-  else {
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    const kp = crypto.generateKeyPairSync('ed25519');
-    fs.writeFileSync(file, kp.privateKey.export({ type: 'pkcs8', format: 'pem' }), { mode: 0o600 });
-    privateKey = kp.privateKey;
-    console.log(`[tickets] created the QR signing key at ${file} — back it up together with the database`);
+  if (process.env.TICKET_SIGNING_KEY) {
+    privateKey = crypto.createPrivateKey(process.env.TICKET_SIGNING_KEY);
+  } else {
+    let file = path.resolve(config.ticketKeyPath);
+    if ((process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) && !file.startsWith('/tmp')) {
+      file = path.join('/tmp', 'ticket-signing-key.pem');
+    }
+    if (fs.existsSync(file)) privateKey = crypto.createPrivateKey(fs.readFileSync(file));
+    else {
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      const kp = crypto.generateKeyPairSync('ed25519');
+      fs.writeFileSync(file, kp.privateKey.export({ type: 'pkcs8', format: 'pem' }), { mode: 0o600 });
+      privateKey = kp.privateKey;
+      console.log(`[tickets] created the QR signing key at ${file} — back it up together with the database`);
+    }
   }
   const publicKey = crypto.createPublicKey(privateKey);
   keys = { privateKey, publicKey, publicKeyB64: publicKey.export({ type: 'spki', format: 'der' }).subarray(-32).toString('base64') };

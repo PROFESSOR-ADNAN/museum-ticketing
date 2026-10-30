@@ -60,3 +60,40 @@ table { width: 100%; border-collapse: collapse; } th, td { text-align: left; pad
 .receipt .rows > div { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
 .receipt .words { margin-top: 12px; padding: 10px 12px; background: var(--paper); border-radius: 8px; }
 @media print { .nav, .noprint { display: none !important; } body { background: #fff; } .receipt { border-width: 1px; } }
+
+/* Home page branding and components */
+.home-eyebrow { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.aau-logo-badge { width: 54px; height: 54px; object-fit: contain; }
+.eyebrow-pill { display: inline-block; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 999px; }
+.affiliation-text { margin: 2px 0 0; font-size: 0.9rem; font-weight: 600; color: var(--ink-soft); }
+.hero-sub { color: var(--ink-soft); font-size: 1.05rem; margin-top: 8px; max-width: 500px; }
+
+.cta-box { margin-top: 24px; padding: 20px; border-radius: 12px; }
+.cta-box h3 { margin-bottom: 12px; }
+.visit-type-tabs { display: flex; gap: 8px; background: #e2ece9; padding: 4px; border-radius: 8px; }
+.type-btn { flex: 1; border: 0; background: transparent; color: var(--ink); font-weight: 600; padding: 10px; border-radius: 6px; cursor: pointer; transition: all .15s ease; }
+.type-btn.active { background: #fff; color: var(--teal-deep); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.type-summary { background: #f7faf9; padding: 14px; border-radius: 8px; border: 1px solid var(--line); }
+
+.stub-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 12px; }
+.stub-header h3 { margin: 0; }
+.stub-footer { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--line); }
+
+.section-block { margin-top: 48px; }
+.section-title { margin-bottom: 20px; }
+.section-title h2 { margin-bottom: 4px; }
+.grid.three { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+.step-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 24px 20px; position: relative; }
+.step-num { width: 34px; height: 34px; border-radius: 50%; background: var(--teal); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+
+.specimen-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform .15s ease, box-shadow .15s ease; }
+.specimen-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.specimen-img-wrap { position: relative; height: 190px; width: 100%; overflow: hidden; background: #e2ece9; }
+.specimen-img { width: 100%; height: 100%; object-fit: cover; }
+.specimen-placeholder { position: relative; height: 190px; width: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #d4ebd0 0%, #b8deea 100%); }
+.specimen-tag { position: absolute; top: 10px; right: 10px; background: rgba(20, 48, 58, 0.85); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+.specimen-body { padding: 16px; flex: 1; }
+.specimen-body h4 { margin: 0 0 6px; font-size: 1.15rem; font-weight: 700; color: var(--ink); }
+
+.info-banner { background: #fff; border-left: 6px solid var(--teal); padding: 24px; border-radius: 12px; }

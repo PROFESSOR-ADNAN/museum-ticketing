@@ -4,7 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { config } from './config.js';
-import { sql } from './db/index.js';
+import { openDb, sql } from './db/index.js';
 import { lang } from './middleware/lang.js';
 import { errorHandler, notFound } from './middleware/error.js';
 import auth from './routes/auth.js';
@@ -17,6 +17,9 @@ import admin from './routes/admin.js';
 import reports from './routes/reports.js';
 
 export function createApp() {
+  if (config.env !== 'test') {
+    try { openDb(); } catch (e) { /* DB may be initialized by runner */ }
+  }
   const app = express();
   if (config.trustProxy) app.set('trust proxy', config.trustProxy);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
@@ -27,9 +30,12 @@ export function createApp() {
   app.use(lang);
 
   app.get('/api/health', (_req, res) => {
-    const out = { ok: true };
-    if (!config.isProd) {                 // development only: lets you compare the web app's server with the phone's server
-      try { out.database = path.basename(config.dbPath); out.users = sql('SELECT COUNT(*) AS n FROM users').get().n; } catch { /* database not open yet */ }
+    const out = { ok: true, status: 'healthy', env: config.env };
+    try {
+      out.database = path.basename(config.dbPath);
+      out.users = sql('SELECT COUNT(*) AS n FROM users').get().n;
+    } catch (e) {
+      out.dbError = e.message;
     }
     res.json(out);
   });
@@ -46,3 +52,6 @@ export function createApp() {
   app.use(errorHandler);
   return app;
 }
+
+const app = createApp();
+export default app;

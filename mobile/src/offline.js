@@ -83,6 +83,27 @@ export async function offlineCheck(code) {
   const row = await db.getFirstAsync('SELECT json, status, saved_at FROM gate_bookings WHERE ref = ?', [ref]);
   const queued = await db.getFirstAsync("SELECT 1 AS x FROM outbox WHERE ref = ? AND state = 'pending'", [ref]);
   if (!row) {
+    if (parsed.kind === 'token' && parsed.payload) {
+      // Cryptographically verified ticket: genuine signed ticket even if not downloaded yet
+      const used = !!queued;
+      const fallbackBooking = {
+        ref,
+        visitDate: parsed.payload.d || '',
+        bookedQuantity: parsed.payload.q || 1,
+        lines: [{ category: 1, quantity: parsed.payload.q || 1, name: { en: 'Admissions', am: 'መግቢያዎች' } }],
+        status: used ? 'Visited' : 'Pending',
+      };
+      return {
+        result: used ? 'ALREADY_USED' : 'VALID',
+        paid: true,
+        canAdmit: !used,
+        signatureVerified: true,
+        message: bi(used ? 'off_ALREADY_USED' : 'off_VALID'),
+        booking: fallbackBooking,
+        offline: true,
+        savedAt: null,
+      };
+    }
     if (!(await cacheGet('gateListInfo'))) return reject('off_NO_DATA', 'NO_OFFLINE_DATA');
     return { ...reject('off_UNLISTED', 'UNLISTED'), signatureVerified: parsed.kind === 'token', ref };
   }

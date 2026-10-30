@@ -12,8 +12,10 @@ const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const lineSchema = z.object({ categoryId: z.number().int().positive(), quantity: z.number().int().min(1).max(config.maxQuantityPerLine) });
 const individualSchema = z.object({ visitDate: dateStr, lines: z.array(lineSchema).min(1).max(10) });
 const groupSchema = individualSchema.extend({
-  organization: z.string().min(2).max(150), timeSlot: z.string().min(3).max(40),
-  contactName: z.string().min(2).max(100).optional(), contactPhone: z.string().min(6).max(20).optional(),
+  organization: z.string().min(2).max(150),
+  timeSlot: z.string().min(1).max(40).optional(),
+  contactName: z.string().min(2).max(100).optional(),
+  contactPhone: z.string().min(6).max(20).optional(),
 });
 const paySchema = z.object({ returnUrl: z.string().max(500).optional() });
 const rescheduleSchema = z.object({ visitDate: dateStr });

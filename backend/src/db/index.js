@@ -12,8 +12,13 @@ export const getDb = () => { if (!current) throw new Error('Database not opened:
  * foreign keys are enforced; busy_timeout makes a second process wait instead of failing.
  */
 export function openDb(file = config.dbPath) {
-  if (file !== ':memory:') fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true });
-  const db = new Database(file);
+  if (current) return current;
+  let targetFile = file;
+  if ((process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) && file !== ':memory:' && !file.startsWith('/tmp')) {
+    targetFile = path.join('/tmp', 'museum.sqlite');
+  }
+  if (targetFile !== ':memory:') fs.mkdirSync(path.dirname(path.resolve(targetFile)), { recursive: true });
+  const db = new Database(targetFile);
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   db.pragma('busy_timeout = 5000');

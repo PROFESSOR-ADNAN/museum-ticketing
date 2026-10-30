@@ -41,7 +41,7 @@ export function buildLines(inputLines) {
 export function createBooking({ visitor, kind, visitDate, timeSlot, organization, contactName, contactPhone, lines, channel = 'online', status }) {
   assertBookableDate(visitDate);
   const built = buildLines(lines);
-  const st = status || (kind === 'group' ? 'PendingApproval' : 'AwaitingPayment');
+  const st = status || 'AwaitingPayment';
   for (let i = 0; i < 5; i++) {
     try {
       const id = tx(() => {

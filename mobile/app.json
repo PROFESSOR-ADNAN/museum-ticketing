@@ -6,6 +6,12 @@
     "scheme": "museum",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0d3b36"
+    },
     "plugins": [
       [
         "expo-camera",
@@ -18,14 +24,22 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "et.museum.tickets"
+      "bundleIdentifier": "et.museum.tickets",
+      "icon": "./assets/icon.png"
     },
     "android": {
       "package": "et.museum.tickets",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0d3b36"
+      },
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "apiUrl": "http://127.0.0.1:4000",

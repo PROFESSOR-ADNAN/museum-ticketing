@@ -167,9 +167,8 @@ test('visitor -> Chapa payment -> QR check -> visit -> refund -> transfer -> no-
   const closed = addDays(date, 5);
   await api('POST', '/api/manager/closures', { date: closed, reason: 'full' }, manager);
   assert.equal((await api('POST', '/api/bookings', { visitDate: closed, lines: [{ categoryId: student, quantity: 1 }] }, vt)).body.error, 'DATE_CLOSED');
-  const g = (await api('POST', '/api/bookings/group', { visitDate: date, organization: 'Bole School', timeSlot: '09:00-10:30', lines: [{ categoryId: student, quantity: 30 }] }, vt)).body.booking;
-  assert.equal(g.status, 'PendingApproval');
-  assert.equal((await api('POST', `/api/bookings/${g.id}/pay`, {}, vt)).body.error, 'BAD_STATE');
+  const g = (await api('POST', '/api/bookings/group', { visitDate: date, organization: 'Bole School', lines: [{ categoryId: student, quantity: 30 }] }, vt)).body.booking;
+  assert.equal(g.status, 'AwaitingPayment');
   assert.equal((await api('POST', `/api/manager/group-requests/${g.id}/approve`, {}, manager)).body.booking.status, 'AwaitingPayment');
 
   // ---------- mixed-category group, per-category attendance, two cashiers press Transfer at once ----------

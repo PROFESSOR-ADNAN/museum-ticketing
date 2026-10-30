@@ -26,7 +26,7 @@ export const listGroupRequests = (status = 'PendingApproval') =>
   hydrateBookings(sql(`SELECT * FROM bookings WHERE kind = 'group' AND status = ? ORDER BY visit_date`).all(status));
 
 export async function decideGroup(id, approve, note, actor) {
-  const u = sql(`UPDATE bookings SET status = ?, decision_by = ?, decision_at = ?, decision_note = ? WHERE id = ? AND kind = 'group' AND status = 'PendingApproval'`)
+  const u = sql(`UPDATE bookings SET status = ?, decision_by = ?, decision_at = ?, decision_note = ? WHERE id = ? AND kind = 'group' AND status IN ('PendingApproval', 'AwaitingPayment')`)
     .run(approve ? 'AwaitingPayment' : 'Declined', actor.id, new Date().toISOString(), note ?? null, id);
   if (!u.changes) throw new AppError('BAD_STATE');
   const b = Bookings.get(id);

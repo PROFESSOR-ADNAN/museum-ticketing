@@ -38,7 +38,7 @@ export function Home({ navigation }) {
 export function Book({ navigation }) {
   const { t, pick, user, lang } = useApp(); const [cats, setCats] = useState(null); const [avail, setAvail] = useState(null);
   const [kind, setKind] = useState('individual'); const [date, setDate] = useState(''); const [qty, setQty] = useState({});
-  const [grp, setGrp] = useState({ organization: '', timeSlot: '09:00-10:30' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
+  const [grp, setGrp] = useState({ organization: '' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const load = useCallback(() => Promise.all([
     cached('categories', async () => (await api('/categories')).categories).then((r) => setCats(r.data.filter((c) => c.onlineBookable))).catch((e) => setErr(friendly(t, e))),
     api('/availability').then(setAvail).catch(() => {}),
@@ -65,8 +65,7 @@ export function Book({ navigation }) {
       <Text style={s.label}>{t('date')}</Text>
       <CalendarPicker value={date} onChange={setDate} min={avail?.today} max={avail?.maxDate} closed={avail?.closedDates} today={avail?.today} />
       <Text style={[date ? s.text : s.muted, { marginBottom: 12 }]}>{date ? `✓ ${formatLong(date, lang)}` : t('pickDate')}</Text>
-      {kind === 'group' && <><Field label={t('organization')} value={grp.organization} onChangeText={(v) => setGrp({ ...grp, organization: v })} autoCapitalize="words" />
-        <Field label={t('timeSlot')} value={grp.timeSlot} onChangeText={(v) => setGrp({ ...grp, timeSlot: v })} /></>}
+      {kind === 'group' && <Field label={t('organization')} value={grp.organization} onChangeText={(v) => setGrp({ ...grp, organization: v })} autoCapitalize="words" />}
       {cats.map((c) => (<View key={c.id} style={[s.row, { paddingVertical: 8, borderBottomWidth: 1, borderColor: C.line }]}>
         <View style={{ flex: 1 }}><Text style={[s.text, { fontWeight: '600' }]}>{pick(c.name)}</Text><Text style={s.muted}>{money(c.price)} {t('etb')}</Text></View>
         <View style={[s.row, { gap: 6 }]}><Pressable accessibilityLabel="minus" onPress={() => bump(c.id, -1)} style={{ padding: 10 }}><Text style={[s.h2, { color: C.teal }]}>−</Text></Pressable>

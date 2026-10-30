@@ -9,7 +9,7 @@ export default function Book({ kind }) {
   const { t, pick } = useI18n(); const nav = useNavigate();
   const cats = useLoad(() => api('/categories')); const avail = useLoad(() => api('/availability'));
   const [qty, setQty] = useState({}); const [date, setDate] = useState('');
-  const [grp, setGrp] = useState({ organization: '', timeSlot: '09:00-10:30' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
+  const [grp, setGrp] = useState({ organization: '' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const list = (cats.data?.categories || []).filter((c) => c.onlineBookable);
   const total = useMemo(() => list.reduce((s, c) => s + c.price * (qty[c.id] || 0), 0), [list, qty]);
   const closed = avail.data?.closedDates?.includes(date);
@@ -30,10 +30,11 @@ export default function Book({ kind }) {
       <Notice>{err}</Notice>
       <div className="field"><label>{t('date')}<input type="date" required value={date} min={avail.data?.today} max={avail.data?.maxDate} onChange={(e) => setDate(e.target.value)} /></label></div>
       <Notice kind="info">{closed ? t('closedDate') : ''}</Notice>
-      {kind === 'group' && <div className="grid two">
-        <div className="field"><label>{t('organization')}<input required value={grp.organization} onChange={(e) => setGrp({ ...grp, organization: e.target.value })} /></label></div>
-        <div className="field"><label>{t('timeSlot')}<input required value={grp.timeSlot} onChange={(e) => setGrp({ ...grp, timeSlot: e.target.value })} /></label></div>
-      </div>}
+      {kind === 'group' && (
+        <div className="field">
+          <label>{t('organization')}<input required value={grp.organization} placeholder="e.g. St. Joseph School" onChange={(e) => setGrp({ ...grp, organization: e.target.value })} /></label>
+        </div>
+      )}
       {list.map((c) => (
         <div className="row between" key={c.id} style={{ padding: '8px 0', borderBottom: '1px dashed var(--line)' }}>
           <div><b>{pick(c.name)}</b><div className="muted small">{money(c.price)} {t('etb')}</div></div>
