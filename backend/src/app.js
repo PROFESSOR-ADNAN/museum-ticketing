@@ -41,13 +41,21 @@ export function createApp() {
     res.json(out);
   });
   app.use('/api/auth', auth);
+  app.use('/auth', auth);
   app.use('/api', catalog);
+  app.use('/', catalog);
   app.use('/api/bookings', bookings);
+  app.use('/bookings', bookings);
   app.use('/api/payments', payments);
+  app.use('/payments', payments);
   app.use('/api/cashier', cashier);
+  app.use('/cashier', cashier);
   app.use('/api/manager', manager);
+  app.use('/manager', manager);
   app.use('/api/admin', admin);
+  app.use('/admin', admin);
   app.use('/api/reports', reports);
+  app.use('/reports', reports);
 
   app.use(notFound);
   app.use(errorHandler);
