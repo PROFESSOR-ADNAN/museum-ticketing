@@ -29,6 +29,8 @@ export function createApp() {
   app.use(express.json({ limit: '200kb', verify: (req, _res, buf) => { req.rawBody = buf.toString('utf8'); } }));
   app.use(lang);
 
+  app.get('/', (_req, res) => res.json({ ok: true, name: 'Science Museum API', health: '/api/health', time: new Date().toISOString() }));
+  app.get('/api', (_req, res) => res.json({ ok: true, name: 'Science Museum API', health: '/api/health', time: new Date().toISOString() }));
   app.get('/health', (_req, res) => res.json({ ok: true, status: 'healthy', env: config.env }));
   app.get('/api/health', (_req, res) => {
     const out = { ok: true, status: 'healthy', env: config.env };
