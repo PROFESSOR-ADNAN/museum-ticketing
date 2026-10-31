@@ -9,14 +9,7 @@ export function errorHandler(err, req, res, _next) {
     return res.status(422).json({ error: 'VALIDATION', message: msg('VALIDATION', req.lang), details: err.issues.map((i) => ({ path: i.path.join('.'), message: i.message })) });
   }
   if (err instanceof AppError) {
-    return res.status(err.status).json({
-      error: err.code,
-      message: msg(err.code, req.lang, err.params),
-      url: req.url,
-      originalUrl: req.originalUrl,
-      path: req.path,
-      headers: req.headers,
-    });
+    return res.status(err.status).json({ error: err.code, message: msg(err.code, req.lang, err.params) });
   }
   if (err?.code === 'SQLITE_CONSTRAINT_UNIQUE') {
     return res.status(409).json({ error: 'DUPLICATE', message: msg('DUPLICATE', req.lang) });
