@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const BASE = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.origin.includes('vercel.app') ? '' : 'http://localhost:4000');
 let token = localStorage.getItem('token');
 export const setToken = (t) => { token = t; t ? localStorage.setItem('token', t) : localStorage.removeItem('token'); };
 
