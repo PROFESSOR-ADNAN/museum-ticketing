@@ -29,6 +29,19 @@ export function createApp() {
   app.use(express.json({ limit: '200kb', verify: (req, _res, buf) => { req.rawBody = buf.toString('utf8'); } }));
   app.use(lang);
 
+  // Normalize Vercel serverless request URLs
+  app.use((req, _res, next) => {
+    const raw = req.headers['x-matched-path'] || req.headers['x-invoke-path'];
+    if (raw && typeof raw === 'string' && (raw.startsWith('/api') || raw.startsWith('/health'))) {
+      req.url = raw;
+    } else if (req.url.startsWith('/api/index.js')) {
+      req.url = req.url.slice('/api/index.js'.length) || '/';
+    } else if (req.url.startsWith('/api/[...all].js')) {
+      req.url = req.url.slice('/api/[...all].js'.length) || '/';
+    }
+    next();
+  });
+
   app.get('/', (_req, res) => res.json({ ok: true, name: 'Science Museum API', health: '/api/health', time: new Date().toISOString() }));
   app.get('/api', (_req, res) => res.json({ ok: true, name: 'Science Museum API', health: '/api/health', time: new Date().toISOString() }));
   app.get('/health', (_req, res) => res.json({ ok: true, status: 'healthy', env: config.env }));
