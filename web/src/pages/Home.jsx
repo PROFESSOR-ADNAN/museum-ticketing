@@ -43,10 +43,20 @@ const specimens = [
   },
 ];
 
+const fallbackCats = [
+  { id: 1, key: 'student', name: { en: 'Student', am: 'ተማሪ' }, price: 50, onlineBookable: true, description: { en: 'Valid student ID required at gate.', am: 'በበር ላይ ተቀባይነት ያለው የተማሪ መታወቂያ ያስፈልጋል።' } },
+  { id: 2, key: 'adult', name: { en: 'Adult / Teacher', am: 'አዋቂ / መምህር' }, price: 100, onlineBookable: true, description: { en: 'Resident adult admission.', am: 'የነዋሪ አዋቂ መግቢያ።' } },
+  { id: 3, key: 'foreign_resident', name: { en: 'Foreign Resident', am: 'ነዋሪ የውጭ ዜጋ' }, price: 300, onlineBookable: true, description: { en: 'Proof of Ethiopian residency required.', am: 'የኢትዮጵያ ነዋሪነት ማረጋገጫ ያስፈልጋል።' } },
+  { id: 4, key: 'non_resident', name: { en: 'Non-Resident', am: 'ነዋሪ ያልሆነ' }, price: 500, onlineBookable: true, description: { en: 'International tourist admission.', am: 'ዓለም አቀፍ የቱሪስት መግቢያ።' } },
+  { id: 5, key: 'exempt', name: { en: 'Exempt / Free (AAU staff)', am: 'ነጻ (የአዲስ አበባ ዩኒቨርሲቲ ሠራተኛ)' }, price: 0, onlineBookable: false, description: { en: 'Counter only, on presentation of ID.', am: 'በቆጣሪ ላይ ብቻ፣ መታወቂያ በማሳየት።' } },
+];
+
 export default function Home() {
   const { t, pick, lang } = useI18n();
   const { data } = useLoad(() => api('/categories'));
   const [activeVisitType, setActiveVisitType] = useState('individual');
+
+  const categories = (data?.categories && data.categories.length > 0) ? data.categories : fallbackCats;
 
   return (
     <>
@@ -113,8 +123,8 @@ export default function Home() {
             <h3>🎟 {t('prices')}</h3>
             <span className="badge Visited">{lang === 'am' ? 'የቀጥታ ዋጋ' : 'Live Rates'}</span>
           </div>
-          {(data?.categories || []).map((c) => (
-            <div className="price" key={c.id}>
+          {categories.map((c) => (
+            <div className="price" key={c.id || c.key}>
               <div>
                 <span>{pick(c.name)}</span>
                 {!c.onlineBookable && <span className="muted small"> · {t('countersOnly')}</span>}

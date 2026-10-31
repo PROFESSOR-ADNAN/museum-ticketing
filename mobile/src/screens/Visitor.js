@@ -14,23 +14,167 @@ const when = (iso) => (iso ? new Date(iso).toLocaleString() : '');
 const offlineText = (t, r) => (r?.offline ? `${t('offlineBanner')} (${t('savedAt')} ${when(r.savedAt)})` : '');
 const friendly = (t, e) => (isNetworkError(e) ? t('needsInternet') : e.message);
 
+const fallbackCats = [
+  { id: 1, key: 'student', name: { en: 'Student', am: 'ተማሪ' }, price: 50, onlineBookable: true },
+  { id: 2, key: 'adult', name: { en: 'Adult / Teacher', am: 'አዋቂ / መምህር' }, price: 100, onlineBookable: true },
+  { id: 3, key: 'foreign_resident', name: { en: 'Foreign Resident', am: 'ነዋሪ የውጭ ዜጋ' }, price: 300, onlineBookable: true },
+  { id: 4, key: 'non_resident', name: { en: 'Non-Resident (Tourist)', am: 'ነዋሪ ያልሆነ (ቱሪስት)' }, price: 500, onlineBookable: true },
+  { id: 5, key: 'exempt', name: { en: 'Exempt / Free (AAU staff)', am: 'ነጻ (የአዲስ አበባ ዩኒቨርሲቲ ሠራተኛ)' }, price: 0, onlineBookable: false },
+];
+
+const specimens = [
+  {
+    nameEn: 'Walia Ibex (ዋልያ)',
+    nameAm: 'ዋልያ',
+    descEn: 'Endemic wild mountain goat living exclusively in the Simien Mountains.',
+    descAm: 'በስሜን ተራሮች ብሔራዊ ፓርክ ብቻ የሚገኝ ብርቅዬ የአገራችን የተፈጥሮ ቅርስ።',
+    tag: 'Endemic Mammal',
+  },
+  {
+    nameEn: 'Gelada Baboon (ጭላዳ ዝንጀሮ)',
+    nameAm: 'ጭላዳ ዝንጀሮ',
+    descEn: 'Grass-eating primate endemic to the Ethiopian highlands with a red chest patch.',
+    descAm: 'በኢትዮጵያ ከፍተኛ ደጋማ ቦታዎች ብቻ የሚገኝ ሣር በል የዝንጀሮ ዝርያ።',
+    tag: 'Highland Primate',
+  },
+  {
+    nameEn: 'Mountain Nyala (የደጋ አጋዘን)',
+    nameAm: 'የደጋ አጋዘን',
+    descEn: 'Majestic spiral-horned antelope native to the high altitudes of the Bale Mountains.',
+    descAm: 'በባሌ ተራሮች ደጋማ ስፍራዎች ብቻ የሚገኝ ግርማ ሞገስ ያለው የአጋዘን ዝርያ።',
+    tag: 'Endemic Antelope',
+  },
+  {
+    nameEn: 'Ethiopian Wolf (ቀይ ቀበሮ)',
+    nameAm: 'ቀይ ቀበሮ',
+    descEn: 'The rarest canid in the world and Africa’s most endangered carnivore.',
+    descAm: 'በዓለማችን እጅግ ብርቅዬ ከሆኑት የዱር አራዊት አንዱ የሆነው የአፍሪካ ቀይ ቀበሮ።',
+    tag: 'Endangered Canid',
+  },
+];
+
 export function Home({ navigation }) {
-  const { t, pick, user } = useApp(); const [res, setRes] = useState(null);
-  const load = useCallback(() => cached('categories', async () => (await api('/categories')).categories).then(setRes).catch((e) => console.warn('[Home] could not load categories:', e.code || e.message, '| API =', require('../api').BASE)), []);
+  const { t, pick, user, lang } = useApp();
+  const [res, setRes] = useState(null);
+  const [visitType, setVisitType] = useState('individual');
+  const load = useCallback(() => cached('categories', async () => (await api('/categories')).categories)
+    .then(setRes)
+    .catch((e) => console.warn('[Home] could not load categories:', e.code || e.message)), []);
   useFocusEffect(useCallback(() => { load(); }, [load]));
   const pull = useRefresh(load);
+
+  const displayCats = (res?.data && res.data.length > 0) ? res.data : fallbackCats;
+
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} refreshControl={pullControl(pull)}>
-      <Text style={s.h1}>{t('tagline')}</Text>
-      <Banner>{offlineText(t, res)}</Banner>
-      <View style={[s.card, { borderColor: C.ink, borderWidth: 2 }]}>
-        <Text style={s.h2}>{t('prices')}</Text>
-        {(res?.data || []).map((c) => (<View key={c.id} style={[s.row, { paddingVertical: 8, borderBottomWidth: 1, borderColor: C.line }]}>
-          <Text style={[s.text, { flex: 1 }]}>{pick(c.name)}{!c.onlineBookable ? ` · ${t('countersOnly')}` : ''}</Text><Text style={[s.text, { fontWeight: '700' }]}>{c.price ? `${money(c.price)} ${t('etb')}` : '—'}</Text></View>))}
+    <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} refreshControl={pullControl(pull)}>
+      {/* AAU Eyebrow */}
+      <View style={{ backgroundColor: '#e2ece8', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Text style={{ fontSize: 13, fontWeight: '700', color: C.teal }}>✦ {t('eyebrow')}</Text>
+        <Text style={{ fontSize: 12, color: C.soft, flex: 1 }} numberOfLines={1}>{t('affiliation')}</Text>
       </View>
-      <Text style={[s.muted, { marginBottom: 12 }]}>{t('priceNote')}</Text>
-      {user?.role === 'visitor' && <Btn title={t('book')} onPress={() => navigation.navigate('Book')} />}
-      {!user && <><Btn title={t('login')} onPress={() => navigation.navigate('Login')} /><Btn kind="ghost" title={t('register')} onPress={() => navigation.navigate('Register')} /></>}
+
+      <Text style={[s.h1, { fontSize: 26, marginBottom: 4 }]}>{t('brand')}</Text>
+      <Text style={[s.muted, { fontSize: 15, marginBottom: 16, lineHeight: 22 }]}>{t('tagline')}</Text>
+
+      <Banner>{offlineText(t, res)}</Banner>
+
+      {/* Visit Switcher */}
+      <View style={{ flexDirection: 'row', backgroundColor: '#e0ebe7', borderRadius: 8, padding: 4, marginBottom: 16 }}>
+        <Pressable
+          onPress={() => setVisitType('individual')}
+          style={{ flex: 1, paddingVertical: 8, borderRadius: 6, backgroundColor: visitType === 'individual' ? '#fff' : 'transparent', alignItems: 'center' }}>
+          <Text style={{ fontWeight: '700', fontSize: 13, color: visitType === 'individual' ? C.teal : C.soft }}>{t('individual')}</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setVisitType('group')}
+          style={{ flex: 1, paddingVertical: 8, borderRadius: 6, backgroundColor: visitType === 'group' ? '#fff' : 'transparent', alignItems: 'center' }}>
+          <Text style={{ fontWeight: '700', fontSize: 13, color: visitType === 'group' ? C.teal : C.soft }}>{t('groupLabel')}</Text>
+        </Pressable>
+      </View>
+
+      {/* Prices Card */}
+      <View style={[s.card, { borderColor: C.teal, borderWidth: 1.5 }]}>
+        <View style={[s.row, { marginBottom: 10 }]}>
+          <Text style={[s.h2, { marginBottom: 0 }]}>{t('prices')}</Text>
+          <Text style={{ fontSize: 12, color: C.teal, fontWeight: '700', textTransform: 'uppercase' }}>
+            {visitType === 'individual' ? t('individual') : t('groupLabel')}
+          </Text>
+        </View>
+        {displayCats.map((c) => (
+          <View key={c.id || c.key} style={[s.row, { paddingVertical: 10, borderBottomWidth: 1, borderColor: C.line }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.text, { fontWeight: '600' }]}>{pick(c.name)}</Text>
+              {!c.onlineBookable && <Text style={{ fontSize: 12, color: C.brick }}>{t('countersOnly')}</Text>}
+            </View>
+            <Text style={[s.text, { fontWeight: '800', color: C.teal, fontSize: 17 }]}>
+              {c.price ? `${money(c.price)} ${t('etb')}` : '0 ' + t('etb')}
+            </Text>
+          </View>
+        ))}
+        <Text style={[s.muted, { marginTop: 10, fontSize: 12, lineHeight: 17 }]}>{t('priceNote')}</Text>
+      </View>
+
+      {/* Main Action Buttons */}
+      <View style={{ marginBottom: 20, gap: 8 }}>
+        <Btn
+          title={visitType === 'individual' ? t('bookPersonal') : t('bookSchool')}
+          onPress={() => navigation.navigate(user?.role === 'visitor' ? 'Book' : (user ? 'Book' : 'Login'))}
+        />
+        {!user && (
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View style={{ flex: 1 }}>
+              <Btn kind="ghost" title={t('login')} onPress={() => navigation.navigate('Login')} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Btn kind="ghost" title={t('register')} onPress={() => navigation.navigate('Register')} />
+            </View>
+          </View>
+        )}
+      </View>
+
+      {/* How it Works */}
+      <View style={[s.card, { backgroundColor: '#fcfdfd' }]}>
+        <Text style={[s.h2, { fontSize: 18, marginBottom: 12 }]}>{t('howTitle')}</Text>
+        {[
+          { n: '1', title: t('how1') },
+          { n: '2', title: t('how2') },
+          { n: '3', title: t('how3') },
+        ].map((st) => (
+          <View key={st.n} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 10 }}>
+            <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: C.teal, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13 }}>{st.n}</Text>
+            </View>
+            <Text style={[s.text, { flex: 1, fontSize: 14, paddingTop: 3, lineHeight: 20 }]}>{st.title}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Preserved Specimen Highlights */}
+      <Text style={[s.h2, { fontSize: 18, marginTop: 10, marginBottom: 4 }]}>{t('galleryTitle')}</Text>
+      <Text style={[s.muted, { marginBottom: 12, fontSize: 13 }]}>{t('gallerySubtitle')}</Text>
+      {specimens.map((sp, idx) => (
+        <View key={idx} style={[s.card, { padding: 12, marginBottom: 8 }]}>
+          <View style={[s.row, { marginBottom: 4 }]}>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: C.ink }}>
+              {lang === 'am' ? sp.nameAm : sp.nameEn}
+            </Text>
+            <View style={{ backgroundColor: '#e2ece8', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+              <Text style={{ fontSize: 11, fontWeight: '600', color: C.teal }}>{sp.tag}</Text>
+            </View>
+          </View>
+          <Text style={[s.muted, { fontSize: 13, lineHeight: 18 }]}>
+            {lang === 'am' ? sp.descAm : sp.descEn}
+          </Text>
+        </View>
+      ))}
+
+      {/* Visiting Hours & Location */}
+      <View style={[s.card, { backgroundColor: '#0d3b36', borderColor: '#0d3b36', marginTop: 10 }]}>
+        <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 6 }}>{t('visitingHours')}</Text>
+        <Text style={{ color: '#b9dcd6', fontSize: 13, marginBottom: 12 }}>{t('hoursDetail')}</Text>
+        <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 6 }}>{t('location')}</Text>
+        <Text style={{ color: '#b9dcd6', fontSize: 13 }}>{t('locationDetail')}</Text>
+      </View>
     </ScrollView>
   );
 }

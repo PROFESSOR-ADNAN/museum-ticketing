@@ -23,17 +23,28 @@ export function createApp() {
   const app = express();
   if (config.trustProxy) app.set('trust proxy', config.trustProxy);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-  app.use(cors({ origin: config.corsOrigins.includes('*') ? true : config.corsOrigins, exposedHeaders: ['Content-Disposition', 'X-Row-Count'] }));
+  app.use(cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (config.corsOrigins.includes('*') || config.corsOrigins.includes(origin)) return callback(null, true);
+      if (origin.endsWith('.vercel.app') || origin.includes('localhost') || origin.includes('127.0.0.1')) return callback(null, true);
+      return callback(null, true);
+    },
+    credentials: true,
+    exposedHeaders: ['Content-Disposition', 'X-Row-Count'],
+  }));
   if (config.env !== 'test') app.use(morgan('tiny'));
   // keep the raw body: Chapa signs the exact bytes it sends
   app.use(express.json({ limit: '200kb', verify: (req, _res, buf) => { req.rawBody = buf.toString('utf8'); } }));
   app.use(lang);
 
-  // Normalize Vercel serverless request URLs
+  // Normalize Vercel serverless request URLs and duplicate slashes
   app.use((req, _res, next) => {
+    if (req.url) req.url = req.url.replace(/\/+/g, '/');
     const raw = req.headers['x-matched-path'] || req.headers['x-invoke-path'];
     if (raw && typeof raw === 'string' && (raw.startsWith('/api') || raw.startsWith('/health'))) {
-      req.url = raw;
+      req.url = raw.replace(/\/+/g, '/');
     } else if (req.url.startsWith('/api/index.js')) {
       req.url = req.url.slice('/api/index.js'.length) || '/';
     } else if (req.url.startsWith('/api/[...all].js')) {
@@ -41,6 +52,7 @@ export function createApp() {
     } else if (req.url.startsWith('/src/app.js')) {
       req.url = req.url.slice('/src/app.js'.length) || '/';
     }
+    if (req.url) req.url = req.url.replace(/\/+/g, '/');
     next();
   });
 

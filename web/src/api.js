@@ -1,11 +1,19 @@
-const BASE = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.origin.includes('vercel.app') ? '' : 'http://localhost:4000');
+const rawBase = (import.meta.env.VITE_API_URL || 'https://museum-ticketing.vercel.app').trim();
+// Strip trailing slashes and redundant /api suffix if present
+export const BASE = rawBase.replace(/\/+$/, '').replace(/\/api$/, '');
+
 let token = localStorage.getItem('token');
 export const setToken = (t) => { token = t; t ? localStorage.setItem('token', t) : localStorage.removeItem('token'); };
+
+function buildUrl(path) {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${BASE}/api${cleanPath}`;
+}
 
 /** Download a file from the API (CSV export, database backup). The auth header means we cannot use a plain link. */
 export async function download(path, fallbackName) {
   let res;
-  try { res = await fetch(`${BASE}/api${path}`, { headers: { Authorization: `Bearer ${token}`, 'x-lang': localStorage.getItem('lang') || 'en' } }); }
+  try { res = await fetch(buildUrl(path), { headers: { Authorization: `Bearer ${token}`, 'x-lang': localStorage.getItem('lang') || 'en' } }); }
   catch { const e = new Error('NETWORK'); e.code = 'NETWORK'; throw e; }
   if (!res.ok) { const d = await res.json().catch(() => ({})); const e = new Error(d.message || 'Error'); e.code = d.error; throw e; }
   const name = /filename="?([^";]+)"?/.exec(res.headers.get('Content-Disposition') || '')?.[1] || fallbackName;
@@ -18,7 +26,7 @@ export async function download(path, fallbackName) {
 export async function api(path, { method = 'GET', body } = {}) {
   let res;
   try {
-    res = await fetch(`${BASE}/api${path}`, {
+    res = await fetch(buildUrl(path), {
       method,
       headers: { 'Content-Type': 'application/json', 'x-lang': localStorage.getItem('lang') || 'en', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: body ? JSON.stringify(body) : undefined,

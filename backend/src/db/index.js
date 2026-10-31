@@ -55,6 +55,48 @@ function migrate(db) {
     })();
     console.log(`[db] applied migration ${item.version}`);
   }
+  if (config.env !== 'test') {
+    seedDefaults(db);
+  }
+}
+
+function seedDefaults(db) {
+  try {
+    const catCount = db.prepare('SELECT COUNT(*) AS c FROM categories').get()?.c || 0;
+    if (catCount === 0) {
+      const cats = [
+        ['student', 'Student', 'ተማሪ', 5000, 1, 1, 'Valid student ID required at gate.', 'በበር ላይ ተቀባይነት ያለው የተማሪ መታወቂያ ያስፈልጋል።'],
+        ['adult', 'Adult / Teacher', 'አዋቂ / መምህር', 10000, 1, 2, 'Resident adult admission.', 'የነዋሪ አዋቂ መግቢያ።'],
+        ['foreign_resident', 'Foreign Resident', 'ነዋሪ የውጭ ዜጋ', 30000, 1, 3, 'Proof of Ethiopian residency required.', 'የኢትዮጵያ ነዋሪነት ማረጋገጫ ያስፈልጋል።'],
+        ['non_resident', 'Non-Resident', 'ነዋሪ ያልሆነ', 50000, 1, 4, 'International tourist admission.', 'ዓለም አቀፍ የቱሪስት መግቢያ።'],
+        ['exempt', 'Exempt / Free (AAU staff)', 'ነጻ (የአዲስ አበባ ዩኒቨርሲቲ ሠራተኛ)', 0, 0, 5, 'Counter only, on presentation of ID.', 'በቆጣሪ ላይ ብቻ፣ መታወቂያ በማሳየት።'],
+      ];
+      const ins = db.prepare('INSERT OR IGNORE INTO categories (key, name_en, name_am, price_cents, online_bookable, sort_order, desc_en, desc_am) VALUES (?,?,?,?,?,?,?,?)');
+      db.transaction(() => {
+        for (const c of cats) ins.run(...c);
+      })();
+      console.log('[db] seeded default ticket categories');
+    }
+
+    const userCount = db.prepare('SELECT COUNT(*) AS c FROM users').get()?.c || 0;
+    if (userCount === 0) {
+      // bcrypt hash for 'Passw0rd!'
+      const hash = '$2a$10$2ypm8ItKrQHTGMJZHazQguRLR7UPz/O41ByhHlroHy.E9CBrB56Qm';
+      const users = [
+        ['Platform Admin', 'admin@museum.test', '+251911000001', 'admin'],
+        ['Museum Manager', 'manager@museum.test', '+251911000002', 'manager'],
+        ['Front Cashier', 'cashier@museum.test', '+251911000003', 'cashier'],
+        ['Demo Visitor', 'visitor@museum.test', '+251911000004', 'visitor'],
+      ];
+      const insUser = db.prepare('INSERT OR IGNORE INTO users (name, email, phone, password_hash, role, email_verified, phone_verified) VALUES (?,?,?,?,?,1,1)');
+      db.transaction(() => {
+        for (const [name, email, phone, role] of users) insUser.run(name, email, phone, hash, role);
+      })();
+      console.log('[db] seeded default users');
+    }
+  } catch (err) {
+    console.warn('[db] auto-seed notice:', err.message);
+  }
 }
 
 // Prepared statements are cached per database handle.

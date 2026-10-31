@@ -1,7 +1,8 @@
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
 
-export const BASE = (process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || 'http://10.0.2.2:4000').replace(/\/$/, '');
+const rawBase = (process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || 'https://museum-ticketing.vercel.app').trim();
+export const BASE = rawBase.replace(/\/+$/, '').replace(/\/api$/, '');
 let token = null; let lang = 'en';
 export const setLang = (l) => { lang = l; };
 export const loadToken = async () => { token = await SecureStore.getItemAsync('token'); return token; };
@@ -16,8 +17,9 @@ export async function api(path, { method = 'GET', body, timeoutMs = 12000 } = {}
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   let res;
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
   try {
-    res = await fetch(`${BASE}/api${path}`, {
+    res = await fetch(`${BASE}/api${cleanPath}`, {
       method, body: body ? JSON.stringify(body) : undefined, signal: ctrl.signal,
       headers: { 'Content-Type': 'application/json', 'x-lang': lang, 'ngrok-skip-browser-warning': 'true', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     });
