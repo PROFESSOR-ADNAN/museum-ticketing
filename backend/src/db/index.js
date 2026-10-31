@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from '../config.js';
+import { INIT_SQL, VIEWS_SQL } from './schema_sql.js';
 
 let current = null;
 export const getDb = () => { if (!current) throw new Error('Database not opened: call openDb() first'); return current; };
@@ -19,7 +20,7 @@ export function openDb(file = config.dbPath) {
   }
   if (targetFile !== ':memory:') fs.mkdirSync(path.dirname(path.resolve(targetFile)), { recursive: true });
   const db = new Database(targetFile);
-  db.pragma('journal_mode = WAL');
+  try { db.pragma('journal_mode = WAL'); } catch { /* in-memory or read-only fallback */ }
   db.pragma('foreign_keys = ON');
   db.pragma('busy_timeout = 5000');
   db.pragma('synchronous = NORMAL');
@@ -33,13 +34,26 @@ function migrate(db) {
   db.exec('CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY, applied_at TEXT NOT NULL)');
   const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'migrations');
   const done = new Set(db.prepare('SELECT version FROM schema_migrations').all().map((r) => r.version));
-  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.sql')).sort()) {
-    if (done.has(f)) continue;
+
+  let items = [];
+  if (fs.existsSync(dir)) {
+    for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.sql')).sort()) {
+      items.push({ version: f, sql: fs.readFileSync(path.join(dir, f), 'utf8') });
+    }
+  } else {
+    items = [
+      { version: '001_init.sql', sql: INIT_SQL },
+      { version: '002_reporting_views.sql', sql: VIEWS_SQL },
+    ];
+  }
+
+  for (const item of items) {
+    if (done.has(item.version)) continue;
     db.transaction(() => {                      // each migration is all-or-nothing
-      db.exec(fs.readFileSync(path.join(dir, f), 'utf8'));
-      db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run(f, new Date().toISOString());
+      db.exec(item.sql);
+      db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run(item.version, new Date().toISOString());
     })();
-    console.log(`[db] applied migration ${f}`);
+    console.log(`[db] applied migration ${item.version}`);
   }
 }
 
