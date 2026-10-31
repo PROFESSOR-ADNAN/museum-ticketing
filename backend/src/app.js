@@ -38,6 +38,8 @@ export function createApp() {
       req.url = req.url.slice('/api/index.js'.length) || '/';
     } else if (req.url.startsWith('/api/[...all].js')) {
       req.url = req.url.slice('/api/[...all].js'.length) || '/';
+    } else if (req.url.startsWith('/src/app.js')) {
+      req.url = req.url.slice('/src/app.js'.length) || '/';
     }
     next();
   });
