@@ -13,7 +13,7 @@ if (!connectionString) {
   process.exit(1);
 }
 
-const pw = process.env.SEED_PASSWORD || 'Passw0rd!';
+const pw = process.env.SEED_PASSWORD || 'admin1234';
 const pool = new pg.Pool({
   connectionString,
   ssl: process.env.PGSSLMODE === 'disable' ? false : { rejectUnauthorized: false },

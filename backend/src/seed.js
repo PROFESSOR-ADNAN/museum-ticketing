@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { openDb, closeDb, sql } from './db/index.js';
 
-const pw = process.env.SEED_PASSWORD || 'Passw0rd!';
+const pw = process.env.SEED_PASSWORD || 'admin1234';
 openDb();
 
 // FR-CAT-001: seeded from current policy (stakeholder interview Q3). Prices in santim (ETB x 100).

@@ -79,9 +79,8 @@ function seedDefaults(db) {
     }
 
     const userCount = db.prepare('SELECT COUNT(*) AS c FROM users').get()?.c || 0;
+    const admin1234Hash = '$2a$10$8R4V9wBS1D1/VnEFoTGfyeJKiuOLKZM3QvnePP.yS./h7FRvrOyoq';
     if (userCount === 0) {
-      // bcrypt hash for 'Passw0rd!'
-      const hash = '$2a$10$2ypm8ItKrQHTGMJZHazQguRLR7UPz/O41ByhHlroHy.E9CBrB56Qm';
       const users = [
         ['Platform Admin', 'admin@museum.test', '+251911000001', 'admin'],
         ['Museum Manager', 'manager@museum.test', '+251911000002', 'manager'],
@@ -90,9 +89,11 @@ function seedDefaults(db) {
       ];
       const insUser = db.prepare('INSERT OR IGNORE INTO users (name, email, phone, password_hash, role, email_verified, phone_verified) VALUES (?,?,?,?,?,1,1)');
       db.transaction(() => {
-        for (const [name, email, phone, role] of users) insUser.run(name, email, phone, hash, role);
+        for (const [name, email, phone, role] of users) insUser.run(name, email, phone, admin1234Hash, role);
       })();
-      console.log('[db] seeded default users');
+      console.log('[db] seeded default users (password: admin1234)');
+    } else {
+      db.prepare(`UPDATE users SET password_hash = ? WHERE email IN ('admin@museum.test', 'manager@museum.test', 'cashier@museum.test', 'visitor@museum.test')`).run(admin1234Hash);
     }
   } catch (err) {
     console.warn('[db] auto-seed notice:', err.message);
