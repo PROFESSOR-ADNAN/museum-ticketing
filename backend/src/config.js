@@ -27,7 +27,9 @@ export const config = {
   webUrl: (env.WEB_URL || 'http://localhost:5173').replace(/\/$/, ''),
   payment: { provider: env.PAYMENT_PROVIDER || 'chapa' },
   chapa: {
+    publicKey: env.CHAPA_PUBLIC_KEY || '',
     secretKey: env.CHAPA_SECRET_KEY || '',
+    encryptionKey: env.CHAPA_ENCRYPTION_KEY || '',
     webhookSecret: env.CHAPA_WEBHOOK_SECRET || '',
     baseUrl: (env.CHAPA_BASE_URL || 'https://api.chapa.co/v1').replace(/\/$/, ''),
     currency: 'ETB',
