@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Alert, RefreshControl, ScrollView, Text, View, Pressable } from 'react-native';
+import { Alert, Image, RefreshControl, ScrollView, Text, View, Pressable } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -67,14 +67,24 @@ export function Home({ navigation }) {
 
   return (
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} refreshControl={pullControl(pull)}>
-      {/* AAU Eyebrow */}
-      <View style={{ backgroundColor: '#e2ece8', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, marginBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <Text style={{ fontSize: 13, fontWeight: '700', color: C.teal }}>✦ {t('eyebrow')}</Text>
-        <Text style={{ fontSize: 12, color: C.soft, flex: 1 }} numberOfLines={1}>{t('affiliation')}</Text>
+      {/* AAU Header & Eyebrow */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14, backgroundColor: '#fff', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: C.line }}>
+        <Image source={require('../../assets/aau-logo.png')} style={{ width: 48, height: 48, resizeMode: 'contain' }} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 11, fontWeight: '800', color: C.teal, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            ✦ {t('eyebrow')}
+          </Text>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: C.ink }}>
+            {t('campus')}
+          </Text>
+          <Text style={{ fontSize: 11, color: C.soft }}>
+            {t('affiliation')}
+          </Text>
+        </View>
       </View>
 
-      <Text style={[s.h1, { fontSize: 26, marginBottom: 4 }]}>{t('brand')}</Text>
-      <Text style={[s.muted, { fontSize: 15, marginBottom: 16, lineHeight: 22 }]}>{t('tagline')}</Text>
+      <Text style={[s.h1, { fontSize: 24, marginBottom: 4 }]}>{t('museumName')}</Text>
+      <Text style={[s.muted, { fontSize: 14, marginBottom: 16, lineHeight: 20 }]}>{t('tagline')}</Text>
 
       <Banner>{offlineText(t, res)}</Banner>
 

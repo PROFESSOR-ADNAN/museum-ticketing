@@ -69,7 +69,8 @@ export default function Home() {
         <img src="/aau-logo.png" alt="Addis Ababa University Logo" className="aau-logo-badge" />
         <div>
           <span className="eyebrow-pill">✦ {t('eyebrow')}</span>
-          <p className="affiliation-text">{t('affiliation')}</p>
+          <h2 className="affiliation-heading">{t('museumName')}</h2>
+          <p className="affiliation-text">🏛 {t('campus')} · {t('affiliation')}</p>
         </div>
       </div>
 

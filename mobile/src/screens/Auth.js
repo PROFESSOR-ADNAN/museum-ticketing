@@ -3,7 +3,6 @@ import { ScrollView, Text, View } from 'react-native';
 import { api, setToken } from '../api';
 import { errText } from '../errors';
 import { useApp } from '../context';
-import ServerStatus from '../components/ServerStatus';
 import { Banner, Btn, C, Err, Field, Ok, PasswordField, pullControl, s, useRefresh } from '../ui';
 
 export function Login({ navigation }) {
@@ -19,7 +18,6 @@ export function Login({ navigation }) {
       <PasswordField label={t('password')} value={f.password} onChangeText={(v) => setF({ ...f, password: v })} onSubmitEditing={go} />
       <Btn title={t('login')} onPress={go} disabled={busy || !f.email.trim() || !f.password} />
       <Btn title={t('register')} kind="ghost" onPress={() => navigation.navigate('Register')} />
-      <ServerStatus />
     </ScrollView>
   );
 }
@@ -44,7 +42,6 @@ export function Register({ navigation }) {
       <Field label={t('phone')} keyboardType="phone-pad" value={f.phone} onChangeText={set('phone')} />
       <PasswordField label={`${t('password')} (8+)`} value={f.password} onChangeText={set('password')} />
       <Btn title={t('register')} onPress={go} disabled={busy} />
-      <ServerStatus />
     </ScrollView>
   );
 }

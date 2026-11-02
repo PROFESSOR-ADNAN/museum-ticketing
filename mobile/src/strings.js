@@ -1,7 +1,7 @@
 // Generated from web/src/i18n.jsx (shared wording) + mobile-only strings at the bottom.
 export const dict = {
   en: {
-    brand: 'Zoological Natural History Museum', tagline: 'Explore Ethiopia’s wildlife heritage. Book ahead, pay online, walk right in.',
+    brand: 'AAU 4 Kilo Museum Ticketing', museumName: 'Zoological Natural History Museum', campus: 'Addis Ababa University · 4 Kilo Campus', tagline: 'Official ticketing app for the Zoological Natural History Museum at AAU 4 Kilo Campus. Book ahead, pay online, walk right in.',
     home: 'Home', book: 'Book a visit', group: 'School / group visit', myBookings: 'My bookings', cashier: 'Cashier', manager: 'Manager', admin: 'Admin',
     login: 'Sign in', register: 'Create account', logout: 'Sign out', email: 'Email', phone: 'Phone', password: 'Password', name: 'Full name',
     loading: 'Loading…', save: 'Save changes', cancel: 'Cancel booking', confirm: 'Confirm', date: 'Visit date', quantity: 'Quantity', total: 'Total', status: 'Status', search: 'Search',
@@ -10,7 +10,7 @@ export const dict = {
     howTitle: 'How it works', how1: 'Pick a date and ticket categories', how2: 'Pay securely online with Telebirr, CBE Birr, or card', how3: 'Show your digital QR ticket at the gate and walk right in',
     etb: 'ETB', countersOnly: 'Counter only',
     galleryTitle: 'Preserved Specimen Collection', gallerySubtitle: 'Discover Ethiopia’s endemic species and biodiversity preserved at the museum.',
-    affiliation: 'Zoological Natural History Museum · Addis Ababa University', eyebrow: 'Natural Heritage & Biodiversity',
+    affiliation: 'College of Natural & Computational Sciences · 4 Kilo', eyebrow: 'AAU 4 Kilo Campus · Official Ticketing App',
     visitingHours: 'Visiting Hours', hoursDetail: 'Monday – Saturday: 8:30 AM – 5:30 PM (Closed Sundays)',
     location: 'Location', locationDetail: 'Arat Kilo, College of Natural Sciences, Addis Ababa University',
     bookPersonal: 'Book Personal Visit', bookSchool: 'Book School / Group Visit',
@@ -46,7 +46,7 @@ export const dict = {
     backup: 'Download database backup', backupHelp: 'A complete copy of all data (contains personal data and password hashes). Store it safely.', scansToday: 'Gate scans today',
   },
   am: {
-    brand: 'የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም', tagline: 'የኢትዮጵያን የዱር እንስሳት ቅርስ ይጎብኙ። አስቀድመው ያስይዙ፣ በመስመር ላይ ይክፈሉ፣ ይግቡ።',
+    brand: 'የአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ሙዚየም ትኬቲንግ', museumName: 'የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም', campus: 'አዲስ አበባ ዩኒቨርሲቲ · 4 ኪሎ (አራት ኪሎ) ካምፓስ', tagline: 'በአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ካምፓስ ለሚገኘው የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም ይፋዊ የመስመር ላይ ትኬት መተግበሪያ። አስቀድመው ያስይዙ፣ ይክፈሉ፣ በቀጥታ ይግቡ።',
     home: 'መነሻ', book: 'ጉብኝት ያስይዙ', group: 'የትምህርት ቤት / ቡድን ጉብኝት', myBookings: 'የእኔ ቦታ ማስያዣዎች', cashier: 'ካሸር', manager: 'ሥራ አስኪያጅ', admin: 'አስተዳዳሪ',
     login: 'ግባ', register: 'መለያ ክፈት', logout: 'ውጣ', email: 'ኢሜይል', phone: 'ስልክ', password: 'የይለፍ ቃል', name: 'ሙሉ ስም',
     loading: 'በመጫን ላይ…', save: 'ለውጦችን አስቀምጥ', cancel: 'ቦታ ማስያዣውን ሰርዝ', confirm: 'አረጋግጥ', date: 'የጉብኝት ቀን', quantity: 'ብዛት', total: 'ጠቅላላ', status: 'ሁኔታ', search: 'ፈልግ',
@@ -55,7 +55,7 @@ export const dict = {
     howTitle: 'እንዴት ይሠራል', how1: 'ቀን እና የትኬት ምድቦችን ይምረጡ', how2: 'በቴሌብር፣ በሲቢኢ ብር ወይም በባንክ ካርድ ይክፈሉ', how3: 'በበር ላይ የዲጂታል QR ትኬትዎን አሳይተው በቀጥታ ይግቡ',
     etb: 'ብር', countersOnly: 'በቆጣሪ ብቻ',
     galleryTitle: 'የተጠበቁ የዱር እንስሳት ናሙናዎች', gallerySubtitle: 'በሙዚየሙ ውስጥ የተጠበቁትን የኢትዮጵያ የብዝሃ-ሕይወት እና ብርቅዬ ዝርያዎች ይመልከቱ።',
-    affiliation: 'የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም · አዲስ አበባ ዩኒቨርሲቲ', eyebrow: 'የተፈጥሮ ቅርስ እና ብዝሃ-ሕይወት',
+    affiliation: 'የተፈጥሮ እና ኮምፒውቴሽናል ሳይንስ ኮሌጅ · 4 ኪሎ', eyebrow: 'የአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ካምፓስ · ይፋዊ የትኬት መተግበሪያ',
     visitingHours: 'የመጎብኛ ሰዓቶች', hoursDetail: 'ከሰኞ – ቅዳሜ፡ ከጠዋቱ 2:30 – 11:30 (እሁድ ዝግ ነው)',
     location: 'አድራሻ', locationDetail: 'አራት ኪሎ፣ የተፈጥሮ ሳይንስ ኮሌጅ፣ አዲስ አበባ ዩኒቨርሲቲ',
     bookPersonal: 'የግል ጉብኝት ያስይዙ', bookSchool: 'የትምህርት ቤት / ቡድን ጉብኝት',
@@ -151,3 +151,14 @@ add('refundYouGet', 'You will get back', 'የሚመለስልዎት'); add('provi
 add('cannotUndo', 'This cannot be undone.', 'ይህ ሊመለስ አይችልም።');
 add('keepBooking', 'Keep my booking', 'ቦታ ማስያዣዬን አቆይ'); add('yesCancel', 'Yes, cancel it', 'አዎ፣ ሰርዝ');
 add('needToCancel', 'Need to cancel?', 'መሰረዝ ያስፈልግዎታል?');
+add('accountDetails', 'Account Details', 'የመለያ መረጃ');
+add('verifiedAccount', 'Verified Account', 'የተረጋገጠ መለያ');
+add('unverifiedAccount', 'Unverified', 'ያልተረጋገጠ');
+add('myTicketsTitle', 'My Bookings & QR Tickets', 'የእኔ ቦታ ማስያዣዎች እና QR ትኬቶች');
+add('myTicketsSub', 'View confirmed tickets and gate entry passes', 'የተረጋገጡ ትኬቶችን እና የበር መግቢያዎችን ይመልከቱ');
+add('museumInfoTitle', 'Museum & Campus Information', 'የሙዚየም እና የካምፓስ መረጃ');
+add('campusDetail', 'AAU 4 Kilo (Arat Kilo) Campus · College of Natural Sciences', 'አዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ካምፓስ · የተፈጥሮ ሳይንስ ኮሌጅ');
+add('hoursSub', 'Mon – Sat: 8:30 AM – 5:30 PM (Closed Sundays)', 'ከሰኞ – ቅዳሜ፡ ከጠዋቱ 2:30 – ከቀኑ 11:30 (እሁድ ዝግ ነው)');
+add('gateEntryNotice', 'Show digital QR pass on your phone at gate entry', 'ወዲያውኑ ለመግባት ዲጂታል QR ትኬትዎን በበር ላይ ያሳዩ');
+add('appVersion', 'AAU 4 Kilo Museum Ticketing v1.0 (Production)', 'የአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ የሙዚየም ትኬት መተግበሪያ v1.0');
+add('securityPrivacy', 'Official AAU E-Ticketing System', 'ይፋዊ የአዲስ አበባ ዩኒቨርሲቲ የትኬት ሥርዓት');

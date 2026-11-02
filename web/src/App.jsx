@@ -25,7 +25,13 @@ export default function App() {
   return (
     <>
       <nav className="nav" aria-label="Main">
-        <NavLink to="/" className="brand">{t('brand')}</NavLink>
+        <NavLink to="/" className="brand" title={t('brand')}>
+          <img src="/aau-logo.png" alt="Addis Ababa University Logo" className="nav-logo" />
+          <div className="brand-text">
+            <span className="brand-title">{t('brand')}</span>
+            <span className="brand-sub">{t('campus')}</span>
+          </div>
+        </NavLink>
         {(!user || user.role === 'visitor') && <>{link('/book', t('book'))}{link('/group', t('group'))}</>}
         {user?.role === 'visitor' && link('/bookings', t('myBookings'))}
         {user?.role === 'cashier' && link('/cashier', t('cashier'))}
