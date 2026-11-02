@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { api, setToken } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n.jsx';
@@ -37,7 +37,7 @@ export function Register() {
     try {
       const r = await api('/auth/register', { method: 'POST', body: { ...f, language: lang } });
       setToken(r.token); await refresh();
-      nav('/verify', { state: { email: f.email, devCodes: r.devCodes }, replace: true });
+      nav('/', { replace: true });
     } catch (x) { setErr(x.message); }
   };
   return (

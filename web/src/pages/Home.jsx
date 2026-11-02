@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
+import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n.jsx';
 import { useLoad, money } from '../components/ui.jsx';
 
@@ -53,7 +54,10 @@ const fallbackCats = [
 
 export default function Home() {
   const { t, pick, lang } = useI18n();
+  const { user } = useAuth();
   const { data } = useLoad(() => api('/categories'));
+  const bookingsLoad = useLoad(() => (user?.role === 'visitor' ? api('/bookings') : Promise.resolve({ bookings: [] })), [user]);
+  const userBookings = bookingsLoad.data?.bookings || [];
   const [activeVisitType, setActiveVisitType] = useState('individual');
 
   const categories = (data?.categories && data.categories.length > 0) ? data.categories : fallbackCats;
@@ -74,6 +78,24 @@ export default function Home() {
         <div>
           <h1>{t('tagline')}</h1>
           <p className="hero-sub">{t('priceNote')}</p>
+
+          {user && userBookings.length > 0 && (
+            <div className="card" style={{ background: '#f0fdf4', borderColor: '#86efac', marginTop: 18, marginBottom: 0 }}>
+              <div className="row between">
+                <div>
+                  <h4 style={{ margin: '0 0 4px', color: '#166534' }}>🎟 {lang === 'am' ? 'የእርስዎ ትኬቶች እና ቦታ ማስያዣዎች' : 'Your Tickets & Bookings'}</h4>
+                  <p className="small muted" style={{ margin: 0 }}>
+                    {lang === 'am'
+                      ? `${userBookings.length} ቦታ ማስያዣ(ዎች) ተገኝተዋል። የQR ትኬትዎን ይመልከቱ።`
+                      : `${userBookings.length} booking(s) found. View your QR ticket and details.`}
+                  </p>
+                </div>
+                <Link to="/bookings" className="btn" style={{ padding: '8px 14px', fontSize: '0.9rem' }}>
+                  {t('myBookings')} →
+                </Link>
+              </div>
+            </div>
+          )}
 
           <div className="cta-box card">
             <h3>{lang === 'am' ? 'የጉብኝት አይነት ይምረጡ' : 'Choose Your Visit Type'}</h3>
@@ -114,6 +136,13 @@ export default function Home() {
                 </div>
               )}
             </div>
+            {user && (
+              <div style={{ marginTop: 12, borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+                <Link to="/bookings" className="btn ghost" style={{ width: '100%', textAlign: 'center' }}>
+                  🎟 {t('myBookings')} →
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 

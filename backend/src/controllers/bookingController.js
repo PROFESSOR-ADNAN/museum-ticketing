@@ -48,8 +48,20 @@ export const createGroup = handle(async (req, res) =>                   // FR-BO
 export const list = handle(async (req, res) => {                        // FR-ACC-004
   const all = isStaff(req.user) && req.query.all === '1';
   const status = req.query.status ? String(req.query.status) : null;
-  const rows = await sql(`SELECT * FROM bookings WHERE (? = 1 OR visitor_id = ?) AND (? IS NULL OR status = ?) ORDER BY id DESC LIMIT 100`)
-    .all(all ? 1 : 0, req.user.id, status, status);
+  let q = 'SELECT * FROM bookings WHERE ';
+  const params = [];
+  if (all) {
+    q += '1=1';
+  } else {
+    q += 'visitor_id = ?';
+    params.push(req.user.id);
+  }
+  if (status) {
+    q += ' AND status = ?';
+    params.push(status);
+  }
+  q += ' ORDER BY id DESC LIMIT 100';
+  const rows = await sql(q).all(...params);
   res.json({ bookings: await hydrateBookings(rows) });
 });
 

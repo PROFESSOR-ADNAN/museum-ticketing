@@ -1,22 +1,39 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n.jsx';
 import { Notice, Receipt, Status, useLoad, money } from '../components/ui.jsx';
 
 export function MyBookings() {
-  const { t } = useI18n(); const { data, loading } = useLoad(() => api('/bookings'));
+  const { t } = useI18n(); const { data, loading, error } = useLoad(() => api('/bookings'));
   const items = data?.bookings || [];
   return (
     <>
-      <h2>{t('myBookings')}</h2>
-      {!loading && !items.length && <p className="muted">{t('none')}</p>}
+      <div className="row between" style={{ marginBottom: 16 }}>
+        <h2>{t('myBookings')}</h2>
+        <Link to="/book" className="btn small">+ {t('book')}</Link>
+      </div>
+      {error && <Notice>{error.message}</Notice>}
+      {!loading && !items.length && (
+        <div className="card" style={{ textAlign: 'center', padding: '36px 20px' }}>
+          <p className="muted" style={{ fontSize: '1.1rem', margin: 0 }}>{t('none')}</p>
+          <Link to="/book" className="btn" style={{ marginTop: 14 }}>{t('bookPersonal')} →</Link>
+        </div>
+      )}
       <div className="grid two">{items.map((b) => (
-        <Link key={b.id} to={`/bookings/${b.id}`} className="card" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <Link key={b.id} to={`/bookings/${b.id}`} className="card" style={{ color: 'inherit', textDecoration: 'none', display: 'block' }}>
           <div className="row between"><b>{b.ref}</b><Status value={b.status} /></div>
-          <div className="muted">{b.visitDate}{b.organization ? ` · ${b.organization}` : ''}</div>
-          <div>{b.bookedQuantity} × · {money(b.amount)} ETB</div>
+          <div className="muted" style={{ margin: '6px 0' }}>📅 {b.visitDate}{b.organization ? ` · ${b.organization}` : ''}</div>
+          <div className="row between" style={{ marginTop: 8 }}>
+            <span>{b.bookedQuantity} × {t('quantity')}</span>
+            <b>{money(b.amount)} ETB</b>
+          </div>
+          {b.tempReceiptNo && (
+            <div className="small" style={{ marginTop: 10, color: 'var(--teal-deep)', fontWeight: 600 }}>
+              🎟 {t('viewReceipt')} / QR Ticket →
+            </div>
+          )}
         </Link>))}</div>
     </>
   );
@@ -24,9 +41,17 @@ export function MyBookings() {
 
 export function BookingDetail() {
   const { id } = useParams(); const { t, pick } = useI18n(); const { user } = useAuth(); const [sp, setSp] = useSearchParams();
+  const nav = useNavigate();
   const { data, error, reload } = useLoad(() => api(`/bookings/${id}`), [id]);
   const [msg, setMsg] = useState(''); const [err, setErr] = useState(''); const [receipt, setReceipt] = useState(null); const [newDate, setNewDate] = useState('');
   const b = data?.booking; const mine = user?.role === 'visitor';
+
+  // Automatically load the receipt and QR code if the booking is confirmed
+  useEffect(() => {
+    if (b?.tempReceiptNo && !receipt) {
+      api(`/bookings/${id}/receipt`).then((r) => setReceipt(r.receipt)).catch(() => {});
+    }
+  }, [b?.tempReceiptNo, id, receipt]);
 
   // Returning from the checkout page: ask the server for the real outcome (never trust the redirect itself).
   useEffect(() => {
@@ -46,8 +71,16 @@ export function BookingDetail() {
 
   const act = (fn) => async () => { setErr(''); setMsg(''); try { await fn(); await reload(); } catch (x) { setErr(x.message); } };
   const pay = act(async () => {
-    const r = await api(`/bookings/${id}/pay`, { method: 'POST', body: { returnUrl: window.location.origin + window.location.pathname } });
-    window.location.href = r.checkoutUrl;
+    try {
+      const r = await api(`/bookings/${id}/pay`, { method: 'POST', body: { returnUrl: window.location.origin + window.location.pathname } });
+      window.location.href = r.checkoutUrl;
+    } catch (x) {
+      if (x.message === 'NOT_VERIFIED') {
+        nav('/verify', { state: { email: user?.email } });
+        return;
+      }
+      throw x;
+    }
   });
   const cancel = act(async () => { await api(`/bookings/${id}/cancel`, { method: 'POST' }); });
   const resched = act(async () => { await api(`/bookings/${id}/reschedule`, { method: 'POST', body: { visitDate: newDate } }); setNewDate(''); });

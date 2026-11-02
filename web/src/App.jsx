@@ -9,7 +9,7 @@ import Cashier from './pages/Cashier.jsx';
 import Manager from './pages/Manager.jsx';
 import Admin from './pages/Admin.jsx';
 
-const homeFor = (u) => ({ cashier: '/cashier', manager: '/manager', admin: '/admin' }[u.role] || '/bookings');
+const homeFor = (u) => ({ cashier: '/cashier', manager: '/manager', admin: '/admin' }[u.role] || '/');
 
 function Guard({ roles, children }) {
   const { user, ready } = useAuth(); const loc = useLocation();
