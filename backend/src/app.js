@@ -15,6 +15,7 @@ import cashier from './routes/cashier.js';
 import manager from './routes/manager.js';
 import admin from './routes/admin.js';
 import reports from './routes/reports.js';
+import cron from './routes/cron.js';
 
 export function createApp() {
   if (config.env !== 'test') {
@@ -86,6 +87,8 @@ export function createApp() {
   app.use('/admin', admin);
   app.use('/api/reports', reports);
   app.use('/reports', reports);
+  app.use('/api/cron', cron);
+  app.use('/cron', cron);
 
   app.use(notFound);
   app.use(errorHandler);

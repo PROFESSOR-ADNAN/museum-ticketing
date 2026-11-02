@@ -6,15 +6,23 @@ const DAY = `date(b.visited_at, '+3 hours')`;          // Addis Ababa calendar d
 const empty = (period) => ({ period, visitors: 0, revenue: 0, individual: 0, group: 0, byCategory: {}, bySchool: {} });
 
 /** Visited bookings, grouped by day first (3 small SQL queries), then folded into any period in JS (week / month / fiscal year). */
-async function dayRows({ from, to }) {
-  const range = `AND ${DAY} >= COALESCE(?, '0000-00-00') AND ${DAY} <= COALESCE(?, '9999-99-99')`;
-  const args = [from ?? null, to ?? null];
+async function dayRows({ from, to } = {}) {
+  let range = '';
+  const args = [];
+  if (from) {
+    range += ` AND ${DAY} >= ?`;
+    args.push(from);
+  }
+  if (to) {
+    range += ` AND ${DAY} <= ?`;
+    args.push(to);
+  }
   const byKind = await sql(`SELECT ${DAY} AS day, b.kind, SUM(b.attended_quantity) AS visitors, SUM(b.attended_amount_cents) AS cents
-                      FROM bookings b WHERE b.status = 'Visited' ${range} GROUP BY day, b.kind`).all(...args);
+                      FROM bookings b WHERE b.status = 'Visited'${range} GROUP BY day, b.kind`).all(...args);
   const byCat = await sql(`SELECT ${DAY} AS day, l.key, l.name_en, l.name_am, SUM(l.attended_quantity) AS visitors, SUM(l.attended_quantity * l.unit_price_cents) AS cents
-                     FROM booking_lines l JOIN bookings b ON b.id = l.booking_id WHERE b.status = 'Visited' ${range} GROUP BY day, l.key`).all(...args);
+                     FROM booking_lines l JOIN bookings b ON b.id = l.booking_id WHERE b.status = 'Visited'${range} GROUP BY day, l.key, l.name_en, l.name_am`).all(...args);
   const bySchool = await sql(`SELECT ${DAY} AS day, b.organization AS org, SUM(b.attended_quantity) AS visitors
-                        FROM bookings b WHERE b.status = 'Visited' AND b.kind = 'group' AND b.organization IS NOT NULL ${range} GROUP BY day, org`).all(...args);
+                        FROM bookings b WHERE b.status = 'Visited' AND b.kind = 'group' AND b.organization IS NOT NULL${range} GROUP BY day, b.organization`).all(...args);
   return { byKind, byCat, bySchool };
 }
 
@@ -72,7 +80,22 @@ const cell = (v) => {
 export async function exportCsv(kind, { from, to } = {}) {
   const e = EXPORTS[kind];
   if (!e) return null;
-  const rows = await sql(`SELECT * FROM ${e.view} WHERE ${e.dateExpr} >= COALESCE(?, '0000-00-00') AND ${e.dateExpr} <= COALESCE(?, '9999-99-99') ORDER BY ${e.order}`).all(from ?? null, to ?? null);
+  let q = `SELECT * FROM ${e.view}`;
+  const conditions = [];
+  const args = [];
+  if (from) {
+    conditions.push(`${e.dateExpr} >= ?`);
+    args.push(from);
+  }
+  if (to) {
+    conditions.push(`${e.dateExpr} <= ?`);
+    args.push(to);
+  }
+  if (conditions.length) {
+    q += ' WHERE ' + conditions.join(' AND ');
+  }
+  q += ` ORDER BY ${e.order}`;
+  const rows = await sql(q).all(...args);
   const cols = rows.length ? Object.keys(rows[0]) : [];
   const csv = '\uFEFF' + [cols.join(','), ...rows.map((r) => cols.map((c) => cell(r[c])).join(','))].join('\r\n') + '\r\n';
   return { filename: `museum-${kind}-${from || 'start'}_to_${to || addisDateOf()}.csv`, csv, count: rows.length };

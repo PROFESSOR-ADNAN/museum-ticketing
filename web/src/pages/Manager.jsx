@@ -11,7 +11,8 @@ function Breakdown({ title, map }) {
 }
 
 function Dashboard() {
-  const { t } = useI18n(); const { data, reload } = useLoad(() => api('/reports/dashboard'));
+  const { t } = useI18n(); const { data, error, reload } = useLoad(() => api('/reports/dashboard'));
+  if (error) return <Notice>{error.message}</Notice>;
   if (!data) return <p>{t('loading')}</p>;
   const { today, allTime, statusMix, awaitingTransfer, heldShortfall } = data;
   return (
@@ -55,9 +56,10 @@ function Exports() {
 }
 
 function Reports() {
-  const { t, pick } = useI18n(); const [g, setG] = useState('day'); const { data } = useLoad(() => api(`/reports/summary?granularity=${g}`), [g]);
+  const { t, pick } = useI18n(); const [g, setG] = useState('day'); const { data, error } = useLoad(() => api(`/reports/summary?granularity=${g}`), [g]);
   return (
     <>
+      {error && <Notice>{error.message}</Notice>}
       <div className="field" style={{ maxWidth: 240 }}><label>{t('granularity')}<select value={g} onChange={(e) => setG(e.target.value)}>{['day', 'week', 'month', 'year'].map((k) => <option key={k} value={k}>{t(k)}</option>)}</select></label></div>
       <Exports />
       <div className="card table-scroll"><table><thead><tr><th>{t('granularity')}</th><th>{t('visitors')}</th><th>{t('individual')}</th><th>{t('groupLabel')}</th><th>{t('amount')} ({t('etb')})</th><th>{t('byCategory')}</th><th>{t('bySchool')}</th></tr></thead><tbody>

@@ -6,5 +6,15 @@
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/no-show",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/reconcile-refunds",
+      "schedule": "*/15 * * * *"
+    }
   ]
 }

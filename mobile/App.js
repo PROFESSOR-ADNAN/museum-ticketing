@@ -11,6 +11,7 @@ import { AppProvider, useApp } from './src/context';
 import { Login, Register, Verify } from './src/screens/Auth';
 import { Book, BookingDetail, Home, MyBookings } from './src/screens/Visitor';
 import { CheckIn, Scan, Transfer } from './src/screens/Cashier';
+import { Dashboard, GroupRequests, Reports } from './src/screens/Management';
 import Account from './src/screens/Account';
 import { C, Loading } from './src/ui';
 
@@ -71,6 +72,14 @@ function Root() {
           <Tabs.Screen name="Scan" component={Scan} options={{ title: t('cashierScan'), tabBarLabel: t('cashierScan'), tabBarIcon: icon('qr-code', 'qr-code-outline') }} />
           <Tabs.Screen name="CheckIn" component={CheckIn} options={{ title: t('cashierCheckin'), tabBarLabel: t('cashierCheckin'), tabBarIcon: icon('search', 'search-outline') }} />
           <Tabs.Screen name="Transfer" component={Transfer} options={{ title: t('cashierTransfer'), tabBarLabel: t('cashierTransfer'), tabBarIcon: icon('cash', 'cash-outline') }} />
+          <Tabs.Screen name="Account" component={Account} options={{ title: t('tabAccount'), tabBarLabel: t('tabAccount'), tabBarIcon: icon('person-circle', 'person-circle-outline') }} />
+        </Tabs.Navigator>
+      ) : user.role === 'manager' || user.role === 'admin' ? (
+        <Tabs.Navigator screenOptions={header}>
+          <Tabs.Screen name="Dashboard" component={Dashboard} options={{ title: t('dashboard'), tabBarLabel: t('dashboard'), tabBarIcon: icon('stats-chart', 'stats-chart-outline') }} />
+          <Tabs.Screen name="Groups" component={GroupRequests} options={{ title: t('groupRequests'), tabBarLabel: t('groupRequests'), tabBarIcon: icon('people', 'people-outline') }} />
+          <Tabs.Screen name="Reports" component={Reports} options={{ title: t('reports'), tabBarLabel: t('reports'), tabBarIcon: icon('bar-chart', 'bar-chart-outline') }} />
+          <Tabs.Screen name="Scan" component={Scan} options={{ title: t('cashierScan'), tabBarLabel: t('cashierScan'), tabBarIcon: icon('qr-code', 'qr-code-outline') }} />
           <Tabs.Screen name="Account" component={Account} options={{ title: t('tabAccount'), tabBarLabel: t('tabAccount'), tabBarIcon: icon('person-circle', 'person-circle-outline') }} />
         </Tabs.Navigator>
       ) : (

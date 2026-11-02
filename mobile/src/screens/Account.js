@@ -105,8 +105,15 @@ export default function Account({ navigation }) {
       )}
 
       {staffOnWeb && (
-        <View style={[s.card, { backgroundColor: '#fdf3df', borderColor: '#ecc77d', marginBottom: 14 }]}>
-          <Text style={{ color: '#6b4a07', fontSize: 13, lineHeight: 18 }}>{t('staffWebOnly')}</Text>
+        <View style={[s.card, { backgroundColor: '#f0fdf4', borderColor: '#86efac', marginBottom: 14 }]}>
+          <Text style={{ color: '#166534', fontSize: 13, lineHeight: 18, fontWeight: '600' }}>
+            🏛 {user.role === 'admin' ? t('role_admin') : t('role_manager')}: {t('campus')}
+          </Text>
+          <Text style={{ color: '#15803d', fontSize: 12, marginTop: 4 }}>
+            {lang === 'am'
+              ? 'ዳሽቦርድ፣ የቡድን ፈቃዶች፣ ሪፖርቶች እና የትኬት ስካነር ከታች ባሉት ታቦች ይገኛሉ።'
+              : 'Live dashboard, school group requests, revenue reports, and gate scanner are active in your bottom navigation.'}
+          </Text>
         </View>
       )}
 
