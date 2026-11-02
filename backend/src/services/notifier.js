@@ -27,9 +27,16 @@ export async function sendSms({ user, booking, to, body, kind }) {
   let status = 'logged';
   try {
     if (config.sms.url) {
-      const r = await fetch(config.sms.url, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.sms.key}` },
-        body: JSON.stringify({ to, message: body }) });
-      status = r.ok ? 'sent' : 'failed';
+      const r = await fetch(config.sms.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.sms.key}` },
+        body: JSON.stringify({ to, message: body }),
+      });
+      const data = await r.json().catch(() => ({}));
+      const ok = r.ok && data?.acknowledge !== 'error';
+      status = ok ? 'sent' : 'failed';
+      if (!ok) console.warn(`[sms -> ${to}] AfroMessage notice:`, data?.response?.errors || data?.message || r.statusText);
+      else console.log(`[sms sent -> ${to}]`);
     } else console.log(`[sms -> ${to}] ${body}\n`);
   } catch (e) { console.error('[sms failed]', e.message); status = 'failed'; }
   log({ user, booking, channel: 'sms', to, body, kind }, status);
