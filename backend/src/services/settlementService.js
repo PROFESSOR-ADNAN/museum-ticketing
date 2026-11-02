@@ -13,10 +13,10 @@ export function computeSettlement(visitedBookings, openShortfallRefunds) {
 }
 
 /** FR-REPORT-003: what a transfer would contain right now. */
-export function pendingSettlement() {
-  const bookings = sql(`SELECT * FROM bookings WHERE status = 'Visited' AND settlement_id IS NULL ORDER BY visited_at`).all();
+export async function pendingSettlement() {
+  const bookings = await sql(`SELECT * FROM bookings WHERE status = 'Visited' AND settlement_id IS NULL ORDER BY visited_at`).all();
   // shortfall refunds not yet deducted — includes those on bookings settled in an earlier transfer
-  const refunds = sql(`SELECT * FROM refunds WHERE reason = 'shortfall' AND settlement_id IS NULL`).all();
+  const refunds = await sql(`SELECT * FROM refunds WHERE reason = 'shortfall' AND settlement_id IS NULL`).all();
   return { bookings, refunds, ...computeSettlement(bookings, refunds) };
 }
 
@@ -24,23 +24,23 @@ export function pendingSettlement() {
  * FR-SETTLE-001/002: one action, a batch of everything not yet transferred. It runs in ONE write transaction, so two cashiers pressing
  * the button together are serialised: the second sees nothing pending. If anything fails, nothing is recorded.
  */
-export function createSettlement(cashier) {
-  const id = tx(() => {
-    const p = pendingSettlement();
+export async function createSettlement(cashier) {
+  const id = await tx(async () => {
+    const p = await pendingSettlement();
     if (!p.bookings.length && !p.refunds.length) throw new AppError('NOTHING_TO_SETTLE');
     if (p.net < 0) throw new AppError('NEGATIVE_SETTLEMENT');
     if (!p.bookings.length) throw new AppError('NOTHING_TO_SETTLE');
     const w = amountInWords(p.net / 100);
-    const info = sql(`INSERT INTO settlements (ref, cashier_id, gross_cents, refund_deduction_cents, net_cents, words_en, words_am, purpose_en, purpose_am)
+    const info = await sql(`INSERT INTO settlements (ref, cashier_id, gross_cents, refund_deduction_cents, net_cents, words_en, words_am, purpose_en, purpose_am)
                       VALUES (?,?,?,?,?,?,?,?,?)`)
       .run(settlementRef(addisDateOf()), cashier.id, p.gross, p.deduction, p.net, w.en, w.am,
         'Digital ticket revenue — museum visitors (net of refunds)', 'የዲጂታል ትኬት ገቢ — የሙዚየም ጎብኚዎች (ተመላሽ ተቀንሶ)');
     const sid = Number(info.lastInsertRowid);
-    sql(`UPDATE bookings SET settlement_id = ? WHERE status = 'Visited' AND settlement_id IS NULL`).run(sid);
-    sql(`UPDATE refunds SET settlement_id = ? WHERE reason = 'shortfall' AND settlement_id IS NULL`).run(sid);
-    audit({ actor: cashier.id, action: 'settlement.created', entity: 'Settlement', entityId: sid, amountCents: p.net,
+    await sql(`UPDATE bookings SET settlement_id = ? WHERE status = 'Visited' AND settlement_id IS NULL`).run(sid);
+    await sql(`UPDATE refunds SET settlement_id = ? WHERE reason = 'shortfall' AND settlement_id IS NULL`).run(sid);
+    await audit({ actor: cashier.id, action: 'settlement.created', entity: 'Settlement', entityId: sid, amountCents: p.net,
       bookingRefs: p.bookings.map((b) => b.ref), meta: { gross: p.gross, deduction: p.deduction } });
     return sid;
   });
-  return mapSettlement(Settlements.row(id));
+  return await mapSettlement(await Settlements.row(id));
 }

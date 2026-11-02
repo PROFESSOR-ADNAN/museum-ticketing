@@ -26,39 +26,42 @@ export function calculateRefund(b, reason) {
 
 /** Create the refund exactly once (conditional update + UNIQUE(booking, reason)) in one transaction, then ask the provider to pay it out. */
 export async function issueRefund(bookingId, reason, actor = null) {
-  const refundId = tx(() => {
-    const b = Bookings.row(bookingId);
+  const refundId = await tx(async () => {
+    const b = await Bookings.row(bookingId);
     if (!b) throw new AppError('NOT_FOUND', 404);
     const calc = calculateRefund(b, reason);
     const u = reason === 'shortfall'
-      ? sql(`UPDATE bookings SET shortfall_refunded = 1, refunded_cents = ? WHERE id = ? AND status = 'Visited' AND shortfall_refunded = 0`).run(calc.gross, b.id)
-      : sql(`UPDATE bookings SET status = ?, refunded_cents = ? WHERE id = ? AND status = 'Pending'`).run(reason === 'cancel' ? 'Cancelled' : 'Refunded', calc.gross, b.id);
+      ? await sql(`UPDATE bookings SET shortfall_refunded = true, refunded_cents = ? WHERE id = ? AND status = 'Visited' AND shortfall_refunded = false`).run(calc.gross, b.id)
+      : await sql(`UPDATE bookings SET status = ?, refunded_cents = ? WHERE id = ? AND status = 'Pending'`).run(reason === 'cancel' ? 'Cancelled' : 'Refunded', calc.gross, b.id);
     if (u.changes === 0) throw new AppError('BAD_STATE');
-    const pay = sql('SELECT id FROM payments WHERE provider_ref = ?').get(b.payment_ref);
-    const info = sql(`INSERT INTO refunds (booking_id, reason, gross_cents, fee_share_cents, net_cents, payment_id, requested_by) VALUES (?,?,?,?,?,?,?)`)
+    const pay = await sql('SELECT id FROM payments WHERE provider_ref = ?').get(b.payment_ref);
+    const info = await sql(`INSERT INTO refunds (booking_id, reason, gross_cents, fee_share_cents, net_cents, payment_id, requested_by) VALUES (?,?,?,?,?,?,?)`)
       .run(b.id, reason, calc.gross, calc.feeShare, calc.net, pay?.id ?? null, actor?.id ?? null);
-    audit({ actor: actor?.id ?? null, action: `refund.${reason}`, entity: 'Refund', entityId: Number(info.lastInsertRowid), amountCents: calc.net,
+    await audit({ actor: actor?.id ?? null, action: `refund.${reason}`, entity: 'Refund', entityId: Number(info.lastInsertRowid), amountCents: calc.net,
       bookingRefs: [b.ref], meta: { gross: calc.gross, feeShare: calc.feeShare } });
     return Number(info.lastInsertRowid);
   });
   await dispatchRefund(refundId);
-  return mapRefund(Refunds.byId(refundId));
+  return mapRefund(await Refunds.byId(refundId));
 }
 
 /** A payment that arrived for a booking that can no longer use it (paid twice / cancelled meanwhile): return it automatically. */
 export async function issueOrphanRefund(paymentId) {
   let refundId = null;
   try {
-    refundId = tx(() => {
-      const p = sql('SELECT * FROM payments WHERE id = ?').get(paymentId);
+    refundId = await tx(async () => {
+      const p = await sql('SELECT * FROM payments WHERE id = ?').get(paymentId);
       const feeShare = p.fee_cents || 0;
-      const info = sql(`INSERT INTO refunds (booking_id, reason, gross_cents, fee_share_cents, net_cents, payment_id) VALUES (?, 'orphan', ?, ?, ?, ?)`)
+      const info = await sql(`INSERT INTO refunds (booking_id, reason, gross_cents, fee_share_cents, net_cents, payment_id) VALUES (?, 'orphan', ?, ?, ?, ?)`)
         .run(p.booking_id, p.amount_cents, feeShare, p.amount_cents - feeShare, p.id);
-      audit({ action: 'refund.orphan', entity: 'Refund', entityId: Number(info.lastInsertRowid), amountCents: p.amount_cents - feeShare });
+      await audit({ action: 'refund.orphan', entity: 'Refund', entityId: Number(info.lastInsertRowid), amountCents: p.amount_cents - feeShare });
       return Number(info.lastInsertRowid);
     });
   } catch (e) {
-    if (e.code === 'SQLITE_CONSTRAINT_UNIQUE') { sql(`UPDATE payments SET note = 'orphan_needs_manual_refund' WHERE id = ?`).run(paymentId); return null; }
+    if (e.code === 'SQLITE_CONSTRAINT_UNIQUE' || e.code === '23505') {
+      await sql(`UPDATE payments SET note = 'orphan_needs_manual_refund' WHERE id = ?`).run(paymentId);
+      return null;
+    }
     throw e;
   }
   await dispatchRefund(refundId);
@@ -66,30 +69,30 @@ export async function issueOrphanRefund(paymentId) {
 }
 
 export async function dispatchRefund(refundId) {
-  const refund = Refunds.byId(refundId);
+  const refund = await Refunds.byId(refundId);
   if (!refund || refund.status === 'done' || refund.provider_refund_ref) return;
-  const booking = Bookings.row(refund.booking_id);
-  const payment = refund.payment_id ? sql('SELECT * FROM payments WHERE id = ?').get(refund.payment_id) : null;
-  if (!payment) { sql(`UPDATE refunds SET status = 'failed', needs_review = 1, last_error = 'no confirming payment found' WHERE id = ?`).run(refundId); return; }
-  if (refund.net_cents <= 0) { sql(`UPDATE refunds SET status = 'done', last_error = 'nothing to pay out (fee covers the amount)' WHERE id = ?`).run(refundId); return; }
+  const booking = await Bookings.row(refund.booking_id);
+  const payment = refund.payment_id ? await sql('SELECT * FROM payments WHERE id = ?').get(refund.payment_id) : null;
+  if (!payment) { await sql(`UPDATE refunds SET status = 'failed', needs_review = true, last_error = 'no confirming payment found' WHERE id = ?`).run(refundId); return; }
+  if (refund.net_cents <= 0) { await sql(`UPDATE refunds SET status = 'done', last_error = 'nothing to pay out (fee covers the amount)' WHERE id = ?`).run(refundId); return; }
 
-  sql('UPDATE refunds SET attempts = attempts + 1 WHERE id = ?').run(refundId);
+  await sql('UPDATE refunds SET attempts = attempts + 1 WHERE id = ?').run(refundId);
   try {
     const out = await getProvider().refund({
       txRef: payment.provider_ref, providerTxnId: payment.provider_txn_id, amountCents: refund.net_cents,
       reason: REASON_TEXT[refund.reason], reference: `RFD-${refund.id}-${booking.ref}`,          // unique per refund => the provider rejects a duplicate
     });
-    sql(`UPDATE refunds SET provider_refund_ref = ?, status = ?, last_error = NULL, needs_review = 0 WHERE id = ?`).run(out.refundRef, out.status, refundId);
+    await sql(`UPDATE refunds SET provider_refund_ref = ?, status = ?, last_error = NULL, needs_review = false WHERE id = ?`).run(out.refundRef, out.status, refundId);
     await notifyRefund(refund, booking);
   } catch (e) {
     const permanent = !e.retryable;                                  // a 4xx means retrying blindly will not help — a person must look
     console.error('[refund dispatch failed]', refund.id, e.message);
-    sql(`UPDATE refunds SET status = 'failed', last_error = ?, needs_review = ? WHERE id = ?`).run(String(e.message).slice(0, 500), permanent || e.duplicate ? 1 : 0, refundId);
+    await sql(`UPDATE refunds SET status = 'failed', last_error = ?, needs_review = ? WHERE id = ?`).run(String(e.message).slice(0, 500), permanent || e.duplicate ? true : false, refundId);
   }
 }
 
 async function notifyRefund(refund, booking) {
-  const user = Users.byId(booking.visitor_id);
+  const user = await Users.byId(booking.visitor_id);
   const etb = (c) => (c / 100).toFixed(2);
   const text = bilingual({
     en: `A refund of ${etb(refund.net_cents)} ETB for booking ${booking.ref} has been started to your original payment method (the payment provider's charge of ${etb(refund.fee_share_cents)} ETB is not refundable). It may take some time to appear in your account.`,
@@ -105,15 +108,17 @@ async function notifyRefund(refund, booking) {
  */
 export async function reconcileRefunds() {
   const out = { checked: 0, retried: 0 };
-  for (const r of sql(`SELECT * FROM refunds WHERE status = 'processing' AND provider_refund_ref IS NOT NULL`).all()) {
+  const processing = await sql(`SELECT * FROM refunds WHERE status = 'processing' AND provider_refund_ref IS NOT NULL`).all();
+  for (const r of processing) {
     try {
       const v = await getProvider().verifyRefund(r.provider_refund_ref);
       out.checked++;
-      if (v.status === 'done') sql(`UPDATE refunds SET status = 'done' WHERE id = ?`).run(r.id);
-      else if (v.status === 'failed') sql(`UPDATE refunds SET status = 'failed', needs_review = 1, last_error = 'provider reversed the refund' WHERE id = ?`).run(r.id);
+      if (v.status === 'done') await sql(`UPDATE refunds SET status = 'done' WHERE id = ?`).run(r.id);
+      else if (v.status === 'failed') await sql(`UPDATE refunds SET status = 'failed', needs_review = true, last_error = 'provider reversed the refund' WHERE id = ?`).run(r.id);
     } catch (e) { console.error('[refund verify]', r.id, e.message); }
   }
-  for (const r of sql(`SELECT id FROM refunds WHERE status = 'failed' AND needs_review = 0 AND attempts < 5 AND provider_refund_ref IS NULL`).all()) {
+  const failed = await sql(`SELECT id FROM refunds WHERE status = 'failed' AND needs_review = false AND attempts < 5 AND provider_refund_ref IS NULL`).all();
+  for (const r of failed) {
     await dispatchRefund(r.id); out.retried++;
   }
   return out;

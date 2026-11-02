@@ -9,8 +9,14 @@ const mailer = () => {
     auth: config.mail.user ? { user: config.mail.user, pass: config.mail.pass } : undefined });
   return transporter;
 };
-const log = (n, status) => sql(`INSERT INTO notices (user_id, booking_id, channel, recipient, subject, body, status, kind) VALUES (?,?,?,?,?,?,?,?)`)
-  .run(n.user?.id ?? null, n.booking?.id ?? null, n.channel, n.to, n.subject ?? null, n.body, status, n.kind ?? null);
+const log = async (n, status) => {
+  try {
+    await sql(`INSERT INTO notices (user_id, booking_id, channel, recipient, subject, body, status, kind) VALUES (?,?,?,?,?,?,?,?)`)
+      .run(n.user?.id ?? null, n.booking?.id ?? null, n.channel, n.to, n.subject ?? null, n.body, status, n.kind ?? null);
+  } catch (err) {
+    console.warn('[notifier log notice]', err.message);
+  }
+};
 
 /** Every send is recorded in `notices`. Falls back to console output when no gateway is configured. */
 export async function sendEmail({ user, booking, to, subject, body, kind }) {
@@ -20,7 +26,7 @@ export async function sendEmail({ user, booking, to, subject, body, kind }) {
     if (m) { await m.sendMail({ from: config.mail.from, to, subject, text: body }); status = 'sent'; }
     else console.log(`[email -> ${to}] ${subject}\n${body}\n`);
   } catch (e) { console.error('[email failed]', e.message); status = 'failed'; }
-  log({ user, booking, channel: 'email', to, subject, body, kind }, status);
+  await log({ user, booking, channel: 'email', to, subject, body, kind }, status);
 }
 
 export async function sendSms({ user, booking, to, body, kind }) {
@@ -39,5 +45,5 @@ export async function sendSms({ user, booking, to, body, kind }) {
       else console.log(`[sms sent -> ${to}]`);
     } else console.log(`[sms -> ${to}] ${body}\n`);
   } catch (e) { console.error('[sms failed]', e.message); status = 'failed'; }
-  log({ user, booking, channel: 'sms', to, body, kind }, status);
+  await log({ user, booking, channel: 'sms', to, body, kind }, status);
 }

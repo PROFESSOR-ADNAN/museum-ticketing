@@ -2,14 +2,14 @@ import { AppError } from '../utils/AppError.js';
 import { readToken } from '../utils/jwt.js';
 import { Users } from '../db/repo.js';
 
-export function requireAuth(req, _res, next) {
+export async function requireAuth(req, _res, next) {
   try {
     const h = req.headers.authorization || '';
     const token = h.startsWith('Bearer ') ? h.slice(7) : null;
     if (!token) throw new AppError('UNAUTHENTICATED', 401);
     let payload;
     try { payload = readToken(token); } catch { throw new AppError('UNAUTHENTICATED', 401); }
-    const user = Users.byId(payload.sub);
+    const user = await Users.byId(payload.sub);
     if (!user || !user.active) throw new AppError('UNAUTHENTICATED', 401);
     req.user = user;
     next();

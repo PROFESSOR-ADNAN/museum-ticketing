@@ -5,15 +5,18 @@ import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n.jsx';
 import { Notice } from '../components/ui.jsx';
 
-const homeFor = (u) => ({ cashier: '/cashier', manager: '/manager', admin: '/admin' }[u.role] || '/bookings');
+const homeFor = (u) => ({ cashier: '/cashier', manager: '/manager', admin: '/admin' }[u.role] || '/');
 const Field = ({ label, ...p }) => <div className="field"><label>{label}<input {...p} /></label></div>;
 
 export function Login() {
-  const { t } = useI18n(); const { login } = useAuth(); const nav = useNavigate(); const loc = useLocation();
+  const { t } = useI18n(); const { login } = useAuth(); const nav = useNavigate();
   const [f, setF] = useState({ email: '', password: '' }); const [err, setErr] = useState('');
   const submit = async (e) => {
     e.preventDefault(); setErr('');
-    try { const u = await login(f.email, f.password); nav(u.role === 'visitor' ? (loc.state?.from || homeFor(u)) : homeFor(u), { replace: true } /* staff always start on their own screen */); } catch (x) { setErr(x.message); }
+    try {
+      const u = await login(f.email, f.password);
+      nav(u.role === 'visitor' ? '/' : homeFor(u), { replace: true });
+    } catch (x) { setErr(x.message); }
   };
   return (
     <form className="card" style={{ maxWidth: 440 }} onSubmit={submit}>
@@ -57,7 +60,7 @@ export function Verify() {
   const email = user?.email || state?.email;
   const submit = async (e) => {
     e.preventDefault(); setErr('');
-    try { await api('/auth/verify', { method: 'POST', body: { email, ...codes } }); await refresh(); setOk(t('verified')); setTimeout(() => nav('/book'), 700); }
+    try { await api('/auth/verify', { method: 'POST', body: { email, ...codes } }); await refresh(); setOk(t('verified')); setTimeout(() => nav('/'), 700); }
     catch (x) { setErr(x.message); }
   };
   const resend = async () => { const r = await api('/auth/resend', { method: 'POST', body: { email } }); setDev(r.devCodes); };

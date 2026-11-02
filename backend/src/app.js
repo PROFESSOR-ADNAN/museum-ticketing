@@ -4,7 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { config } from './config.js';
-import { openDb, sql } from './db/index.js';
+import { openDb, sql, isPgActive } from './db/index.js';
 import { lang } from './middleware/lang.js';
 import { errorHandler, notFound } from './middleware/error.js';
 import auth from './routes/auth.js';
@@ -59,11 +59,12 @@ export function createApp() {
   app.get('/', (_req, res) => res.json({ ok: true, name: 'Science Museum API', health: '/api/health', time: new Date().toISOString() }));
   app.get('/api', (_req, res) => res.json({ ok: true, name: 'Science Museum API', health: '/api/health', time: new Date().toISOString() }));
   app.get('/health', (_req, res) => res.json({ ok: true, status: 'healthy', env: config.env }));
-  app.get('/api/health', (_req, res) => {
+  app.get('/api/health', async (_req, res) => {
     const out = { ok: true, status: 'healthy', env: config.env };
     try {
-      out.database = path.basename(config.dbPath);
-      out.users = sql('SELECT COUNT(*) AS n FROM users').get().n;
+      out.database = isPgActive() ? 'postgresql (neon)' : path.basename(config.dbPath);
+      const row = await sql('SELECT COUNT(*) AS n FROM users').get();
+      out.users = Number(row?.n ?? 0);
     } catch (e) {
       out.dbError = e.message;
     }

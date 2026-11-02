@@ -11,16 +11,16 @@ import { temporaryReceipt } from './documents.js';
 import { signTicket } from './ticketToken.js';
 
 /** Visit date must be today or later, within the advance window, and not closed by the Manager (FR-BOOK-008). */
-export function assertBookableDate(date) {
+export async function assertBookableDate(date) {
   const today = addisDateOf();
   if (!isValidDateStr(date) || date < today || daysBetween(today, date) > config.maxAdvanceDays) throw new AppError('BAD_DATE');
-  if (sql('SELECT 1 FROM date_closures WHERE date = ?').get(date)) throw new AppError('DATE_CLOSED');
+  if (await sql('SELECT 1 FROM date_closures WHERE date = ?').get(date)) throw new AppError('DATE_CLOSED');
 }
 
 /** Prices always come from the server-side categories, never from the client. Returns amounts in santim. */
-export function buildLines(inputLines) {
+export async function buildLines(inputLines) {
   const ids = [...new Set(inputLines.map((l) => l.categoryId))];
-  const cats = sql(`SELECT * FROM categories WHERE active = 1 AND online_bookable = 1 AND id IN (${placeholders(ids.length)})`).all(...ids);
+  const cats = await sql(`SELECT * FROM categories WHERE active = 1 AND online_bookable = 1 AND id IN (${placeholders(ids.length)})`).all(...ids);
   const byId = new Map(cats.map((c) => [c.id, c]));
   const merged = new Map();
   for (const l of inputLines) {
@@ -38,26 +38,26 @@ export function buildLines(inputLines) {
   };
 }
 
-export function createBooking({ visitor, kind, visitDate, timeSlot, organization, contactName, contactPhone, lines, channel = 'online', status }) {
-  assertBookableDate(visitDate);
-  const built = buildLines(lines);
+export async function createBooking({ visitor, kind, visitDate, timeSlot, organization, contactName, contactPhone, lines, channel = 'online', status }) {
+  await assertBookableDate(visitDate);
+  const built = await buildLines(lines);
   const st = status || 'AwaitingPayment';
   for (let i = 0; i < 5; i++) {
     try {
-      const id = tx(() => {
-        const info = sql(`INSERT INTO bookings (ref, visitor_id, kind, visit_date, time_slot, organization, contact_name, contact_phone,
+      const id = await tx(async () => {
+        const info = await sql(`INSERT INTO bookings (ref, visitor_id, kind, visit_date, time_slot, organization, contact_name, contact_phone,
             booked_quantity, amount_cents, status, channel) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
           .run(bookingRef(), visitor.id, kind, visitDate, timeSlot ?? null, organization ?? null, contactName ?? null, contactPhone ?? null,
             built.bookedQuantity, built.amountCents, st, channel);
         for (const l of built.lines) {
-          sql(`INSERT INTO booking_lines (booking_id, category_id, key, name_en, name_am, unit_price_cents, quantity) VALUES (?,?,?,?,?,?,?)`)
+          await sql(`INSERT INTO booking_lines (booking_id, category_id, key, name_en, name_am, unit_price_cents, quantity) VALUES (?,?,?,?,?,?,?)`)
             .run(info.lastInsertRowid, l.categoryId, l.key, l.nameEn, l.nameAm, l.unitPriceCents, l.quantity);
         }
         return Number(info.lastInsertRowid);
       });
-      return Bookings.get(id);
+      return await Bookings.get(id);
     } catch (e) {
-      if (e.code === 'SQLITE_CONSTRAINT_UNIQUE' && /bookings\.ref/.test(e.message)) continue;   // reference collision: draw another
+      if ((e.code === 'SQLITE_CONSTRAINT_UNIQUE' || e.code === '23505') && /ref/i.test(e.message)) continue;   // reference collision: draw another
       throw e;
     }
   }
@@ -65,24 +65,24 @@ export function createBooking({ visitor, kind, visitDate, timeSlot, organization
 }
 
 /** FR-BOOK-007: one reschedule only, Pending only, to a different open future date. */
-export function reschedule(row, newDate) {
+export async function reschedule(row, newDate) {
   if (row.status !== 'Pending') throw new AppError('BAD_STATE');
   if (row.reschedule_count >= 1) throw new AppError('ALREADY_RESCHEDULED');
-  assertBookableDate(newDate);
+  await assertBookableDate(newDate);
   if (newDate === row.visit_date) throw new AppError('BAD_DATE');
-  const r = sql(`UPDATE bookings SET visit_date = ?, original_visit_date = ?, no_show_notice_at = NULL, reschedule_count = reschedule_count + 1
+  const r = await sql(`UPDATE bookings SET visit_date = ?, original_visit_date = ?, no_show_notice_at = NULL, reschedule_count = reschedule_count + 1
                  WHERE id = ? AND status = 'Pending' AND reschedule_count = 0`).run(newDate, row.visit_date, row.id);
   if (r.changes === 0) throw new AppError('ALREADY_RESCHEDULED');
-  return Bookings.get(row.id);
+  return await Bookings.get(row.id);
 }
 
 /**
  * FR-TICKET-001..003, 005: record how many actually arrived; Pending -> Visited.
  * `attended`: [{categoryId, quantity}] (mixed groups) or `attendedQuantity` for a single-category booking.
  */
-export function recordAttendance(row, { attended, attendedQuantity }, cashier) {
+export async function recordAttendance(row, { attended, attendedQuantity }, cashier) {
   if (row.status !== 'Pending') throw new AppError('BAD_STATE');
-  const lines = Bookings.lines(row.id);
+  const lines = await Bookings.lines(row.id);
   let counts;                                                    // Map categoryId -> attended
   if (Array.isArray(attended) && attended.length) counts = new Map(attended.map((a) => [a.categoryId, a.quantity]));
   else if (typeof attendedQuantity === 'number') {
@@ -97,37 +97,39 @@ export function recordAttendance(row, { attended, attendedQuantity }, cashier) {
     if (q > line.quantity) throw new AppError('OVER_BOOKED');    // FR-TICKET-005
     total += q; amountCents += q * line.unit_price_cents;
   }
-  tx(() => {
-    const u = sql(`UPDATE bookings SET status = 'Visited', attended_quantity = ?, attended_amount_cents = ?, visited_at = ?, visited_by = ?
+  await tx(async () => {
+    const u = await sql(`UPDATE bookings SET status = 'Visited', attended_quantity = ?, attended_amount_cents = ?, visited_at = ?, visited_by = ?
                    WHERE id = ? AND status = 'Pending'`).run(total, amountCents, new Date().toISOString(), cashier.id, row.id);
     if (u.changes === 0) throw new AppError('BAD_STATE');
-    for (const l of lines) sql('UPDATE booking_lines SET attended_quantity = ? WHERE id = ?').run(counts.get(l.category_id) ?? 0, l.id);
+    for (const l of lines) await sql('UPDATE booking_lines SET attended_quantity = ? WHERE id = ?').run(counts.get(l.category_id) ?? 0, l.id);
   });
-  return Bookings.get(row.id);
+  return await Bookings.get(row.id);
 }
 
 /** Public: which dates the Manager closed, and how far ahead people can book. */
-export function availability() {
+export async function availability() {
   const today = addisDateOf();
-  return { today, maxDate: addDays(today, config.maxAdvanceDays), closedDates: sql('SELECT date FROM date_closures WHERE date >= ? ORDER BY date').all(today).map((r) => r.date) };
+  const rows = await sql('SELECT date FROM date_closures WHERE date >= ? ORDER BY date').all(today);
+  return { today, maxDate: addDays(today, config.maxAdvanceDays), closedDates: rows.map((r) => r.date) };
 }
 
 /** FR-BOOK-005/006: before payment nothing was charged (no refund); while Pending the full amount (minus the provider's charge) is refunded. */
 export async function cancelBooking(row, actor) {
   if (['PendingApproval', 'AwaitingPayment'].includes(row.status)) {
-    const u = sql(`UPDATE bookings SET status = 'Cancelled' WHERE id = ? AND status IN ('PendingApproval','AwaitingPayment')`).run(row.id);
+    const u = await sql(`UPDATE bookings SET status = 'Cancelled' WHERE id = ? AND status IN ('PendingApproval','AwaitingPayment')`).run(row.id);
     if (!u.changes) throw new AppError('BAD_STATE');
-    return { booking: Bookings.get(row.id), refund: null };
+    return { booking: await Bookings.get(row.id), refund: null };
   }
   const refund = await issueRefund(row.id, 'cancel', actor);
-  return { booking: Bookings.get(row.id), refund };
+  return { booking: await Bookings.get(row.id), refund };
 }
 
 /** The temporary receipt. The QR (signed token) is only shown while the booking can still be used at the gate. */
-export function receiptFor(row) {
+export async function receiptFor(row) {
   if (!row.temp_receipt_no) throw new AppError('BAD_STATE');
-  const booking = Bookings.get(row.id);
+  const booking = await Bookings.get(row.id);
+  const user = await Users.byId(row.visitor_id);
   const usable = ['Pending', 'Visited'].includes(booking.status);
   const token = usable ? signTicket({ ref: booking.ref, visitDate: booking.visitDate, bookedQuantity: booking.bookedQuantity }) : null;
-  return temporaryReceipt(booking, Users.byId(row.visitor_id), token);
+  return temporaryReceipt(booking, user, token);
 }

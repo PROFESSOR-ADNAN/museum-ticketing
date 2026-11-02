@@ -20,23 +20,24 @@ export const chapaWebhook = handle(async (req, res) => {
     throw new AppError('BAD_SIGNATURE', 401);
   }
   const txRef = req.body?.tx_ref || req.body?.trx_ref;
-  const out = txRef && Payments.byRef(txRef) ? await tryConfirm(txRef) : null;     // payouts / refund events / other apps' payments: acknowledge and ignore
+  const out = txRef && (await Payments.byRef(txRef)) ? await tryConfirm(txRef) : null;     // payouts / refund events / other apps' payments: acknowledge and ignore
   res.json({ ok: true, applied: !!out?.applied });
 });
 
 // Chapa also calls `callback_url` with GET ?trx_ref=…&ref_id=…&status=… (docs: always verify) — used only as a nudge to verify.
 export const chapaCallback = handle(async (req, res) => {
   const txRef = String(req.query.trx_ref || req.query.tx_ref || '');
-  if (txRef && Payments.byRef(txRef)) await tryConfirm(txRef);
+  if (txRef && (await Payments.byRef(txRef))) await tryConfirm(txRef);
   res.json({ ok: true });
 });
 
 // Where Chapa sends the customer's browser: verify first, then forward to the web page or mobile app that started the payment.
 export const paymentReturn = handle(async (req, res) => {
-  const p = Payments.byRef(req.params.ref);
+  const p = await Payments.byRef(req.params.ref);
   if (!p) return res.redirect(302, config.webUrl);
   const out = await tryConfirm(p.provider_ref);
-  const outcome = out?.outcome || (Payments.byRef(p.provider_ref).status === 'succeeded' ? 'success' : 'pending');
+  const fresh = await Payments.byRef(p.provider_ref);
+  const outcome = out?.outcome || (fresh?.status === 'succeeded' ? 'success' : 'pending');
   const back = p.client_return_url || `${config.webUrl}/bookings/${p.booking_id}`;
   const target = `${back}${back.includes('?') ? '&' : '?'}payment=${outcome}`;
   if (!/^(museum|exp|exps):\/\//.test(back)) return res.redirect(302, target);      // web: unchanged

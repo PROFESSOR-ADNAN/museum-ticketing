@@ -20,43 +20,48 @@ const syncSchema = z.object({
 });
 
 // FR-TICKET-001 / 004: by reference, or by name / email / phone when the visitor lost the reference
-export const lookupBookings = handle((req, res) => res.json({ bookings: lookup(lookupSchema.parse(req.query)) }));
-export const todayBookings = (_req, res) => res.json({ bookings: todaysBookings() });
+export const lookupBookings = handle(async (req, res) => res.json({ bookings: await lookup(lookupSchema.parse(req.query)) }));
+export const todayBookings = handle(async (_req, res) => res.json({ bookings: await todaysBookings() }));
 
 // QR / reference check: "has this visitor paid, and were they already let in?"
-export const verifyTicket = handle((req, res) => res.json(checkTicket(verifySchema.parse(req.body).code, req.user)));
+export const verifyTicket = handle(async (req, res) => res.json(await checkTicket(verifySchema.parse(req.body).code, req.user)));
 
 // FR-TICKET-001..003, 005
-export const attendance = handle((req, res) => {
+export const attendance = handle(async (req, res) => {
   const d = attendanceSchema.parse(req.body);
-  const row = Bookings.rowByRef(req.params.ref);
+  const row = await Bookings.rowByRef(req.params.ref);
   if (!row) throw new AppError('NOT_FOUND', 404);
-  const b = recordAttendance(row, d, req.user);
+  const b = await recordAttendance(row, d, req.user);
   res.json({ booking: b, shortfall: b.amount - b.attendedAmount });
 });
 
 // Offline support for the mobile app: download today's list while online ...
-export const downloadGateList = handle((req, res) => {
+export const downloadGateList = handle(async (req, res) => {
   const date = req.query.date ? String(req.query.date) : undefined;
   if (date && !isValidDateStr(date)) throw new AppError('BAD_DATE');
-  res.json(gateList(date));
+  res.json(await gateList(date));
 });
 // ... and upload admissions that were recorded without internet.
-export const syncAdmissions = handle((req, res) => res.json({ results: syncAttendance(syncSchema.parse(req.body).items, req.user) }));
+export const syncAdmissions = handle(async (req, res) => res.json({ results: await syncAttendance(syncSchema.parse(req.body).items, req.user) }));
 
 // FR-REPORT-003: what a transfer would include right now
-export const pendingTransfer = (_req, res) => {
-  const p = pendingSettlement();
-  res.json({ bookings: hydrateBookings(p.bookings), refundDeductions: p.refunds.map(mapRefund), gross: p.gross / 100, deduction: p.deduction / 100, net: p.net / 100 });
-};
-export const transfer = handle((req, res) => {                     // FR-SETTLE-001/002
-  const s = createSettlement(req.user);
+export const pendingTransfer = handle(async (_req, res) => {
+  const p = await pendingSettlement();
+  res.json({ bookings: await hydrateBookings(p.bookings), refundDeductions: p.refunds.map(mapRefund), gross: p.gross / 100, deduction: p.deduction / 100, net: p.net / 100 });
+});
+export const transfer = handle(async (req, res) => {                     // FR-SETTLE-001/002
+  const s = await createSettlement(req.user);
   res.status(201).json({ settlement: s, receipt: transferReceipt(s, req.user) });
 });
-export const listTransfers = (_req, res) =>
-  res.json({ settlements: sql('SELECT * FROM settlements ORDER BY id DESC LIMIT 50').all().map(mapSettlement) });
-export const getTransfer = handle((req, res) => {
-  const row = Settlements.row(Number(req.params.id));
+export const listTransfers = handle(async (_req, res) => {
+  const rows = await sql('SELECT * FROM settlements ORDER BY id DESC LIMIT 50').all();
+  const settlements = await Promise.all(rows.map((r) => mapSettlement(r)));
+  res.json({ settlements });
+});
+export const getTransfer = handle(async (req, res) => {
+  const row = await Settlements.row(Number(req.params.id));
   if (!row) throw new AppError('NOT_FOUND', 404);
-  res.json({ settlement: mapSettlement(row), receipt: transferReceipt(mapSettlement(row), Users.byId(row.cashier_id)) });
+  const mapped = await mapSettlement(row);
+  const cashier = await Users.byId(row.cashier_id);
+  res.json({ settlement: mapped, receipt: transferReceipt(mapped, cashier) });
 });

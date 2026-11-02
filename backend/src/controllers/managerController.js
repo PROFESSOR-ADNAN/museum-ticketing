@@ -10,13 +10,13 @@ const recordSchema = z.object({
   contactName: z.string().optional(), contactPhone: z.string().optional(), approve: z.boolean().default(true),
 });
 
-export const listClosures = (_req, res) => res.json({ closures: Manager.listClosures() });
-export const closeDate = handle((req, res) => res.status(201).json({ closure: Manager.closeDate(closeSchema.parse(req.body), req.user) }));
-export const reopenDate = (req, res) => { Manager.reopenDate(req.params.date, req.user); res.json({ ok: true }); };
+export const listClosures = handle(async (_req, res) => res.json({ closures: await Manager.listClosures() }));
+export const closeDate = handle(async (req, res) => res.status(201).json({ closure: await Manager.closeDate(closeSchema.parse(req.body), req.user) }));
+export const reopenDate = handle(async (req, res) => { await Manager.reopenDate(req.params.date, req.user); res.json({ ok: true }); });
 
-export const listGroupRequests = (req, res) => res.json({ bookings: Manager.listGroupRequests(req.query.status ? String(req.query.status) : undefined) });
+export const listGroupRequests = handle(async (req, res) => res.json({ bookings: await Manager.listGroupRequests(req.query.status ? String(req.query.status) : undefined) }));
 const decide = (approve) => handle(async (req, res) =>
   res.json({ booking: await Manager.decideGroup(Number(req.params.id), approve, noteSchema.parse(req.body || {}).note, req.user) }));
 export const approveGroup = decide(true);
 export const declineGroup = decide(false);
-export const recordGroup = handle((req, res) => res.status(201).json({ booking: Manager.createGroupOnBehalf(recordSchema.parse(req.body), req.user) }));  // phone / letter
+export const recordGroup = handle(async (req, res) => res.status(201).json({ booking: await Manager.createGroupOnBehalf(recordSchema.parse(req.body), req.user) }));

@@ -1,19 +1,47 @@
 import Database from 'better-sqlite3';
+import pg from 'pg';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { config } from '../config.js';
 import { INIT_SQL, VIEWS_SQL } from './schema_sql.js';
 
-let current = null;
-export const getDb = () => { if (!current) throw new Error('Database not opened: call openDb() first'); return current; };
+let currentSqlite = null;
+let currentPgPool = null;
+const txStorage = new AsyncLocalStorage();
+const caches = new WeakMap();
 
-/**
- * Open (and migrate) the SQLite database. WAL mode lets readers (reports, dashboards) run while a write happens;
- * foreign keys are enforced; busy_timeout makes a second process wait instead of failing.
- */
+export const isPgActive = () => Boolean(config.databaseUrl && config.env !== 'test');
+
+export const getDb = () => {
+  if (isPgActive()) throw new Error('PostgreSQL pool is active: use sql() or getPgPool()');
+  if (!currentSqlite) throw new Error('Database not opened: call openDb() first');
+  return currentSqlite;
+};
+
+export const getPgPool = () => {
+  if (!currentPgPool) {
+    pg.types.setTypeParser(20, (val) => Number(val));
+    pg.types.setTypeParser(1082, (val) => val);
+    pg.types.setTypeParser(1114, (val) => val);
+    pg.types.setTypeParser(1184, (val) => val);
+    currentPgPool = new pg.Pool({
+      connectionString: config.databaseUrl,
+      ssl: process.env.PGSSLMODE === 'disable' ? false : { rejectUnauthorized: false },
+      max: 10,
+    });
+  }
+  return currentPgPool;
+};
+
 export function openDb(file = config.dbPath) {
-  if (current) return current;
+  if (isPgActive()) {
+    const pool = getPgPool();
+    ensurePg(pool).catch((e) => console.warn('[db:pg] ensure schema notice:', e.message));
+    return pool;
+  }
+  if (currentSqlite) return currentSqlite;
   let targetFile = file;
   if ((process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) && file !== ':memory:' && !file.startsWith('/tmp')) {
     targetFile = path.join('/tmp', 'museum.sqlite');
@@ -25,10 +53,35 @@ export function openDb(file = config.dbPath) {
   db.pragma('busy_timeout = 5000');
   db.pragma('synchronous = NORMAL');
   migrate(db);
-  current = db;
+  currentSqlite = db;
   return db;
 }
-export function closeDb() { if (current) { current.close(); current = null; } }
+
+export async function closeDb() {
+  if (currentPgPool) {
+    await currentPgPool.end();
+    currentPgPool = null;
+  }
+  if (currentSqlite) {
+    currentSqlite.close();
+    currentSqlite = null;
+  }
+}
+
+async function ensurePg(pool) {
+  try {
+    const res = await pool.query(`SELECT to_regclass('public.users') AS exists`);
+    if (!res.rows[0]?.exists) {
+      console.log('[db:pg] applying schema...');
+      const schemaPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'postgres_schema.sql');
+      if (fs.existsSync(schemaPath)) {
+        await pool.query(fs.readFileSync(schemaPath, 'utf8'));
+      }
+    }
+  } catch (err) {
+    console.warn('[db:pg] ensure schema notice:', err.message);
+  }
+}
 
 function migrate(db) {
   db.exec('CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY, applied_at TEXT NOT NULL)');
@@ -49,7 +102,7 @@ function migrate(db) {
 
   for (const item of items) {
     if (done.has(item.version)) continue;
-    db.transaction(() => {                      // each migration is all-or-nothing
+    db.transaction(() => {
       db.exec(item.sql);
       db.prepare('INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)').run(item.version, new Date().toISOString());
     })();
@@ -100,21 +153,128 @@ function seedDefaults(db) {
   }
 }
 
-// Prepared statements are cached per database handle.
-const caches = new WeakMap();
+export function translateSql(text) {
+  let paramIdx = 0;
+  let s = text.replace(/\?/g, () => `$${++paramIdx}`);
+  s = s.replace(/INSERT\s+OR\s+IGNORE\s+INTO/gi, 'INSERT INTO');
+  // Date helpers
+  s = s.replace(/date\s*\(\s*scanned_at\s*,\s*'\+3 hours'\s*\)/gi, "(scanned_at AT TIME ZONE 'Africa/Addis_Ababa')::date::text");
+  s = s.replace(/date\s*\(\s*b\.visited_at\s*,\s*'\+3 hours'\s*\)/gi, "(b.visited_at AT TIME ZONE 'Africa/Addis_Ababa')::date::text");
+  s = s.replace(/date\s*\(\s*created_at\s*,\s*'\+3 hours'\s*\)/gi, "(created_at AT TIME ZONE 'Africa/Addis_Ababa')::date::text");
+  // Boolean assignments in UPDATE
+  s = s.replace(/\bemail_verified\s*=\s*1\b/gi, 'email_verified = true');
+  s = s.replace(/\bemail_verified\s*=\s*0\b/gi, 'email_verified = false');
+  s = s.replace(/\bphone_verified\s*=\s*1\b/gi, 'phone_verified = true');
+  s = s.replace(/\bphone_verified\s*=\s*0\b/gi, 'phone_verified = false');
+  s = s.replace(/\bactive\s*=\s*1\b/gi, 'active = true');
+  s = s.replace(/\bactive\s*=\s*0\b/gi, 'active = false');
+  s = s.replace(/\bonline_bookable\s*=\s*1\b/gi, 'online_bookable = true');
+  s = s.replace(/\bonline_bookable\s*=\s*0\b/gi, 'online_bookable = false');
+  s = s.replace(/\bshortfall_refunded\s*=\s*1\b/gi, 'shortfall_refunded = true');
+  s = s.replace(/\bshortfall_refunded\s*=\s*0\b/gi, 'shortfall_refunded = false');
+  s = s.replace(/\bneeds_review\s*=\s*1\b/gi, 'needs_review = true');
+  s = s.replace(/\bneeds_review\s*=\s*0\b/gi, 'needs_review = false');
+  // Boolean conditions in WHERE
+  s = s.replace(/\bWHERE\s+active\s*=\s*1\b/gi, 'WHERE active = true');
+  s = s.replace(/\bAND\s+active\s*=\s*1\b/gi, 'AND active = true');
+  s = s.replace(/\bWHERE\s+online_bookable\s*=\s*1\b/gi, 'WHERE online_bookable = true');
+  s = s.replace(/\bAND\s+online_bookable\s*=\s*1\b/gi, 'AND online_bookable = true');
+  s = s.replace(/\bAND\s+shortfall_refunded\s*=\s*0\b/gi, 'AND shortfall_refunded = false');
+  s = s.replace(/\bAND\s+needs_review\s*=\s*0\b/gi, 'AND needs_review = false');
+
+  if (/^\s*insert\s+into/i.test(s) && !/returning/i.test(s) && !/ON\s+CONFLICT\s+DO\s+NOTHING/i.test(s)) {
+    s += ' RETURNING id';
+  }
+  return s;
+}
+
+async function execPg(sqlText, args = []) {
+  const pool = getPgPool();
+  const client = txStorage.getStore()?.client || pool;
+  const pgSql = translateSql(sqlText);
+  const cleanArgs = args.map((a) => (a === undefined ? null : a));
+  try {
+    return await client.query(pgSql, cleanArgs);
+  } catch (err) {
+    if (err.code === '23505') {
+      err.code = 'SQLITE_CONSTRAINT_UNIQUE';
+    }
+    throw err;
+  }
+}
+
 export function sql(text) {
+  if (isPgActive()) {
+    return {
+      async get(...args) {
+        const res = await execPg(text, args);
+        return res.rows[0];
+      },
+      async all(...args) {
+        const res = await execPg(text, args);
+        return res.rows;
+      },
+      async run(...args) {
+        const res = await execPg(text, args);
+        return {
+          changes: res.rowCount,
+          lastInsertRowid: res.rows[0]?.id,
+        };
+      },
+      columns() {
+        return [];
+      },
+    };
+  }
+
   const db = getDb();
   let m = caches.get(db);
   if (!m) caches.set(db, (m = new Map()));
   let s = m.get(text);
   if (!s) m.set(text, (s = db.prepare(text)));
-  return s;
+  const cleanSqliteArgs = (args) => args.map((a) => (typeof a === 'boolean' ? (a ? 1 : 0) : (a === undefined ? null : a)));
+  return {
+    get: (...args) => s.get(...cleanSqliteArgs(args)),
+    all: (...args) => s.all(...cleanSqliteArgs(args)),
+    run: (...args) => s.run(...cleanSqliteArgs(args)),
+    columns: () => s.columns(),
+  };
 }
 
-/**
- * NFR-CONSIST-001: run `fn` as ONE atomic transaction. SQLite gives real ACID transactions in a single file —
- * no replica set needed. `.immediate()` takes the write lock up front, so two writers can never interleave.
- * Everything inside must be synchronous (do network calls before or after, never inside).
- */
-export const tx = (fn) => getDb().transaction(fn).immediate();
+export async function tx(fn) {
+  if (isPgActive()) {
+    const pool = getPgPool();
+    const existing = txStorage.getStore()?.client;
+    if (existing) {
+      return await fn();
+    }
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await txStorage.run({ client }, () => fn());
+      await client.query('COMMIT');
+      return result;
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  } else {
+    const db = getDb();
+    const outer = !db.inTransaction;
+    if (outer) db.exec('BEGIN IMMEDIATE');
+    try {
+      const result = await fn();
+      if (outer) db.exec('COMMIT');
+      return result;
+    } catch (err) {
+      if (outer) {
+        try { db.exec('ROLLBACK'); } catch {}
+      }
+      throw err;
+    }
+  }
+}
+
 export const placeholders = (n) => Array.from({ length: n }, () => '?').join(',');
