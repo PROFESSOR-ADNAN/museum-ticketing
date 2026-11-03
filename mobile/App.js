@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
@@ -18,13 +18,162 @@ import { C, Loading } from './src/ui';
 
 const Stack = createNativeStackNavigator(); const Tabs = createBottomTabNavigator();
 
-/** Header: language switch only. Sign out lives on the Account tab, where it is large and clear. */
-function HeaderRight() {
+function LangSwitch() {
   const { lang, setLang } = useApp();
   return (
     <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: C.line, borderRadius: 6, overflow: 'hidden' }}>
-      {['en', 'am'].map((l) => (<Pressable key={l} accessibilityLabel={`language ${l}`} onPress={() => setLang(l)} style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: lang === l ? C.ink : 'transparent' }}>
-        <Text style={{ color: lang === l ? '#fff' : C.ink }}>{l === 'en' ? 'EN' : 'አማ'}</Text></Pressable>))}
+      {['en', 'am'].map((l) => (
+        <Pressable
+          key={l}
+          accessibilityLabel={`language ${l}`}
+          onPress={() => setLang(l)}
+          style={{
+            paddingHorizontal: 7,
+            paddingVertical: 4,
+            backgroundColor: lang === l ? C.ink : 'transparent',
+          }}
+        >
+          <Text style={{ color: lang === l ? '#fff' : C.ink, fontSize: 11, fontWeight: '700' }}>
+            {l === 'en' ? 'EN' : 'አማ'}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
+/** Header right for visitors/guests on Home screen: Language + Sign In + Create Account */
+function HomeHeaderRight({ navigation }) {
+  const { t, lang } = useApp();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginRight: 2 }}>
+      <LangSwitch />
+      <Pressable
+        accessibilityLabel="Sign in"
+        onPress={() => navigation.navigate('Login')}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: '#eef6f4',
+          paddingHorizontal: 7,
+          paddingVertical: 4,
+          borderRadius: 6,
+          borderWidth: 1,
+          borderColor: C.teal,
+          gap: 2,
+        }}
+      >
+        <Ionicons name="log-in-outline" size={13} color={C.teal} />
+        <Text style={{ color: C.teal, fontWeight: '700', fontSize: 11 }}>{t('login')}</Text>
+      </Pressable>
+      <Pressable
+        accessibilityLabel="Create account"
+        onPress={() => navigation.navigate('Register')}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: C.teal,
+          paddingHorizontal: 7,
+          paddingVertical: 5,
+          borderRadius: 6,
+          gap: 2,
+        }}
+      >
+        <Ionicons name="person-add-outline" size={12} color="#fff" />
+        <Text style={{ color: '#fff', fontWeight: '700', fontSize: 11 }}>
+          {lang === 'am' ? 'መለያ' : 'Register'}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/** Header right for Login screen: Language + Create Account */
+function LoginHeaderRight({ navigation }) {
+  const { t, lang } = useApp();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2 }}>
+      <LangSwitch />
+      <Pressable
+        accessibilityLabel="Create account"
+        onPress={() => navigation.navigate('Register')}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: C.teal,
+          paddingHorizontal: 8,
+          paddingVertical: 5,
+          borderRadius: 6,
+          gap: 3,
+        }}
+      >
+        <Ionicons name="person-add-outline" size={13} color="#fff" />
+        <Text style={{ color: '#fff', fontWeight: '700', fontSize: 11 }}>
+          {lang === 'am' ? 'መለያ ክፈት' : 'Create account'}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/** Header right for Register screen: Language + Sign In */
+function RegisterHeaderRight({ navigation }) {
+  const { t } = useApp();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2 }}>
+      <LangSwitch />
+      <Pressable
+        accessibilityLabel="Sign in"
+        onPress={() => navigation.navigate('Login')}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: '#eef6f4',
+          paddingHorizontal: 8,
+          paddingVertical: 5,
+          borderRadius: 6,
+          borderWidth: 1,
+          borderColor: C.teal,
+          gap: 3,
+        }}
+      >
+        <Ionicons name="log-in-outline" size={14} color={C.teal} />
+        <Text style={{ color: C.teal, fontWeight: '700', fontSize: 11 }}>{t('login')}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/** Header right for all authenticated screens: Language + Sign Out */
+function AuthHeaderRight() {
+  const { t, logout } = useApp();
+  const confirmLogout = () => {
+    Alert.alert(t('signOutTitle'), t('signOutBody'), [
+      { text: t('stay'), style: 'cancel' },
+      { text: t('logout'), style: 'destructive', onPress: logout },
+    ]);
+  };
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2 }}>
+      <LangSwitch />
+      <Pressable
+        accessibilityLabel="Sign out"
+        onPress={confirmLogout}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: '#fef2f2',
+          paddingHorizontal: 8,
+          paddingVertical: 5,
+          borderRadius: 6,
+          borderWidth: 1,
+          borderColor: '#fca5a5',
+          gap: 3,
+        }}
+      >
+        <Ionicons name="log-out-outline" size={14} color={C.brick} />
+        <Text style={{ color: C.brick, fontWeight: '700', fontSize: 11 }}>{t('logout')}</Text>
+      </Pressable>
     </View>
   );
 }
@@ -45,21 +194,46 @@ function BookingsStack() {
 function Root() {
   const { ready, user, t } = useApp();
   if (!ready) return <Loading />;
-  const header = { headerRight: () => <HeaderRight />, tabBarActiveTintColor: C.teal };
+  const header = { headerRight: () => <AuthHeaderRight />, tabBarActiveTintColor: C.teal };
   const linking = { prefixes: [Linking.createURL('/'), 'museum://'] };
   const verified = !user || user.role !== 'visitor' || (user.emailVerified && user.phoneVerified);
   return (
     <NavigationContainer linking={linking}>
       {!user ? (
-        <Stack.Navigator screenOptions={{ headerRight: () => <HeaderRight /> }}>
-          <Stack.Screen name="Home" component={Home} options={{ title: t('brand') }} />
-          <Stack.Screen name="Login" component={Login} options={{ title: t('login') }} />
-          <Stack.Screen name="Register" component={Register} options={{ title: t('register') }} />
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Home"
+            component={Home}
+            options={({ navigation }) => ({
+              title: t('brandShort'),
+              headerRight: () => <HomeHeaderRight navigation={navigation} />,
+            })}
+          />
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={({ navigation }) => ({
+              title: t('login'),
+              headerRight: () => <LoginHeaderRight navigation={navigation} />,
+            })}
+          />
+          <Stack.Screen
+            name="Register"
+            component={Register}
+            options={({ navigation }) => ({
+              title: t('register'),
+              headerRight: () => <RegisterHeaderRight navigation={navigation} />,
+            })}
+          />
         </Stack.Navigator>
       ) : !verified ? (
         // A visitor who has not verified email AND phone can do nothing else (same rule as the web app).
-        <Stack.Navigator screenOptions={{ headerRight: () => <HeaderRight /> }}>
-          <Stack.Screen name="Verify" component={Verify} options={{ title: t('verifyTitle'), headerBackVisible: false }} />
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Verify"
+            component={Verify}
+            options={{ title: t('verifyTitle'), headerBackVisible: false, headerRight: () => <AuthHeaderRight /> }}
+          />
         </Stack.Navigator>
       ) : user.role === 'visitor' ? (
         <Tabs.Navigator screenOptions={header}>
@@ -95,8 +269,12 @@ function Root() {
           <Tabs.Screen name="Account" component={Account} options={{ title: t('tabAccount'), tabBarLabel: t('tabAccount'), tabBarIcon: icon('person-circle', 'person-circle-outline') }} />
         </Tabs.Navigator>
       ) : (
-        <Stack.Navigator screenOptions={{ headerRight: () => <HeaderRight /> }}>
-          <Stack.Screen name="Account" component={Account} options={{ title: t(`role_${user.role}`) }} />
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Account"
+            component={Account}
+            options={{ title: t(`role_${user.role}`), headerRight: () => <AuthHeaderRight /> }}
+          />
         </Stack.Navigator>
       )}
     </NavigationContainer>

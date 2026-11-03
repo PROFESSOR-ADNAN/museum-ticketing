@@ -124,22 +124,12 @@ export function Home({ navigation }) {
         <Text style={[s.muted, { marginTop: 10, fontSize: 12, lineHeight: 17 }]}>{t('priceNote')}</Text>
       </View>
 
-      {/* Main Action Buttons */}
-      <View style={{ marginBottom: 20, gap: 8 }}>
+      {/* Main Action Button */}
+      <View style={{ marginBottom: 20 }}>
         <Btn
           title={visitType === 'individual' ? t('bookPersonal') : t('bookSchool')}
           onPress={() => navigation.navigate(user?.role === 'visitor' ? 'Book' : (user ? 'Book' : 'Login'))}
         />
-        {!user && (
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <View style={{ flex: 1 }}>
-              <Btn kind="ghost" title={t('login')} onPress={() => navigation.navigate('Login')} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Btn kind="ghost" title={t('register')} onPress={() => navigation.navigate('Register')} />
-            </View>
-          </View>
-        )}
       </View>
 
       {/* How it Works */}

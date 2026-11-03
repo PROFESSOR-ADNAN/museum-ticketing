@@ -1,7 +1,7 @@
 // Generated from web/src/i18n.jsx (shared wording) + mobile-only strings at the bottom.
 export const dict = {
   en: {
-    brand: 'AAU 4 Kilo Museum Ticketing', museumName: 'Zoological Natural History Museum', campus: 'Addis Ababa University · 4 Kilo Campus', tagline: 'Official ticketing app for the Zoological Natural History Museum at AAU 4 Kilo Campus. Book ahead, pay online, walk right in.',
+    brand: 'AAU 4 Kilo Museum Ticketing', brandShort: 'AAU Museum', museumName: 'Zoological Natural History Museum', campus: 'Addis Ababa University · 4 Kilo Campus', tagline: 'Official ticketing app for the Zoological Natural History Museum at AAU 4 Kilo Campus. Book ahead, pay online, walk right in.',
     home: 'Home', book: 'Book a visit', group: 'School / group visit', myBookings: 'My bookings', cashier: 'Cashier', manager: 'Manager', admin: 'Admin',
     login: 'Sign in', register: 'Create account', logout: 'Sign out', email: 'Email', phone: 'Phone', password: 'Password', name: 'Full name',
     loading: 'Loading…', save: 'Save changes', cancel: 'Cancel booking', confirm: 'Confirm', date: 'Visit date', quantity: 'Quantity', total: 'Total', status: 'Status', search: 'Search',
@@ -46,7 +46,7 @@ export const dict = {
     backup: 'Download database backup', backupHelp: 'A complete copy of all data (contains personal data and password hashes). Store it safely.', scansToday: 'Gate scans today',
   },
   am: {
-    brand: 'የአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ሙዚየም ትኬቲንግ', museumName: 'የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም', campus: 'አዲስ አበባ ዩኒቨርሲቲ · 4 ኪሎ (አራት ኪሎ) ካምፓስ', tagline: 'በአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ካምፓስ ለሚገኘው የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም ይፋዊ የመስመር ላይ ትኬት መተግበሪያ። አስቀድመው ያስይዙ፣ ይክፈሉ፣ በቀጥታ ይግቡ።',
+    brand: 'የአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ሙዚየም ትኬቲንግ', brandShort: 'አ/አ ሙዚየም', museumName: 'የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም', campus: 'አዲስ አበባ ዩኒቨርሲቲ · 4 ኪሎ (አራት ኪሎ) ካምፓስ', tagline: 'በአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ካምፓስ ለሚገኘው የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም ይፋዊ የመስመር ላይ ትኬት መተግበሪያ። አስቀድመው ያስይዙ፣ ይክፈሉ፣ በቀጥታ ይግቡ።',
     home: 'መነሻ', book: 'ጉብኝት ያስይዙ', group: 'የትምህርት ቤት / ቡድን ጉብኝት', myBookings: 'የእኔ ቦታ ማስያዣዎች', cashier: 'ካሸር', manager: 'ሥራ አስኪያጅ', admin: 'አስተዳዳሪ',
     login: 'ግባ', register: 'መለያ ክፈት', logout: 'ውጣ', email: 'ኢሜይል', phone: 'ስልክ', password: 'የይለፍ ቃል', name: 'ሙሉ ስም',
     loading: 'በመጫን ላይ…', save: 'ለውጦችን አስቀምጥ', cancel: 'ቦታ ማስያዣውን ሰርዝ', confirm: 'አረጋግጥ', date: 'የጉብኝት ቀን', quantity: 'ብዛት', total: 'ጠቅላላ', status: 'ሁኔታ', search: 'ፈልግ',
