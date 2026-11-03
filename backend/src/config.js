@@ -15,7 +15,7 @@ export const config = {
   env: nodeEnv,
   isProd: nodeEnv === 'production',
   port: Number(env.PORT || 4000),
-  databaseUrl: env.DATABASE_URL || env.POSTGRES_URL || '',
+  databaseUrl: env.DATABASE_URL_POOLED || env.DATABASE_URL || env.POSTGRES_URL || '',
   dbPath: fromRoot(env.DB_PATH || './data/museum.sqlite'),
   backupDir: fromRoot(env.BACKUP_DIR || './data/backups'),
   backupKeep: Number(env.BACKUP_KEEP || 30),

@@ -14,11 +14,6 @@ export default function Account({ navigation }) {
     try { await refresh(); } catch { /* offline */ }
   }, [refresh]));
 
-  const confirmLogout = () => Alert.alert(t('signOutTitle'), t('signOutBody'), [
-    { text: t('stay'), style: 'cancel' },
-    { text: t('logout'), style: 'destructive', onPress: logout },
-  ]);
-
   const verified = Boolean(user.emailVerified && user.phoneVerified);
   const staffOnWeb = user.role === 'manager' || user.role === 'admin';
   const initial = (user.name || 'U').trim().charAt(0).toUpperCase();
@@ -202,30 +197,6 @@ export default function Account({ navigation }) {
           </View>
         </View>
       </View>
-
-      {/* Sign Out Button */}
-      <Pressable
-        onPress={confirmLogout}
-        accessibilityRole="button"
-        accessibilityLabel={t('logout')}
-        style={({ pressed }) => [
-          {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 10,
-            backgroundColor: '#fff',
-            borderWidth: 1.5,
-            borderColor: C.brick,
-            borderRadius: 12,
-            paddingVertical: 14,
-            opacity: pressed ? 0.8 : 1,
-          },
-        ]}
-      >
-        <Ionicons name="log-out-outline" size={20} color={C.brick} />
-        <Text style={{ color: C.brick, fontWeight: '800', fontSize: 16 }}>{t('logout')}</Text>
-      </Pressable>
 
       {/* App Branding Footer */}
       <View style={{ alignItems: 'center', marginTop: 24, paddingBottom: 12 }}>

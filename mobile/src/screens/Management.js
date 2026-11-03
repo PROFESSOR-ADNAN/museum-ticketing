@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { api, isNetworkError } from '../api';
 import { useApp } from '../context';
-import { Banner, Btn, C, Err, Loading, Notice, Ok, Status, money, pullControl, s, useRefresh } from '../ui';
+import { Banner, Btn, C, Err, Field, Loading, Notice, Ok, Status, money, pullControl, s, useRefresh } from '../ui';
 
 function StatBox({ value, label, icon: iconName, color = C.teal }) {
   return (

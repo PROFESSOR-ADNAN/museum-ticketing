@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 // development-like settings: the limiter is active here (it is switched off in the other tests)
-Object.assign(process.env, { NODE_ENV: 'development', DB_PATH: ':memory:', AUTH_RATE_LIMIT: '3', JWT_SECRET: 'x'.repeat(32) });
+Object.assign(process.env, { NODE_ENV: 'development', DB_PATH: ':memory:', AUTH_RATE_LIMIT: '3', JWT_SECRET: 'x'.repeat(32), DATABASE_URL: '', DATABASE_URL_POOLED: '' });
 const { openDb, closeDb } = await import('../src/db/index.js');
 const { createApp } = await import('../src/app.js');
 

@@ -64,24 +64,32 @@ export default function Home() {
 
   return (
     <>
-      {/* AAU Credit & Eyebrow */}
-      <div className="home-eyebrow">
-        <img src="/aau-logo.png" alt="Addis Ababa University Logo" className="aau-logo-badge" />
-        <div>
-          <span className="eyebrow-pill">✦ {t('eyebrow')}</span>
-          <h2 className="affiliation-heading">{t('museumName')}</h2>
-          <p className="affiliation-text">🏛 {t('campus')} · {t('affiliation')}</p>
-        </div>
-      </div>
-
       {/* Hero Section */}
       <section className="hero">
         <div>
-          <h1>{t('tagline')}</h1>
-          <p className="hero-sub">{t('priceNote')}</p>
+          <div className="hero-institution-badge">
+            <img src="/aau-logo.png" alt="AAU Crest" className="hero-mini-logo" />
+            <span>{t('eyebrow')}</span>
+          </div>
+
+          <h1 className="hero-title">
+            {lang === 'am' ? 'የኢትዮጵያን ብርቅዬ የተፈጥሮ ቅርስ ይጎብኙ' : "Explore Ethiopia's Natural Wonders"}
+          </h1>
+
+          <p className="hero-sub">
+            {lang === 'am'
+              ? 'በአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ካምፓስ ለሚገኘው የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም ይፋዊ የመስመር ላይ ትኬት መተግበሪያ። አስቀድመው ያስይዙ፣ በቴሌብር ወይም በባንክ ይክፈሉ፣ በዲጂታል QR ትኬት በቀጥታ ይግቡ።'
+              : 'Official ticketing for the Zoological Natural History Museum at AAU 4 Kilo Campus. Book ahead, pay online with Telebirr or CBE Birr, and walk right in with your digital pass.'}
+          </p>
+
+          <div className="hero-chips">
+            <span className="hero-chip">🎟 {lang === 'am' ? 'ፈጣን ዲጂታል QR ትኬት' : 'Instant Digital QR Pass'}</span>
+            <span className="hero-chip">⚡ {lang === 'am' ? 'ቴሌብር እና ሲቢኢ ብር' : 'Telebirr, CBE & Cards'}</span>
+            <span className="hero-chip">🏛 {lang === 'am' ? 'ሰኞ - ቅዳሜ 8:30 - 5:30' : 'Mon–Sat 8:30 AM – 5:30 PM'}</span>
+          </div>
 
           {user && userBookings.length > 0 && (
-            <div className="card" style={{ background: '#f0fdf4', borderColor: '#86efac', marginTop: 18, marginBottom: 0 }}>
+            <div className="card" style={{ background: '#f0fdf4', borderColor: '#86efac', marginTop: 12, marginBottom: 0 }}>
               <div className="row between">
                 <div>
                   <h4 style={{ margin: '0 0 4px', color: '#166534' }}>🎟 {lang === 'am' ? 'የእርስዎ ትኬቶች እና ቦታ ማስያዣዎች' : 'Your Tickets & Bookings'}</h4>
