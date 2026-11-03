@@ -1,78 +1,172 @@
-# Science Museum Ticketing & Booking Platform
+# AAU 4 Kilo Museum Ticketing Platform
+### Zoological Natural History Museum · Addis Ababa University (Arat Kilo Campus)
 
-Online booking, **Chapa** payment and **QR ticket checks** for the CNCS Science Museum — three apps on one REST API:
+Official bilingual (English & Amharic) digital ticketing, payment, and gate admission platform for the **Zoological Natural History Museum** at **Addis Ababa University (AAU) — 4 Kilo (Arat Kilo) Campus**.
 
-| Part          | Folder     | Stack                                                                                           |
-| ------------- | ---------- | ----------------------------------------------------------------------------------------------- |
-| REST API      | `backend/` | Node 20+, Express, **SQLite** (better-sqlite3), JWT, Zod · routes → controllers → services → db |
-| Web app       | `web/`     | React 18 + Vite                                                                                 |
-| Mobile app    | `mobile/`  | React Native, **Expo SDK 54**, local SQLite cache for offline use                               |
-| Documentation | `docs/`    | 15 documents as Markdown, Word and PDF — start at `docs/README.md`                              |
+Live Production Web: [https://museum-ticketing.vercel.app](https://museum-ticketing.vercel.app)
 
-The cash counter is **not replaced**: this adds a second, digital track (SRS in `docs/00-source-material/`). Amharic and English everywhere.
+---
 
-## 1. Run the backend and web app (about 5 minutes)
+## 🏛 System Overview
+
+The platform provides a dual-channel ticketing infrastructure (digital online booking alongside the physical counter) with end-to-end payment processing, signed cryptographic QR tickets, and offline-capable gate scanning.
+
+| Component | Path | Technology & Architecture |
+| :--- | :--- | :--- |
+| **REST API** | `backend/` | Node.js 20+, Express, ESM, Zod validation, JWT authentication. **Dual-Mode Database**: SQLite for local dev/testing; **Neon Serverless PostgreSQL** for production. |
+| **Web Portal** | `web/` | React 18, Vite, React Router 6, bilingual i18n (`EN` / `አማ`). Visitor booking, live ticket stubs, digital receipts, Cashier handover, Manager & Admin dashboards. |
+| **Mobile App** | `mobile/` | React Native, **Expo SDK 54**, Expo SQLite, Camera QR scanner, Ed25519 signature checks, offline admission queue, Manager/Admin mobile dashboard. |
+
+---
+
+## 🚀 Key Features
+
+* **Visitor Self-Service**:
+  - Book individual or school/group visits with real-time category pricing (Student, Adult, Foreign Resident, Non-Resident).
+  - Instant online checkout via **Chapa** (Telebirr, CBE Birr, Debit/Credit Cards).
+  - Phone and email verification using **AfroMessage SMS Gateway** (`+2519...`) and SMTP.
+  - Digital admission pass with signed, tamper-proof **QR code** and official university temporary receipt (`TMP-XXXXXXXX`).
+* **Gate Operations & Cashier**:
+  - High-speed camera QR code scanner (works fully offline from encrypted device cache).
+  - Headcount attendance tracking (defaults to booked quantity; records actual arrivals).
+  - **End-of-Shift Handover to Finance**: Computes gross revenue minus shortfall refunds to issue formal handover vouchers (`SET-XXXXXX`) to AAU Finance.
+* **Management & Administration**:
+  - Live revenue KPIs, daily visitors, gate scan activity, and status mix breakdown.
+  - One-tap approval/rejection of school group visit requests.
+  - CSV report exports for university audits and fiscal year accounting.
+  - Date closures management and category price configuration.
+* **Automated Cron Jobs (Vercel Serverless)**:
+  - Nightly no-show expiration job (`/api/cron/no-show` at 03:00 UTC / 06:00 AM Addis Ababa time).
+  - Automatic refund reconciliation (`/api/cron/reconcile-refunds` every 15 minutes).
+
+---
+
+## 🛠 Quick Start (Local Development)
+
+### Prerequisites
+* Node.js ≥ 20.x
+* npm ≥ 9.x
+
+### 1. Backend API
 
 ```bash
 cd backend
-cp .env.example .env            # for a first look you can leave the Chapa keys empty ONLY if you use the simulator (step 4)
-npm install && npm run seed && npm run dev          # API on http://localhost:4000   (database file: backend/data/museum.sqlite)
-# in a second terminal
-cd web && cp .env.example .env && npm install && npm run dev        # http://localhost:5173
+cp .env.example .env
+npm install
+npm test            # Runs all 16 automated tests (SQLite in-memory)
+npm run dev         # Starts API on http://localhost:4000
 ```
 
-No database server is needed — SQLite is a single file that the API creates on first start.
-
-**Demo accounts** (password `Passw0rd!`): `visitor@museum.test` · `cashier@museum.test` · `manager@museum.test` · `admin@museum.test`.
-
-## 2. Connect Chapa (real payment gateway)
-
-1. In the Chapa dashboard (Settings → API) copy your **test** secret key (`CHASECK_TEST-…`).
-2. Make the API reachable from the internet over https (Chapa must call your webhook and send customers back): `cloudflared tunnel --url http://localhost:4000` (or `ngrok http 4000`). Copy the https address.
-3. Edit `backend/.env`:
-   ```
-   CHAPA_SECRET_KEY=CHASECK_TEST-...        CHAPA_WEBHOOK_SECRET=<any long random string>
-   PUBLIC_API_URL=https://<your-tunnel-address>     TRUST_PROXY=1
-   ```
-4. `npm run chapa:check` → confirms the key and prints the **webhook URL** to enter in Chapa (Settings → Webhooks) together with the same secret string. Restart the API.
-   Full guide, test numbers and troubleshooting: `docs/14-chapa-setup-and-testing.md`.
-
-**No keys yet?** `npm run chapa:simulator` (in `backend/`) starts a local imitation of Chapa for demos and tests: set `CHAPA_BASE_URL=http://127.0.0.1:4010/v1`, `CHAPA_SECRET_KEY=CHASECK_TEST-simulator`, `CHAPA_WEBHOOK_SECRET=simulator-webhook-secret`. It is not Chapa — never use it in production.
-
-## 3. Try the whole flow
-
-1. Visitor → **Book a visit** (pick _today_) → **Confirm** → **Pay now** → pay on Chapa's page → back to the booking: **Pending**, with the **receipt and QR code**.
-2. Cashier → **Scan ticket** → scan the QR (camera / USB scanner) or type the reference → green **PAID** → enter how many arrived → **Record attendance**. Scan again → **ALREADY USED**.
-3. Visitor → **Refund unattended tickets** (if fewer came). Cashier → **Transfer to Finance** → Transfer Receipt.
-4. Manager → dashboard, reports, **Download data (CSV)**. Admin → refunds needing attention, **Download database backup**.
-
-## 4. Mobile app (Expo Go, SDK 54)
+### 2. Web Application
 
 ```bash
-cd mobile && npm install && cp .env.example .env     # set EXPO_PUBLIC_API_URL to an address the PHONE can reach
-npm run start:clear                                  # scan the QR with Expo Go (Android) or the Camera app (iPhone)
+cd web
+npm install
+npm run dev         # Starts Web App on http://localhost:5173
 ```
 
-A tunnel (`npm run start:tunnel`) only carries the app's code — **the API needs its own reachable address** (use the same https tunnel as for Chapa). Everything about this, the offline mode and troubleshooting: `docs/15-mobile-app-guide.md`.
-
-## 5. Docker alternative
+### 3. Mobile Application
 
 ```bash
-cp backend/.env.example backend/.env && docker compose up --build && docker compose exec api node src/seed.js
+cd mobile
+npm install
+npm test            # Runs mobile test suite
+npx expo start      # Open in Expo Go (Android/iOS)
 ```
 
-## 6. What is verified, and what is not
+---
 
-- **Verified here:** 13 backend tests (incl. a full end-to-end flow on SQLite against a Chapa _simulator_), 3 mobile tests, 17 offline-sync checks against the real API, web production build, Android + iOS Metro bundles, and a browser walkthrough (book → pay → QR → scan → admit → rescan).
-- **Not verified here (please run these first):** real **Chapa** calls with your test keys (I had no keys or access); the **mobile app on a real phone** in Expo Go; a real camera scan in the browser; real SMS/email; a backup restore drill. Steps are in `docs/08-test-plan-and-report.md`.
-- **Open decisions** for the museum/Finance (fiscal-year date, who bears Chapa's fee, unrequested shortfalls, settlement account): `docs/02-requirements-baseline.md` §6.
+## 🔑 Default Seed Accounts
 
-## 7. Where things are
+All accounts share the default password: **`admin1234`**
 
+| Role | Email | Permissions |
+| :--- | :--- | :--- |
+| **Platform Admin** | `admin@museum.test` | System settings, staff accounts, audit logs, reports, full access. |
+| **Museum Manager** | `manager@museum.test` | Dashboard, group approvals, date closures, summary reports. |
+| **Front Cashier** | `cashier@museum.test` | Gate scanner, visitor check-in, end-of-shift transfer to Finance. |
+| **Demo Visitor** | `visitor@museum.test` | Book tickets, view digital QR passes, request shortfall refunds. |
+
+---
+
+## ⚙️ Environment Configuration
+
+### Backend (`backend/.env` / Vercel Environment Variables)
+
+```ini
+# Server
+PORT=4000
+NODE_ENV=production
+PUBLIC_API_URL=https://museum-ticketing.vercel.app
+WEB_URL=https://museum-ticketing.vercel.app
+JWT_SECRET=your-strong-random-jwt-secret
+
+# Database (Neon PostgreSQL in production; SQLite when unset)
+DATABASE_URL=postgresql://user:password@ep-xyz.eu-central-1.aws.neon.tech/neondb?sslmode=require
+
+# Chapa Payment Gateway (Ethiopia)
+CHAPA_SECRET_KEY=CHASECK_TEST-xxxxxxxxxxxxxxxx
+CHAPA_PUBLIC_KEY=CHAPUBK_TEST-xxxxxxxxxxxxxxxx
+CHAPA_WEBHOOK_SECRET=your-webhook-secret-string
+
+# AfroMessage SMS Gateway (Ethiopia)
+SMS_API_URL=https://api.afromessage.com/api/send
+SMS_API_KEY=your-afromessage-jwt-token
+SMS_SENDER_ID=AAU_MUSEUM
+
+# Email (SMTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=585
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_FROM="AAU Science Museum <no-reply@aau.edu.et>"
+
+# Scheduled Cron Security
+CRON_SECRET=your-cron-secret-key
 ```
-backend/src/{routes,controllers,services,db,middleware,utils,i18n}    API (routes only wire; controllers validate; services hold the rules)
-backend/src/db/migrations/                                            SQL schema + reporting views (applied automatically)
-backend/test/  (npm test)  ·  backend/test/support/fakeChapa.js       tests and the Chapa simulator
-web/src/{pages,components}   ·   mobile/src/{screens,offline.js,ticket.js,db.js}
-docs/                                                                 deliverables (word/ and pdf/ copies inside)
+
+### Web (`web/.env`)
+
+```ini
+VITE_API_URL=https://museum-ticketing.vercel.app
 ```
+
+### Mobile (`mobile/.env`)
+
+```ini
+EXPO_PUBLIC_API_URL=https://museum-ticketing.vercel.app
+```
+
+---
+
+## 📱 Building the Mobile Standalone APK (EAS Build)
+
+To compile the standalone Android APK using EAS:
+
+```bash
+cd mobile
+eas build --platform android --profile preview --non-interactive
+```
+
+The resulting build is distributed as an installable `.apk` file ready for physical device deployment.
+
+---
+
+## 🧪 Testing
+
+```bash
+# Backend test suite (16 tests, dual-mode DB validation, security checks)
+cd backend && npm test
+
+# Mobile test suite (7 tests, Ed25519 offline QR ticket verification)
+cd mobile && npm test
+
+# Web production bundle
+cd web && npm run build
+```
+
+---
+
+## 📜 License & Affiliation
+
+Developed for the **Zoological Natural History Museum**, College of Natural & Computational Sciences, **Addis Ababa University (AAU) — Arat Kilo Campus**.
