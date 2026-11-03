@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS settlements (
 CREATE TABLE IF NOT EXISTS bookings (
   id SERIAL PRIMARY KEY,
   ref VARCHAR(50) NOT NULL UNIQUE,
-  visitor_id INT NOT NULL REFERENCES users(id),
+  visitor_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   kind VARCHAR(20) NOT NULL DEFAULT 'individual' CHECK (kind IN ('individual','group')),
   visit_date DATE NOT NULL,
   time_slot VARCHAR(50),
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   amount_cents INT NOT NULL CHECK (amount_cents >= 0),
   status VARCHAR(50) NOT NULL CHECK (status IN ('PendingApproval','Declined','AwaitingPayment','Pending','Visited','Cancelled','Refunded')),
   channel VARCHAR(20) NOT NULL DEFAULT 'online' CHECK (channel IN ('online','manager')),
-  decision_by INT REFERENCES users(id),
+  decision_by INT REFERENCES users(id) ON DELETE SET NULL,
   decision_at TIMESTAMPTZ,
   decision_note TEXT,
   paid_at TIMESTAMPTZ,
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   attended_quantity INT,
   attended_amount_cents INT,
   visited_at TIMESTAMPTZ,
-  visited_by INT REFERENCES users(id),
+  visited_by INT REFERENCES users(id) ON DELETE SET NULL,
   refunded_cents INT NOT NULL DEFAULT 0,
   shortfall_refunded BOOLEAN NOT NULL DEFAULT FALSE,
   settlement_id INT REFERENCES settlements(id),
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS booking_lines (
 -- 6. Payments
 CREATE TABLE IF NOT EXISTS payments (
   id SERIAL PRIMARY KEY,
-  booking_id INT NOT NULL REFERENCES bookings(id),
+  booking_id INT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
   provider VARCHAR(50) NOT NULL,
   provider_ref VARCHAR(100) NOT NULL UNIQUE,
   provider_txn_id VARCHAR(100),
@@ -139,9 +139,9 @@ CREATE INDEX IF NOT EXISTS idx_payments_booking ON payments(booking_id);
 -- 7. Refunds
 CREATE TABLE IF NOT EXISTS refunds (
   id SERIAL PRIMARY KEY,
-  booking_id INT NOT NULL REFERENCES bookings(id),
+  booking_id INT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
   reason VARCHAR(50) NOT NULL CHECK (reason IN ('cancel','shortfall','no_response','orphan')),
-  payment_id INT REFERENCES payments(id),
+  payment_id INT REFERENCES payments(id) ON DELETE SET NULL,
   gross_cents INT NOT NULL,
   fee_share_cents INT NOT NULL DEFAULT 0,
   net_cents INT NOT NULL,
@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS refunds (
   attempts INT NOT NULL DEFAULT 0,
   last_error TEXT,
   needs_review BOOLEAN NOT NULL DEFAULT FALSE,
-  requested_by INT REFERENCES users(id),
+  requested_by INT REFERENCES users(id) ON DELETE SET NULL,
   settlement_id INT REFERENCES settlements(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -161,14 +161,14 @@ CREATE TABLE IF NOT EXISTS refunds (
 CREATE TABLE IF NOT EXISTS date_closures (
   date DATE PRIMARY KEY,
   reason TEXT,
-  closed_by INT REFERENCES users(id),
+  closed_by INT REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- 9. Audit Logs
 CREATE TABLE IF NOT EXISTS audit_logs (
   id SERIAL PRIMARY KEY,
-  actor_id INT REFERENCES users(id),
+  actor_id INT REFERENCES users(id) ON DELETE SET NULL,
   action VARCHAR(100) NOT NULL,
   entity VARCHAR(100),
   entity_id INT,
@@ -182,8 +182,8 @@ CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_logs(action);
 -- 10. Notices
 CREATE TABLE IF NOT EXISTS notices (
   id SERIAL PRIMARY KEY,
-  user_id INT REFERENCES users(id),
-  booking_id INT REFERENCES bookings(id),
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  booking_id INT REFERENCES bookings(id) ON DELETE CASCADE,
   channel VARCHAR(20) NOT NULL CHECK (channel IN ('email','sms')),
   recipient VARCHAR(255),
   subject TEXT,
@@ -196,10 +196,10 @@ CREATE TABLE IF NOT EXISTS notices (
 -- 11. Ticket Scans
 CREATE TABLE IF NOT EXISTS ticket_scans (
   id SERIAL PRIMARY KEY,
-  booking_id INT REFERENCES bookings(id),
+  booking_id INT REFERENCES bookings(id) ON DELETE CASCADE,
   ref VARCHAR(50),
   result VARCHAR(50) NOT NULL,
-  cashier_id INT REFERENCES users(id),
+  cashier_id INT REFERENCES users(id) ON DELETE SET NULL,
   source VARCHAR(50) NOT NULL DEFAULT 'online' CHECK (source IN ('online','offline-sync')),
   scanned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   note TEXT
