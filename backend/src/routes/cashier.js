@@ -3,11 +3,13 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 import * as C from '../controllers/cashierController.js';
 
 const r = Router();
-r.use(requireAuth, requireRole('cashier'));
+r.use(requireAuth, requireRole('cashier', 'admin'));
 
 r.get('/bookings/lookup', C.lookupBookings);
 r.get('/bookings/today', C.todayBookings);
 r.post('/bookings/:ref/attendance', C.attendance);
+r.post('/bookings/:ref/category-correction', C.categoryCorrection);
+r.post('/walk-in', C.walkIn);
 r.post('/verify', C.verifyTicket);
 r.get('/gate-list', C.downloadGateList);
 r.post('/sync', C.syncAdmissions);

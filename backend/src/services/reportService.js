@@ -18,11 +18,11 @@ async function dayRows({ from, to } = {}) {
     args.push(to);
   }
   const byKind = await sql(`SELECT ${DAY} AS day, b.kind, SUM(b.attended_quantity) AS visitors, SUM(b.attended_amount_cents) AS cents
-                      FROM bookings b WHERE b.status = 'Visited'${range} GROUP BY day, b.kind`).all(...args);
+                      FROM bookings b WHERE b.status = 'Visited'${range} GROUP BY ${DAY}, b.kind`).all(...args);
   const byCat = await sql(`SELECT ${DAY} AS day, l.key, l.name_en, l.name_am, SUM(l.attended_quantity) AS visitors, SUM(l.attended_quantity * l.unit_price_cents) AS cents
-                     FROM booking_lines l JOIN bookings b ON b.id = l.booking_id WHERE b.status = 'Visited'${range} GROUP BY day, l.key, l.name_en, l.name_am`).all(...args);
+                     FROM booking_lines l JOIN bookings b ON b.id = l.booking_id WHERE b.status = 'Visited'${range} GROUP BY ${DAY}, l.key, l.name_en, l.name_am`).all(...args);
   const bySchool = await sql(`SELECT ${DAY} AS day, b.organization AS org, SUM(b.attended_quantity) AS visitors
-                        FROM bookings b WHERE b.status = 'Visited' AND b.kind = 'group' AND b.organization IS NOT NULL${range} GROUP BY day, b.organization`).all(...args);
+                        FROM bookings b WHERE b.status = 'Visited' AND b.kind = 'group' AND b.organization IS NOT NULL${range} GROUP BY ${DAY}, b.organization`).all(...args);
   return { byKind, byCat, bySchool };
 }
 

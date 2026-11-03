@@ -10,7 +10,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AppProvider, useApp } from './src/context';
 import { Login, Register, Verify } from './src/screens/Auth';
 import { Book, BookingDetail, Home, MyBookings } from './src/screens/Visitor';
-import { CheckIn, Scan, Transfer } from './src/screens/Cashier';
+import { CheckIn, PosWalkIn, Scan, Transfer } from './src/screens/Cashier';
 import { Dashboard, GroupRequests, Reports, DateClosures } from './src/screens/Management';
 import AdminScreen from './src/screens/Admin';
 import Account from './src/screens/Account';
@@ -244,6 +244,7 @@ function Root() {
         </Tabs.Navigator>
       ) : user.role === 'cashier' ? (
         <Tabs.Navigator screenOptions={header}>
+          <Tabs.Screen name="POS" component={PosWalkIn} options={{ title: t('posWalkIn'), tabBarLabel: t('posWalkIn'), tabBarIcon: icon('calculator', 'calculator-outline') }} />
           <Tabs.Screen name="Scan" component={Scan} options={{ title: t('cashierScan'), tabBarLabel: t('cashierScan'), tabBarIcon: icon('qr-code', 'qr-code-outline') }} />
           <Tabs.Screen name="CheckIn" component={CheckIn} options={{ title: t('cashierCheckin'), tabBarLabel: t('cashierCheckin'), tabBarIcon: icon('search', 'search-outline') }} />
           <Tabs.Screen name="Transfer" component={Transfer} options={{ title: t('cashierTransfer'), tabBarLabel: t('cashierTransfer'), tabBarIcon: icon('cash', 'cash-outline') }} />

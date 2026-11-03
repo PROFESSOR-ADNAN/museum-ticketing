@@ -3,7 +3,7 @@ import { sql } from '../db/index.js';
 import { Bookings, Settlements, Users, hydrateBookings, mapRefund, mapSettlement } from '../db/repo.js';
 import { AppError, asyncHandler as handle } from '../utils/AppError.js';
 import { isValidDateStr } from '../utils/dates.js';
-import { recordAttendance } from '../services/bookingService.js';
+import { correctCategory, createWalkInSale, recordAttendance } from '../services/bookingService.js';
 import { checkTicket, gateList, lookup, syncAttendance, todaysBookings } from '../services/gateService.js';
 import { createSettlement, pendingSettlement } from '../services/settlementService.js';
 import { transferReceipt } from '../services/documents.js';
@@ -17,6 +17,24 @@ const syncSchema = z.object({
     clientId: z.string().max(80), ref: z.string().max(20), scannedAt: z.string().max(40).optional(),
     attendedQuantity: z.number().int().min(1).optional(), attended: attended.optional(),
   })).max(500),
+});
+const walkInSchema = z.object({
+  lines: z.array(z.object({
+    categoryId: z.number().int().positive(),
+    quantity: z.number().int().positive(),
+  })).min(1),
+  paymentMethod: z.enum(['cash', 'qr']).default('cash'),
+  cashReason: z.string().optional(),
+  buyerName: z.string().optional(),
+  buyerPhone: z.string().optional(),
+  admitImmediately: z.boolean().default(true),
+});
+const correctionSchema = z.object({
+  fromCategoryId: z.number().int().positive(),
+  toCategoryId: z.number().int().positive(),
+  quantity: z.number().int().positive(),
+  reason: z.enum(['wrong_category', 'wrong_headcount', 'walk_up_addition', 'other']).default('wrong_category'),
+  evidence: z.string().optional(),
 });
 
 // FR-TICKET-001 / 004: by reference, or by name / email / phone when the visitor lost the reference
@@ -64,4 +82,16 @@ export const getTransfer = handle(async (req, res) => {
   const mapped = await mapSettlement(row);
   const cashier = await Users.byId(row.cashier_id);
   res.json({ settlement: mapped, receipt: transferReceipt(mapped, cashier) });
+});
+
+export const walkIn = handle(async (req, res) => {
+  const d = walkInSchema.parse(req.body);
+  const result = await createWalkInSale({ ...d, cashier: req.user });
+  res.status(201).json(result);
+});
+
+export const categoryCorrection = handle(async (req, res) => {
+  const d = correctionSchema.parse(req.body);
+  const result = await correctCategory(req.params.ref, { ...d, cashier: req.user });
+  res.json(result);
 });

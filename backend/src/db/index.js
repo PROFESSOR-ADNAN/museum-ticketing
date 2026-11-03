@@ -161,7 +161,7 @@ export function translateSql(text) {
   s = s.replace(/date\s*\(\s*scanned_at\s*,\s*'\+3 hours'\s*\)/gi, "(scanned_at AT TIME ZONE 'Africa/Addis_Ababa')::date::text");
   s = s.replace(/date\s*\(\s*b\.visited_at\s*,\s*'\+3 hours'\s*\)/gi, "(b.visited_at AT TIME ZONE 'Africa/Addis_Ababa')::date::text");
   s = s.replace(/date\s*\(\s*created_at\s*,\s*'\+3 hours'\s*\)/gi, "(created_at AT TIME ZONE 'Africa/Addis_Ababa')::date::text");
-  // Boolean assignments in UPDATE
+  // Boolean column replacements (covers UPDATE and WHERE)
   s = s.replace(/\bemail_verified\s*=\s*1\b/gi, 'email_verified = true');
   s = s.replace(/\bemail_verified\s*=\s*0\b/gi, 'email_verified = false');
   s = s.replace(/\bphone_verified\s*=\s*1\b/gi, 'phone_verified = true');
@@ -174,13 +174,6 @@ export function translateSql(text) {
   s = s.replace(/\bshortfall_refunded\s*=\s*0\b/gi, 'shortfall_refunded = false');
   s = s.replace(/\bneeds_review\s*=\s*1\b/gi, 'needs_review = true');
   s = s.replace(/\bneeds_review\s*=\s*0\b/gi, 'needs_review = false');
-  // Boolean conditions in WHERE
-  s = s.replace(/\bWHERE\s+active\s*=\s*1\b/gi, 'WHERE active = true');
-  s = s.replace(/\bAND\s+active\s*=\s*1\b/gi, 'AND active = true');
-  s = s.replace(/\bWHERE\s+online_bookable\s*=\s*1\b/gi, 'WHERE online_bookable = true');
-  s = s.replace(/\bAND\s+online_bookable\s*=\s*1\b/gi, 'AND online_bookable = true');
-  s = s.replace(/\bAND\s+shortfall_refunded\s*=\s*0\b/gi, 'AND shortfall_refunded = false');
-  s = s.replace(/\bAND\s+needs_review\s*=\s*0\b/gi, 'AND needs_review = false');
 
   if (/^\s*insert\s+into/i.test(s) && !/returning/i.test(s) && !/ON\s+CONFLICT\s+DO\s+NOTHING/i.test(s)) {
     s += ' RETURNING id';

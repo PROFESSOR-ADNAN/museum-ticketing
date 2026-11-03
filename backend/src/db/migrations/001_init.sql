@@ -54,7 +54,7 @@ CREATE TABLE bookings (
   booked_quantity INTEGER NOT NULL CHECK (booked_quantity > 0),
   amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0),
   status TEXT NOT NULL CHECK (status IN ('PendingApproval','Declined','AwaitingPayment','Pending','Visited','Cancelled','Refunded')),
-  channel TEXT NOT NULL DEFAULT 'online' CHECK (channel IN ('online','manager')),
+  channel TEXT NOT NULL DEFAULT 'online' CHECK (channel IN ('online','manager','walk_in')),
   decision_by INTEGER REFERENCES users(id), decision_at TEXT, decision_note TEXT,
   paid_at TEXT, payment_ref TEXT, temp_receipt_no TEXT,
   aggregator_fee_cents INTEGER NOT NULL DEFAULT 0,

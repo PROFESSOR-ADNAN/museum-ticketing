@@ -4,7 +4,7 @@ import { AppError } from '../utils/AppError.js';
 import { addisDateOf, daysBetween, isValidDateStr } from '../utils/dates.js';
 import { bookingRef } from '../utils/refs.js';
 import { config } from '../config.js';
-import { Users } from '../db/repo.js';
+import { Users, audit } from '../db/repo.js';
 import { addDays } from '../utils/dates.js';
 import { issueRefund } from './refundService.js';
 import { temporaryReceipt } from './documents.js';
@@ -132,4 +132,103 @@ export async function receiptFor(row) {
   const usable = ['Pending', 'Visited'].includes(booking.status);
   const token = usable ? signTicket({ ref: booking.ref, visitDate: booking.visitDate, bookedQuantity: booking.bookedQuantity }) : null;
   return temporaryReceipt(booking, user, token);
+}
+
+/**
+ * FR-BOOK-002, T10: Walk-in POS sale created at ticket desk.
+ * Uses current catalog prices. Accepts cash or QR.
+ */
+export async function createWalkInSale({ cashier, lines, paymentMethod = 'cash', cashReason = '', buyerName = '', buyerPhone = '', admitImmediately = true }) {
+  const today = addisDateOf();
+  const built = await buildLines(lines);
+
+  let walkInUser = await Users.byEmail('walk-in@pos.museum.invalid');
+  if (!walkInUser) {
+    const res = await sql(`INSERT INTO users (name, email, phone, password_hash, role, email_verified, phone_verified, active)
+             VALUES ('Walk-in Visitor', 'walk-in@pos.museum.invalid', '+251900000000', 'unusable_hash', 'visitor', 1, 1, 1)`).run();
+    walkInUser = await Users.byId(Number(res.lastInsertRowid));
+  }
+
+  const status = admitImmediately ? 'Visited' : 'Pending';
+  const receiptNo = 'TMP-' + Math.random().toString(36).slice(2, 10).toUpperCase();
+  const paidAt = new Date().toISOString();
+
+  let bookingId;
+  for (let i = 0; i < 5; i++) {
+    try {
+      bookingId = await tx(async () => {
+        const ref = bookingRef();
+        const info = await sql(`INSERT INTO bookings (ref, visitor_id, kind, visit_date, booked_quantity, amount_cents, status, channel, paid_at, temp_receipt_no, attended_quantity, attended_amount_cents, visited_at, visited_by)
+             VALUES (?, ?, 'individual', ?, ?, ?, ?, 'walk_in', ?, ?, ?, ?, ?, ?)`)
+          .run(ref, walkInUser.id, today, built.bookedQuantity, built.amountCents, status, paidAt, receiptNo,
+               admitImmediately ? built.bookedQuantity : null,
+               admitImmediately ? built.amountCents : null,
+               admitImmediately ? paidAt : null,
+               admitImmediately ? cashier.id : null);
+        const bId = Number(info.lastInsertRowid);
+        for (const l of built.lines) {
+          await sql(`INSERT INTO booking_lines (booking_id, category_id, key, name_en, name_am, unit_price_cents, quantity, attended_quantity)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+            .run(bId, l.categoryId, l.key, l.nameEn, l.nameAm, l.unitPriceCents, l.quantity, admitImmediately ? l.quantity : 0);
+        }
+        await sql(`INSERT INTO payments (booking_id, provider, provider_ref, status, amount_cents, fee_cents, paid_at, note)
+                   VALUES (?, 'pos', ?, 'succeeded', ?, 0, ?, ?)`).run(bId, `${paymentMethod}-${ref}`, built.amountCents, paidAt, `Walk-in POS: ${paymentMethod} ${cashReason || ''}`);
+        if (admitImmediately) {
+          await sql(`INSERT INTO ticket_scans (booking_id, cashier_id, ref, result, source, scanned_at, note)
+                     VALUES (?, ?, ?, 'VALID', 'online', ?, 'Walk-in admission at desk')`).run(bId, cashier.id, ref, paidAt);
+        }
+        await audit({ actor: cashier.id, action: 'pos.sale_created', entity: 'booking', entityId: bId, amountCents: built.amountCents, bookingRefs: [ref], meta: { paymentMethod, cashReason } });
+        return bId;
+      });
+      break;
+    } catch (e) {
+      if ((e.code === 'SQLITE_CONSTRAINT_UNIQUE' || e.code === '23505') && /ref/i.test(e.message)) continue;
+      throw e;
+    }
+  }
+
+  const booking = await Bookings.get(bookingId);
+  const receipt = temporaryReceipt(booking, { name: buyerName || 'Walk-in Visitor', phone: buyerPhone }, null);
+  return { booking, receipt };
+}
+
+/**
+ * FR-TICKET-006: Category Correction at counter.
+ * Adjusts line items and updates total amount.
+ */
+export async function correctCategory(bookingRef, { fromCategoryId, toCategoryId, quantity, reason, cashier }) {
+  const row = await Bookings.rowByRef(bookingRef);
+  if (!row) throw new AppError('NOT_FOUND', 404);
+  if (row.status !== 'Pending' && row.status !== 'Visited') throw new AppError('BAD_STATE');
+
+  const lines = await Bookings.lines(row.id);
+  const fromLine = lines.find((l) => l.category_id === fromCategoryId);
+  if (!fromLine || fromLine.quantity < quantity) throw new AppError('VALIDATION', 400, 'Invalid from category or quantity exceeds booked quantity');
+
+  const toCat = await sql('SELECT * FROM categories WHERE id = ?').get(toCategoryId);
+  if (!toCat) throw new AppError('BAD_CATEGORY', 400, 'Destination category not found');
+
+  const deltaCents = (toCat.price_cents - fromLine.unit_price_cents) * quantity;
+
+  await tx(async () => {
+    if (fromLine.quantity === quantity) {
+      await sql('DELETE FROM booking_lines WHERE id = ?').run(fromLine.id);
+    } else {
+      await sql('UPDATE booking_lines SET quantity = quantity - ? WHERE id = ?').run(quantity, fromLine.id);
+    }
+
+    const existingToLine = lines.find((l) => l.category_id === toCategoryId && l.id !== fromLine.id);
+    if (existingToLine) {
+      await sql('UPDATE booking_lines SET quantity = quantity + ? WHERE id = ?').run(quantity, existingToLine.id);
+    } else {
+      await sql(`INSERT INTO booking_lines (booking_id, category_id, key, name_en, name_am, unit_price_cents, quantity, attended_quantity)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 0)`).run(row.id, toCat.id, toCat.key, toCat.name_en, toCat.name_am, toCat.price_cents, quantity);
+    }
+
+    await sql('UPDATE bookings SET amount_cents = amount_cents + ? WHERE id = ?').run(deltaCents, row.id);
+
+    await audit({ actor: cashier.id, action: 'booking.category_correction', entity: 'booking', entityId: row.id, amountCents: deltaCents, bookingRefs: [bookingRef], meta: { fromCategory: fromLine.key, toCategory: toCat.key, quantity, reason } });
+  });
+
+  return { ok: true, deltaCents, deltaEtb: deltaCents / 100, booking: await Bookings.get(row.id) };
 }

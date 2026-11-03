@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   booked_quantity INT NOT NULL CHECK (booked_quantity > 0),
   amount_cents INT NOT NULL CHECK (amount_cents >= 0),
   status VARCHAR(50) NOT NULL CHECK (status IN ('PendingApproval','Declined','AwaitingPayment','Pending','Visited','Cancelled','Refunded')),
-  channel VARCHAR(20) NOT NULL DEFAULT 'online' CHECK (channel IN ('online','manager')),
+  channel VARCHAR(20) NOT NULL DEFAULT 'online' CHECK (channel IN ('online','manager','walk_in')),
   decision_by INT REFERENCES users(id) ON DELETE SET NULL,
   decision_at TIMESTAMPTZ,
   decision_note TEXT,

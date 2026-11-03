@@ -46,6 +46,7 @@ const dict = {
     ex_bookings: 'Bookings', 'ex_booking-lines': 'Tickets by category', ex_payments: 'Payments', ex_refunds: 'Refunds', ex_settlements: 'Transfers to Finance', 'ex_daily-revenue': 'Daily revenue', ex_scans: 'Gate scans',
     refundsTab: 'Refunds', needsAttention: 'Needs attention', allRefunds: 'All refunds', retry: 'Retry', markPaid: 'Mark as paid', refundRef: 'Reference of the manual refund', refundHelpAdmin: 'Check the Chapa dashboard first. If the money was already sent, use “Mark as paid”; otherwise “Retry”.',
     backup: 'Download database backup', backupHelp: 'A complete copy of all data (contains personal data and password hashes). Store it safely.', scansToday: 'Gate scans today',
+    posWalkIn: 'Walk-in POS', categoryCorrection: 'Category correction', paymentMethod: 'Payment method', payCash: 'Cash', payQr: 'Payment QR', cashReason: 'Reason for cash', noPhone: 'No smartphone', noWallet: 'No digital wallet', qrUnavailable: 'QR / Network issue', admitImmediately: 'Admit immediately', completeSale: 'Complete sale & print ticket', newSale: 'New sale', fromCategory: 'From category', toCategory: 'Corrected category', correctionReason: 'Correction reason', correctionSuccess: 'Category corrected successfully', visitorOwes: 'Visitor owes difference', refundDue: 'Refund queued',
   },
   am: {
     brand: 'የአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ሙዚየም ትኬቲንግ', museumName: 'የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም', campus: 'አዲስ አበባ ዩኒቨርሲቲ · 4 ኪሎ (አራት ኪሎ) ካምፓስ', tagline: 'በአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ ካምፓስ ለሚገኘው የሥነ-ሕይወት የተፈጥሮ ታሪክ ሙዚየም ይፋዊ የመስመር ላይ ትኬት መተግበሪያ። አስቀድመው ያስይዙ፣ ይክፈሉ፣ በቀጥታ ይግቡ።',
@@ -91,6 +92,7 @@ const dict = {
     ex_bookings: 'ቦታ ማስያዣዎች', 'ex_booking-lines': 'ትኬቶች በምድብ', ex_payments: 'ክፍያዎች', ex_refunds: 'ተመላሾች', ex_settlements: 'ወደ ፋይናንስ ማስተላለፎች', 'ex_daily-revenue': 'ዕለታዊ ገቢ', ex_scans: 'የበር ቅኝቶች',
     refundsTab: 'ተመላሾች', needsAttention: 'ትኩረት ይፈልጋሉ', allRefunds: 'ሁሉም ተመላሾች', retry: 'እንደገና ሞክር', markPaid: 'እንደተከፈለ ምልክት አድርግ', refundRef: 'የእጅ ተመላሹ ማጣቀሻ', refundHelpAdmin: 'መጀመሪያ የChapa ዳሽቦርድን ይመልከቱ። ገንዘቡ ቀድሞ ተልኮ ከሆነ “እንደተከፈለ ምልክት አድርግ”፤ አለበለዚያ “እንደገና ሞክር”።',
     backup: 'የውሂብ ጎታ ቅጂ አውርድ', backupHelp: 'የሁሉም መረጃ ሙሉ ቅጂ (የግል መረጃ እና የይለፍ ቃል ሀሽ ይዟል)። በጥንቃቄ ያስቀምጡት።', scansToday: 'የዛሬ የበር ቅኝቶች',
+    posWalkIn: 'የቆጣሪ ሽያጭ (POS)', categoryCorrection: 'የትኬት ምድብ ማስተካከያ', paymentMethod: 'የክፍያ ዘዴ', payCash: 'ጥሬ ገንዘብ', payQr: 'የክፍያ QR (ቻፓ)', cashReason: 'የጥሬ ገንዘብ ምክንያት', noPhone: 'ስማርት ስልክ የለውም', noWallet: 'ዲጂታል አካውንት የለውም', qrUnavailable: 'የኔትወርክ ወይም የQR ችግር', admitImmediately: 'ወዲያውኑ አስገባ', completeSale: 'ሽያጩን አጠናቅቅ እና አትም', newSale: 'አዲስ ሽያጭ', fromCategory: 'የነበረው ምድብ', toCategory: 'የተስተካከለው ምድብ', correctionReason: 'የማስተካከያ ምክንያት', correctionSuccess: 'የትኬት ምድብ በተሳካ ሁኔታ ተስተካክሏል', visitorOwes: 'ጎብኚው ተጨማሪ የሚከፍለው', refundDue: 'ተመላሽ የሚደረግ',
   },
 };
 

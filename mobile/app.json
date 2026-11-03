@@ -31,7 +31,8 @@
       "package": "et.museum.tickets",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0d3b36"
+        "backgroundImage": "./assets/android-icon-background.png",
+        "backgroundColor": "#E6F4FE"
       },
       "permissions": [
         "android.permission.CAMERA",

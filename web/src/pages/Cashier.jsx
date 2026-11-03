@@ -33,14 +33,242 @@ function Attendance({ b, onDone }) {
 
 function BookingRow({ b, reload }) {
   const { t, pick } = useI18n();
+  const [showCorrection, setShowCorrection] = useState(false);
   return (
     <div className="card">
       <div className="row between"><b>{b.ref}</b><Status value={b.status} /></div>
       <div className="muted">{b.visitor?.name} · {b.visitor?.phone} · {b.visitDate}{b.organization ? ` · ${b.organization}` : ''}</div>
       <div>{b.lines.map((l) => `${pick(l.name)} × ${l.quantity}`).join(', ')} · {money(b.amount)} ETB</div>
       {b.status === 'Visited' && <p>{t('attended')}: {b.attendedQuantity} / {b.bookedQuantity}</p>}
-      {b.status === 'Pending' && <Attendance b={b} onDone={reload} />}
+      <div className="row" style={{ marginTop: 8, gap: 8 }}>
+        {b.status === 'Pending' && <Attendance b={b} onDone={reload} />}
+        <button className="ghost small" onClick={() => setShowCorrection(!showCorrection)}>
+          {showCorrection ? t('cancel') : t('categoryCorrection')}
+        </button>
+      </div>
+      {showCorrection && <CategoryCorrection b={b} onDone={() => { setShowCorrection(false); reload(); }} />}
     </div>
+  );
+}
+
+function CategoryCorrection({ b, onDone }) {
+  const { t, pick } = useI18n();
+  const { data: catData } = useLoad(() => api('/catalog/categories'));
+  const categories = catData?.categories || [];
+  const [fromId, setFromId] = useState(b.lines[0]?.category || '');
+  const [toId, setToId] = useState(categories[0]?.id || '');
+  const [qty, setQty] = useState(1);
+  const [reason, setReason] = useState('wrong_category');
+  const [err, setErr] = useState('');
+  const [ok, setOk] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const apply = async (e) => {
+    e.preventDefault();
+    setErr(''); setOk(''); setBusy(true);
+    try {
+      const res = await api(`/cashier/bookings/${b.ref}/category-correction`, {
+        method: 'POST',
+        body: { fromCategoryId: Number(fromId), toCategoryId: Number(toId || categories[0]?.id), quantity: Number(qty), reason },
+      });
+      if (res.deltaEtb > 0) {
+        setOk(`${t('correctionSuccess')}. ${t('visitorOwes')}: ${res.deltaEtb.toFixed(2)} ETB`);
+      } else if (res.deltaEtb < 0) {
+        setOk(`${t('correctionSuccess')}. ${t('refundDue')}: ${Math.abs(res.deltaEtb).toFixed(2)} ETB`);
+      } else {
+        setOk(t('correctionSuccess'));
+      }
+      setTimeout(onDone, 1200);
+    } catch (x) {
+      setErr(x.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <form className="card" onSubmit={apply} style={{ marginTop: 10, background: '#faf9f6' }}>
+      <Notice>{err}</Notice>
+      <Notice kind="ok">{ok}</Notice>
+      <b>{t('categoryCorrection')}</b>
+      <div className="grid two" style={{ marginTop: 8 }}>
+        <div className="field">
+          <label>{t('fromCategory')}
+            <select value={fromId} onChange={(e) => setFromId(e.target.value)}>
+              {b.lines.map((l) => <option key={l.category} value={l.category}>{pick(l.name)} (x{l.quantity})</option>)}
+            </select>
+          </label>
+        </div>
+        <div className="field">
+          <label>{t('toCategory')}
+            <select value={toId} onChange={(e) => setToId(e.target.value)}>
+              {categories.map((c) => <option key={c.id} value={c.id}>{pick(c.name)} ({money(c.price)} ETB)</option>)}
+            </select>
+          </label>
+        </div>
+      </div>
+      <div className="row" style={{ alignItems: 'flex-end', gap: 10 }}>
+        <div className="field" style={{ width: 90 }}>
+          <label>{t('quantity')}
+            <input type="number" min={1} value={qty} onChange={(e) => setQty(e.target.value)} />
+          </label>
+        </div>
+        <div className="field" style={{ flex: 1 }}>
+          <label>{t('correctionReason')}
+            <select value={reason} onChange={(e) => setReason(e.target.value)}>
+              <option value="wrong_category">Wrong Category</option>
+              <option value="wrong_headcount">Wrong Headcount</option>
+              <option value="walk_up_addition">Walk-up Addition</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <button disabled={busy} style={{ marginBottom: 4 }}>{busy ? t('loading') : t('save')}</button>
+      </div>
+    </form>
+  );
+}
+
+function PosWalkIn() {
+  const { t, pick } = useI18n();
+  const { data: catData } = useLoad(() => api('/catalog/categories'));
+  const categories = catData?.categories || [];
+  const [quantities, setQuantities] = useState({});
+  const [method, setMethod] = useState('cash');
+  const [cashReason, setCashReason] = useState('no_phone');
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerPhone, setBuyerPhone] = useState('');
+  const [admit, setAdmit] = useState(true);
+  const [receipt, setReceipt] = useState(null);
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const changeQty = (id, delta) => {
+    const cur = quantities[id] || 0;
+    const next = Math.max(0, cur + delta);
+    setQuantities({ ...quantities, [id]: next });
+  };
+
+  const total = categories.reduce((sum, c) => sum + (c.price * (quantities[c.id] || 0)), 0);
+  const totalCount = Object.values(quantities).reduce((a, b) => a + b, 0);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (totalCount === 0) return;
+    setErr('');
+    setBusy(true);
+    try {
+      const lines = Object.entries(quantities)
+        .filter(([, q]) => q > 0)
+        .map(([id, q]) => ({ categoryId: Number(id), quantity: q }));
+      const res = await api('/cashier/walk-in', {
+        method: 'POST',
+        body: {
+          lines,
+          paymentMethod: method,
+          cashReason: method === 'cash' ? cashReason : undefined,
+          buyerName,
+          buyerPhone,
+          admitImmediately: admit,
+        },
+      });
+      setReceipt(res.receipt);
+      setQuantities({});
+      setBuyerName('');
+      setBuyerPhone('');
+    } catch (x) {
+      setErr(x.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (receipt) {
+    return (
+      <div className="card">
+        <div className="row between" style={{ marginBottom: 16 }}>
+          <h3>{t('transferDone')}</h3>
+          <button onClick={() => setReceipt(null)}>{t('newSale')}</button>
+        </div>
+        <Receipt doc={receipt} />
+      </div>
+    );
+  }
+
+  return (
+    <form className="card" onSubmit={submit}>
+      <h3>{t('posWalkIn')}</h3>
+      <p className="muted small">{t('priceNote')}</p>
+      <Notice>{err}</Notice>
+
+      <div className="grid two" style={{ margin: '14px 0' }}>
+        {categories.map((c) => {
+          const qty = quantities[c.id] || 0;
+          return (
+            <div key={c.id} className="card row between" style={{ alignItems: 'center', padding: '12px 16px', background: '#fbfaf8' }}>
+              <div>
+                <b>{pick(c.name)}</b>
+                <div className="muted small">{money(c.price)} ETB</div>
+              </div>
+              <div className="row" style={{ alignItems: 'center', gap: 10 }}>
+                <button type="button" className="ghost" style={{ padding: '4px 12px' }} onClick={() => changeQty(c.id, -1)} disabled={qty === 0}>−</button>
+                <b style={{ minWidth: 20, textAlign: 'center' }}>{qty}</b>
+                <button type="button" className="ghost" style={{ padding: '4px 12px' }} onClick={() => changeQty(c.id, 1)}>+</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="card" style={{ background: '#f5f7f6', marginBottom: 16 }}>
+        <div className="row between" style={{ fontSize: 18, fontWeight: 700 }}>
+          <span>{t('total')} ({totalCount} {t('visitors')})</span>
+          <span style={{ color: 'var(--teal)' }}>{money(total)} ETB</span>
+        </div>
+      </div>
+
+      <div className="grid two">
+        <div className="field">
+          <label>{t('paymentMethod')}
+            <select value={method} onChange={(e) => setMethod(e.target.value)}>
+              <option value="cash">{t('payCash')}</option>
+              <option value="qr">{t('payQr')}</option>
+            </select>
+          </label>
+        </div>
+        {method === 'cash' && (
+          <div className="field">
+            <label>{t('cashReason')}
+              <select value={cashReason} onChange={(e) => setCashReason(e.target.value)}>
+                <option value="no_phone">{t('noPhone')}</option>
+                <option value="no_wallet">{t('noWallet')}</option>
+                <option value="qr_unavailable">{t('qrUnavailable')}</option>
+              </select>
+            </label>
+          </div>
+        )}
+      </div>
+
+      <div className="grid two">
+        <div className="field">
+          <label>{t('visitorLabel')} ({t('note')})
+            <input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} placeholder="Visitor name" />
+          </label>
+        </div>
+        <div className="field">
+          <label>{t('phone')} ({t('note')})
+            <input value={buyerPhone} onChange={(e) => setBuyerPhone(e.target.value)} placeholder="+251..." />
+          </label>
+        </div>
+      </div>
+
+      <div className="row" style={{ margin: '14px 0', alignItems: 'center' }}>
+        <input type="checkbox" id="admitNow" checked={admit} onChange={(e) => setAdmit(e.target.checked)} />
+        <label htmlFor="admitNow" style={{ cursor: 'pointer', marginLeft: 8 }}>{t('admitImmediately')}</label>
+      </div>
+
+      <button disabled={totalCount === 0 || busy} style={{ width: '100%' }}>{busy ? t('loading') : t('completeSale')}</button>
+    </form>
   );
 }
 
@@ -177,12 +405,12 @@ function Scan() {
 }
 
 export default function Cashier() {
-  const { t } = useI18n(); const [tab, setTab] = useState('scan');
+  const { t } = useI18n(); const [tab, setTab] = useState('pos');
   return (
     <>
       <h2>{t('cashier')}</h2>
-      <Tabs value={tab} onChange={setTab} tabs={[['scan', t('cashierScan')], ['in', t('cashierCheckin')], ['today', t('cashierToday')], ['xfer', t('cashierTransfer')], ['hist', t('cashierHistory')]]} />
-      {tab === 'scan' && <Scan />}{tab === 'in' && <CheckIn />}{tab === 'today' && <Today />}{tab === 'xfer' && <Transfer />}{tab === 'hist' && <History />}
+      <Tabs value={tab} onChange={setTab} tabs={[['pos', t('posWalkIn')], ['scan', t('cashierScan')], ['in', t('cashierCheckin')], ['today', t('cashierToday')], ['xfer', t('cashierTransfer')], ['hist', t('cashierHistory')]]} />
+      {tab === 'pos' && <PosWalkIn />}{tab === 'scan' && <Scan />}{tab === 'in' && <CheckIn />}{tab === 'today' && <Today />}{tab === 'xfer' && <Transfer />}{tab === 'hist' && <History />}
     </>
   );
 }

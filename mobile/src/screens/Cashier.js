@@ -102,8 +102,84 @@ export function Scan() {
   );
 }
 
+function CategoryCorrection({ b, onDone }) {
+  const { t, pick } = useApp();
+  const [categories, setCategories] = useState([]);
+  const [fromId, setFromId] = useState(String(b.lines[0]?.category || ''));
+  const [toId, setToId] = useState('');
+  const [qty, setQty] = useState('1');
+  const [reason, setReason] = useState('wrong_category');
+  const [err, setErr] = useState('');
+  const [ok, setOk] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    api('/catalog/categories').then((res) => {
+      setCategories(res.categories || []);
+      if (res.categories?.length) setToId(String(res.categories[0].id));
+    }).catch(() => {});
+  }, []);
+
+  const apply = async () => {
+    setErr(''); setOk(''); setBusy(true);
+    try {
+      const res = await api(`/cashier/bookings/${b.ref}/category-correction`, {
+        method: 'POST',
+        body: { fromCategoryId: Number(fromId), toCategoryId: Number(toId), quantity: Number(qty), reason },
+      });
+      if (res.deltaEtb > 0) {
+        setOk(`${t('correctionSuccess')}. ${t('visitorOwes')}: ${res.deltaEtb.toFixed(2)} ETB`);
+      } else if (res.deltaEtb < 0) {
+        setOk(`${t('correctionSuccess')}. ${t('refundDue')}: ${Math.abs(res.deltaEtb).toFixed(2)} ETB`);
+      } else {
+        setOk(t('correctionSuccess'));
+      }
+      setTimeout(onDone, 1200);
+    } catch (x) {
+      setErr(isNetworkError(x) ? t('needsInternet') : x.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <View style={{ marginTop: 10, padding: 10, backgroundColor: '#fbfaf8', borderRadius: 8, borderWidth: 1, borderColor: '#e2ece8' }}>
+      <Err>{err}</Err>
+      <Ok>{ok}</Ok>
+      <Text style={{ fontSize: 14, fontWeight: '700', color: C.ink, marginBottom: 6 }}>{t('categoryCorrection')}</Text>
+      <Text style={s.label}>{t('fromCategory')}</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+        {b.lines.map((l) => (
+          <Pressable
+            key={l.category}
+            onPress={() => setFromId(String(l.category))}
+            style={{ paddingVertical: 6, paddingHorizontal: 10, borderRadius: 6, backgroundColor: fromId === String(l.category) ? C.teal : '#f1f5f4' }}
+          >
+            <Text style={{ fontSize: 12, fontWeight: '700', color: fromId === String(l.category) ? '#fff' : C.ink }}>{pick(l.name)}</Text>
+          </Pressable>
+        ))}
+      </View>
+      <Text style={s.label}>{t('toCategory')}</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+        {categories.map((c) => (
+          <Pressable
+            key={c.id}
+            onPress={() => setToId(String(c.id))}
+            style={{ paddingVertical: 6, paddingHorizontal: 10, borderRadius: 6, backgroundColor: toId === String(c.id) ? C.teal : '#f1f5f4' }}
+          >
+            <Text style={{ fontSize: 12, fontWeight: '700', color: toId === String(c.id) ? '#fff' : C.ink }}>{pick(c.name)} ({money(c.price)} ETB)</Text>
+          </Pressable>
+        ))}
+      </View>
+      <Field label={t('quantity')} value={qty} onChangeText={setQty} keyboardType="number-pad" />
+      <Btn title={busy ? t('loading') : t('save')} onPress={apply} disabled={busy} />
+    </View>
+  );
+}
+
 export function CheckIn() {
   const { t, pick } = useApp(); const [ref, setRef] = useState(''); const [q, setQ] = useState(''); const [items, setItems] = useState(null); const [err, setErr] = useState('');
+  const [correctingRef, setCorrectingRef] = useState(null);
   const find = useCallback(async () => {
     setErr('');
     try { setItems((await api(`/cashier/bookings/lookup?${ref ? `ref=${encodeURIComponent(ref.trim())}` : `q=${encodeURIComponent(q.trim())}`}`)).bookings); }
@@ -123,6 +199,15 @@ export function CheckIn() {
           <Text style={s.text}>{b.lines.map((l) => `${pick(l.name)} × ${l.quantity}`).join(', ')}</Text>
           {b.status === 'Visited' && <Text style={s.text}>{t('attended')}: {b.attendedQuantity} / {b.bookedQuantity}</Text>}
           {b.status === 'Pending' && <Admit b={b} offline={false} onDone={find} />}
+          <Pressable
+            onPress={() => setCorrectingRef(correctingRef === b.ref ? null : b.ref)}
+            style={{ marginTop: 8, alignSelf: 'flex-start', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4, backgroundColor: '#f1f5f4' }}
+          >
+            <Text style={{ fontSize: 12, fontWeight: '700', color: C.teal }}>
+              {correctingRef === b.ref ? t('cancel') : `✏️ ${t('categoryCorrection')}`}
+            </Text>
+          </Pressable>
+          {correctingRef === b.ref && <CategoryCorrection b={b} onDone={() => { setCorrectingRef(null); find(); }} />}
         </View>)) : <Text style={s.muted}>{t('none')}</Text>)}</View>
     </ScrollView>
   );
@@ -217,6 +302,178 @@ export function Transfer() {
           ))}
         </>
       )}
+    </ScrollView>
+  );
+}
+
+export function PosWalkIn() {
+  const { t, pick } = useApp();
+  const [categories, setCategories] = useState([]);
+  const [quantities, setQuantities] = useState({});
+  const [method, setMethod] = useState('cash');
+  const [cashReason, setCashReason] = useState('no_phone');
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerPhone, setBuyerPhone] = useState('');
+  const [admit, setAdmit] = useState(true);
+  const [receipt, setReceipt] = useState(null);
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const res = await api('/catalog/categories');
+      setCategories(res.categories || []);
+    } catch (e) {
+      setErr(isNetworkError(e) ? t('needsInternet') : e.message);
+    }
+  }, [t]);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+  const pull = useRefresh(load);
+
+  const changeQty = (id, delta) => {
+    const cur = quantities[id] || 0;
+    const next = Math.max(0, cur + delta);
+    setQuantities({ ...quantities, [id]: next });
+  };
+
+  const total = categories.reduce((sum, c) => sum + (c.price * (quantities[c.id] || 0)), 0);
+  const totalCount = Object.values(quantities).reduce((a, b) => a + b, 0);
+
+  const submit = async () => {
+    if (totalCount === 0) return;
+    setErr('');
+    setBusy(true);
+    try {
+      const lines = Object.entries(quantities)
+        .filter(([, q]) => q > 0)
+        .map(([id, q]) => ({ categoryId: Number(id), quantity: q }));
+      const res = await api('/cashier/walk-in', {
+        method: 'POST',
+        body: {
+          lines,
+          paymentMethod: method,
+          cashReason: method === 'cash' ? cashReason : undefined,
+          buyerName,
+          buyerPhone,
+          admitImmediately: admit,
+        },
+      });
+      setReceipt(res.receipt);
+      setQuantities({});
+      setBuyerName('');
+      setBuyerPhone('');
+    } catch (x) {
+      setErr(isNetworkError(x) ? t('needsInternet') : x.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (receipt) {
+    return (
+      <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]}>
+        <View style={[s.row, { marginBottom: 12 }]}>
+          <Text style={s.h1}>{t('transferDone')}</Text>
+          <Btn kind="ghost" title={t('newSale')} onPress={() => setReceipt(null)} />
+        </View>
+        <Receipt doc={receipt} />
+      </ScrollView>
+    );
+  }
+
+  return (
+    <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} keyboardShouldPersistTaps="handled" refreshControl={pullControl(pull)}>
+      <Text style={s.h1}>{t('posWalkIn')}</Text>
+      <Text style={[s.muted, { marginBottom: 12 }]}>{t('priceNote')}</Text>
+      <Err>{err}</Err>
+
+      {/* Categories */}
+      {categories.map((c) => {
+        const qty = quantities[c.id] || 0;
+        return (
+          <View key={c.id} style={[s.card, s.row, { alignItems: 'center', marginBottom: 8 }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.text, { fontWeight: '700' }]}>{pick(c.name)}</Text>
+              <Text style={s.muted}>{money(c.price)} ETB</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Pressable
+                onPress={() => changeQty(c.id, -1)}
+                disabled={qty === 0}
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: qty === 0 ? '#f1f5f4' : '#e0ebe7', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ fontSize: 18, fontWeight: '700', color: qty === 0 ? '#cbd5e1' : C.ink }}>−</Text>
+              </Pressable>
+              <Text style={{ fontSize: 16, fontWeight: '800', minWidth: 20, textAlign: 'center' }}>{qty}</Text>
+              <Pressable
+                onPress={() => changeQty(c.id, 1)}
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: C.teal, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ fontSize: 18, fontWeight: '700', color: '#fff' }}>+</Text>
+              </Pressable>
+            </View>
+          </View>
+        );
+      })}
+
+      {/* Total Card */}
+      <View style={[s.card, { backgroundColor: '#eef6f4', borderColor: C.teal, borderWidth: 1, marginVertical: 10 }]}>
+        <View style={s.row}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: C.ink }}>{t('total')} ({totalCount} {t('visitors')})</Text>
+          <Text style={{ fontSize: 18, fontWeight: '800', color: C.teal }}>{money(total)} ETB</Text>
+        </View>
+      </View>
+
+      {/* Payment Method Toggle */}
+      <Text style={s.label}>{t('paymentMethod')}</Text>
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+        <Pressable
+          onPress={() => setMethod('cash')}
+          style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: method === 'cash' ? C.teal : '#f1f5f4', alignItems: 'center' }}
+        >
+          <Text style={{ fontWeight: '700', color: method === 'cash' ? '#fff' : C.ink }}>💵 {t('payCash')}</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setMethod('qr')}
+          style={{ flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: method === 'qr' ? C.teal : '#f1f5f4', alignItems: 'center' }}
+        >
+          <Text style={{ fontWeight: '700', color: method === 'qr' ? '#fff' : C.ink }}>📱 {t('payQr')}</Text>
+        </Pressable>
+      </View>
+
+      {method === 'cash' && (
+        <View style={{ marginBottom: 12 }}>
+          <Text style={s.label}>{t('cashReason')}</Text>
+          <View style={{ flexDirection: 'row', gap: 6 }}>
+            {[
+              ['no_phone', t('noPhone')],
+              ['no_wallet', t('noWallet')],
+              ['qr_unavailable', t('qrUnavailable')],
+            ].map(([k, label]) => (
+              <Pressable
+                key={k}
+                onPress={() => setCashReason(k)}
+                style={{ flex: 1, paddingVertical: 8, paddingHorizontal: 4, borderRadius: 6, backgroundColor: cashReason === k ? '#d1e7dd' : '#f8fafc', borderWidth: 1, borderColor: cashReason === k ? C.teal : '#cbd5e1', alignItems: 'center' }}
+              >
+                <Text style={{ fontSize: 11, fontWeight: '700', color: cashReason === k ? C.teal : C.soft, textAlign: 'center' }}>{label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      )}
+
+      <Field label={`${t('visitorLabel')} (${t('note')})`} value={buyerName} onChangeText={setBuyerName} placeholder="Visitor name" />
+      <Field label={`${t('phone')} (${t('note')})`} value={buyerPhone} onChangeText={setBuyerPhone} keyboardType="phone-pad" placeholder="+251..." />
+
+      <Pressable onPress={() => setAdmit(!admit)} style={[s.row, { marginVertical: 12, alignItems: 'center' }]}>
+        <View style={{ width: 22, height: 22, borderRadius: 4, borderWidth: 1.5, borderColor: C.teal, backgroundColor: admit ? C.teal : 'transparent', alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
+          {admit && <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13 }}>✓</Text>}
+        </View>
+        <Text style={{ fontSize: 14, fontWeight: '600', color: C.ink }}>{t('admitImmediately')}</Text>
+      </Pressable>
+
+      <Btn title={busy ? t('loading') : t('completeSale')} onPress={submit} disabled={totalCount === 0 || busy} />
     </ScrollView>
   );
 }
