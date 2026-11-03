@@ -130,23 +130,93 @@ export function CheckIn() {
 
 /** FR-SETTLE-001/002, FR-REPORT-003 — needs the internet: it changes money records. */
 export function Transfer() {
-  const { t } = useApp(); const [p, setP] = useState(null); const [receipt, setReceipt] = useState(null); const [err, setErr] = useState('');
-  const load = useCallback(async () => { try { setP(await api('/cashier/settlements/pending')); } catch (e) { setErr(isNetworkError(e) ? t('needsInternet') : e.message); } }, [t]);
+  const { t } = useApp();
+  const [tab, setTab] = useState('pending');
+  const [p, setP] = useState(null);
+  const [history, setHistory] = useState(null);
+  const [receipt, setReceipt] = useState(null);
+  const [err, setErr] = useState('');
+
+  const load = useCallback(async () => {
+    try {
+      setP(await api('/cashier/settlements/pending'));
+      setHistory(await api('/cashier/settlements'));
+    } catch (e) {
+      setErr(isNetworkError(e) ? t('needsInternet') : e.message);
+    }
+  }, [t]);
+
   useFocusEffect(useCallback(() => { load(); }, [load]));
   const pull = useRefresh(load);
-  const go = async () => { setErr(''); try { setReceipt((await api('/cashier/settlements', { method: 'POST' })).receipt); load(); } catch (e) { setErr(isNetworkError(e) ? t('needsInternet') : e.message); } };
-  if (!p) return err ? <Text style={s.err}>{err}</Text> : <Loading />;
+
+  const go = async () => {
+    setErr('');
+    try {
+      const res = await api('/cashier/settlements', { method: 'POST' });
+      setReceipt(res.receipt);
+      await load();
+    } catch (e) {
+      setErr(isNetworkError(e) ? t('needsInternet') : e.message);
+    }
+  };
+
+  if (!p && !history) return err ? <Text style={s.err}>{err}</Text> : <Loading />;
+
+  const settlements = history?.settlements || [];
+
   return (
-    <ScrollView style={s.screen} contentContainerStyle={s.pad} refreshControl={pullControl(pull)}>
-      <Text style={s.h1}>{t('cashierTransfer')}</Text><Err>{err}</Err>
-      <View style={s.card}>
-        <View style={s.row}><Text style={s.text}>{t('gross')}</Text><Text style={s.text}>{money(p.gross)}</Text></View>
-        <View style={s.row}><Text style={s.text}>{t('deductions')}</Text><Text style={s.text}>−{money(p.deduction)}</Text></View>
-        <View style={s.row}><Text style={s.h2}>{t('net')}</Text><Text style={s.h2}>{money(p.net)} {t('etb')}</Text></View>
-        <Text style={s.muted}>{p.bookings.length} {t('bookingsCovered')}</Text>
+    <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} refreshControl={pullControl(pull)}>
+      <Text style={s.h1}>{t('cashierTransfer')}</Text>
+      <Err>{err}</Err>
+
+      {/* Pending vs History toggle */}
+      <View style={{ flexDirection: 'row', backgroundColor: '#e0ebe7', borderRadius: 8, padding: 4, marginBottom: 14 }}>
+        <Pressable
+          onPress={() => setTab('pending')}
+          style={{ flex: 1, paddingVertical: 8, borderRadius: 6, backgroundColor: tab === 'pending' ? '#fff' : 'transparent', alignItems: 'center' }}
+        >
+          <Text style={{ fontWeight: '700', fontSize: 13, color: tab === 'pending' ? C.teal : C.soft }}>{t('pendingTransfer')}</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setTab('history')}
+          style={{ flex: 1, paddingVertical: 8, borderRadius: 6, backgroundColor: tab === 'history' ? '#fff' : 'transparent', alignItems: 'center' }}
+        >
+          <Text style={{ fontWeight: '700', fontSize: 13, color: tab === 'history' ? C.teal : C.soft }}>{t('cashierHistory')} ({settlements.length})</Text>
+        </Pressable>
       </View>
-      <Btn title={t('transferNow')} onPress={go} disabled={!p.bookings.length} />
-      {receipt && <View style={{ marginTop: 16 }}><Receipt doc={receipt} /></View>}
+
+      {tab === 'pending' && (
+        <>
+          <View style={s.card}>
+            <View style={s.row}><Text style={s.text}>{t('gross')}</Text><Text style={s.text}>{money(p?.gross)}</Text></View>
+            <View style={s.row}><Text style={s.text}>{t('deductions')}</Text><Text style={s.text}>−{money(p?.deduction)}</Text></View>
+            <View style={s.row}><Text style={s.h2}>{t('net')}</Text><Text style={s.h2}>{money(p?.net)} {t('etb')}</Text></View>
+            <Text style={s.muted}>{p?.bookings?.length || 0} {t('bookingsCovered')}</Text>
+          </View>
+          <Btn title={t('transferNow')} onPress={go} disabled={!p?.bookings?.length} />
+          {receipt && <View style={{ marginTop: 16 }}><Receipt doc={receipt} /></View>}
+        </>
+      )}
+
+      {tab === 'history' && (
+        <>
+          {!settlements.length && (
+            <View style={[s.card, { alignItems: 'center', paddingVertical: 32 }]}>
+              <Text style={s.muted}>{t('none')}</Text>
+            </View>
+          )}
+          {settlements.map((item) => (
+            <View key={item.id} style={s.card}>
+              <View style={[s.row, { marginBottom: 4 }]}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: C.ink }}>{item.ref}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: C.teal }}>{money(item.net)} ETB</Text>
+              </View>
+              <Text style={s.muted}>📅 {item.createdAt?.slice(0, 10)} · 👤 {item.cashier?.name}</Text>
+              <Text style={[s.muted, { marginTop: 4 }]}>{item.bookingsCovered} {t('bookingsCovered')}</Text>
+            </View>
+          ))}
+        </>
+      )}
     </ScrollView>
   );
 }

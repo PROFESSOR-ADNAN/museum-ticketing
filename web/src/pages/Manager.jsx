@@ -109,7 +109,7 @@ function Dates() {
 
 export default function Manager() {
   const { t } = useI18n(); const { user } = useAuth(); const [tab, setTab] = useState('dash');
-  const tabs = [['dash', t('dashboard')], ['rep', t('reports')], ...(user.role === 'manager' ? [['grp', t('groupRequests')], ['dates', t('dates')]] : [])];
+  const tabs = [['dash', t('dashboard')], ['rep', t('reports')], ['grp', t('groupRequests')], ['dates', t('dates')]];
   return (
     <>
       <h2>{user.role === 'admin' ? t('reports') : t('manager')}</h2>

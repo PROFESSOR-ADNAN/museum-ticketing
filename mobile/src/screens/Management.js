@@ -186,6 +186,99 @@ export function GroupRequests() {
   );
 }
 
+export function DateClosures() {
+  const { t } = useApp();
+  const [data, setData] = useState(null);
+  const [date, setDate] = useState('');
+  const [reason, setReason] = useState('');
+  const [err, setErr] = useState('');
+  const [ok, setOk] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    setErr('');
+    try {
+      const res = await api('/manager/closures');
+      setData(res);
+    } catch (e) {
+      setErr(isNetworkError(e) ? t('needsInternet') : e.message);
+    }
+  }, [t]);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+  const pull = useRefresh(load);
+
+  const close = async () => {
+    if (!date.trim()) {
+      setErr('Please select or enter a date (YYYY-MM-DD).');
+      return;
+    }
+    setErr('');
+    setOk('');
+    setBusy(true);
+    try {
+      await api('/manager/closures', { method: 'POST', body: { date: date.trim(), reason: reason.trim() } });
+      setOk(`${t('closeDate')}: ${date}`);
+      setDate('');
+      setReason('');
+      await load();
+    } catch (e) {
+      setErr(isNetworkError(e) ? t('needsInternet') : e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const reopen = (d) => async () => {
+    setErr('');
+    setOk('');
+    try {
+      await api(`/manager/closures/${d}`, { method: 'DELETE' });
+      setOk(`${t('reopen')}: ${d}`);
+      await load();
+    } catch (e) {
+      setErr(isNetworkError(e) ? t('needsInternet') : e.message);
+    }
+  };
+
+  const closures = data?.closures || [];
+
+  return (
+    <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} keyboardShouldPersistTaps="handled" refreshControl={pullControl(pull)}>
+      <Text style={s.h1}>{t('dates')}</Text>
+      <Err>{err}</Err>
+      <Ok>{ok}</Ok>
+
+      {/* Close Date Form */}
+      <View style={[s.card, { borderColor: C.teal, borderWidth: 1.5 }]}>
+        <Text style={[s.h2, { color: C.teal }]}>+ {t('closeDate')}</Text>
+        <Field label={`${t('date')} (YYYY-MM-DD)`} value={date} onChangeText={setDate} placeholder="2026-11-15" />
+        <Field label={t('reason')} value={reason} onChangeText={setReason} placeholder="Holiday, maintenance, or special event" />
+        <Btn title={busy ? t('loading') : t('closeDate')} onPress={close} disabled={busy} />
+      </View>
+
+      {/* List of Closed Dates */}
+      <Text style={[s.h2, { marginTop: 8, marginBottom: 10 }]}>{t('dates')} ({closures.length})</Text>
+      {!data && <Loading />}
+      {data && !closures.length && (
+        <View style={[s.card, { alignItems: 'center', paddingVertical: 32 }]}>
+          <Text style={s.muted}>{t('none')}</Text>
+        </View>
+      )}
+
+      {closures.map((c) => (
+        <View key={c.date} style={s.card}>
+          <View style={[s.row, { marginBottom: 4 }]}>
+            <Text style={{ fontSize: 17, fontWeight: '800', color: C.ink }}>📅 {c.date}</Text>
+            <Btn kind="ghost" title={t('reopen')} onPress={reopen(c.date)} />
+          </View>
+          {c.reason ? <Text style={s.muted}>{c.reason}</Text> : null}
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
 export function Reports() {
   const { t, pick } = useApp();
   const [g, setG] = useState('day');
@@ -264,3 +357,4 @@ export function Reports() {
     </ScrollView>
   );
 }
+

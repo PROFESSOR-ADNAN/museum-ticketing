@@ -162,3 +162,9 @@ add('hoursSub', 'Mon – Sat: 8:30 AM – 5:30 PM (Closed Sundays)', 'ከሰኞ 
 add('gateEntryNotice', 'Show digital QR pass on your phone at gate entry', 'ወዲያውኑ ለመግባት ዲጂታል QR ትኬትዎን በበር ላይ ያሳዩ');
 add('appVersion', 'AAU 4 Kilo Museum Ticketing v1.0 (Production)', 'የአዲስ አበባ ዩኒቨርሲቲ 4 ኪሎ የሙዚየም ትኬት መተግበሪያ v1.0');
 add('securityPrivacy', 'Official AAU E-Ticketing System', 'ይፋዊ የአዲስ አበባ ዩኒቨርሲቲ የትኬት ሥርዓት');
+add('staffCreated', 'Staff account created successfully', 'የሠራተኛ መለያው በተሳካ ሁኔታ ተፈጥሯል');
+add('categoryCreated', 'Category created successfully', 'ምድቡ በተሳካ ሁኔታ ተፈጥሯል');
+add('role_admin', 'Admin', 'አስተዳዳሪ');
+add('role_manager', 'Manager', 'ሥራ አስኪያጅ');
+add('role_cashier', 'Cashier', 'ካሸር');
+add('role_visitor', 'Visitor', 'ጎብኚ');
