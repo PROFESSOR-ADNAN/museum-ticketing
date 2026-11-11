@@ -29,7 +29,7 @@ export function createApp() {
       // Allow requests with no origin (mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
       if (config.corsOrigins.includes('*') || config.corsOrigins.includes(origin)) return callback(null, true);
-      if (origin.endsWith('.vercel.app') || origin.includes('localhost') || origin.includes('127.0.0.1')) return callback(null, true);
+      if (origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com') || origin.includes('localhost') || origin.includes('127.0.0.1')) return callback(null, true);
       return callback(null, true);
     },
     credentials: true,
