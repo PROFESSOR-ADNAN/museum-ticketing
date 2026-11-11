@@ -43,7 +43,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiUrl": "https://museum-ticketing.vercel.app",
+      "apiUrl": "https://museum-ticketing-api.onrender.com",
       "eas": {
         "projectId": "698f5733-f160-49ed-8b83-dbe6955aee78"
       }

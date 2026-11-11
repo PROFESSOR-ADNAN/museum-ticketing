@@ -1,4 +1,4 @@
-const rawBase = (import.meta.env.VITE_API_URL || 'https://museum-ticketing.vercel.app').trim();
+const rawBase = (import.meta.env.VITE_API_URL || 'https://museum-ticketing-api.onrender.com').trim();
 // Strip trailing slashes and redundant /api suffix if present
 export const BASE = rawBase.replace(/\/+$/, '').replace(/\/api$/, '');
 

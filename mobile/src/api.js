@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
 
-const rawBase = (process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || 'https://museum-ticketing.vercel.app').trim();
+const rawBase = (process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || 'https://museum-ticketing-api.onrender.com').trim();
 export const BASE = rawBase.replace(/\/+$/, '').replace(/\/api$/, '');
 let token = null; let lang = 'en';
 export const setLang = (l) => { lang = l; };

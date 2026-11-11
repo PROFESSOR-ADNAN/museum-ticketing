@@ -3,18 +3,12 @@
   "outputDirectory": "web/dist",
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/no-show",
-      "schedule": "0 3 * * *"
+      "source": "/api/:match*",
+      "destination": "https://museum-ticketing-api.onrender.com/api/:match*"
     },
     {
-      "path": "/api/cron/reconcile-refunds",
-      "schedule": "*/15 * * * *"
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }

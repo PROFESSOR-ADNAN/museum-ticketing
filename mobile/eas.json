@@ -16,7 +16,7 @@
         "simulator": true
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://museum-ticketing.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://museum-ticketing-api.onrender.com"
       }
     },
     "production": {
