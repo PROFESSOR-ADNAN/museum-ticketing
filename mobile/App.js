@@ -16,24 +16,25 @@ import AdminScreen from './src/screens/Admin';
 import Account from './src/screens/Account';
 import { C, Loading } from './src/ui';
 
-const Stack = createNativeStackNavigator(); const Tabs = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+const Tabs = createBottomTabNavigator();
 
 function LangSwitch() {
   const { lang, setLang } = useApp();
   return (
-    <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: C.line, borderRadius: 6, overflow: 'hidden' }}>
+    <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', borderRadius: 20, overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.15)' }}>
       {['en', 'am'].map((l) => (
         <Pressable
           key={l}
           accessibilityLabel={`language ${l}`}
           onPress={() => setLang(l)}
           style={{
-            paddingHorizontal: 7,
+            paddingHorizontal: 8,
             paddingVertical: 4,
-            backgroundColor: lang === l ? C.ink : 'transparent',
+            backgroundColor: lang === l ? '#d4af37' : 'transparent',
           }}
         >
-          <Text style={{ color: lang === l ? '#fff' : C.ink, fontSize: 11, fontWeight: '700' }}>
+          <Text style={{ color: lang === l ? '#064e3b' : '#ffffff', fontSize: 11, fontWeight: '800' }}>
             {l === 'en' ? 'EN' : 'አማ'}
           </Text>
         </Pressable>
@@ -46,7 +47,7 @@ function LangSwitch() {
 function HomeHeaderRight({ navigation }) {
   const { t, lang } = useApp();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginRight: 2 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 4 }}>
       <LangSwitch />
       <Pressable
         accessibilityLabel="Sign in"
@@ -54,17 +55,17 @@ function HomeHeaderRight({ navigation }) {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#eef6f4',
-          paddingHorizontal: 7,
-          paddingVertical: 4,
-          borderRadius: 6,
+          backgroundColor: 'rgba(255,255,255,0.15)',
+          paddingHorizontal: 8,
+          paddingVertical: 5,
+          borderRadius: 8,
           borderWidth: 1,
-          borderColor: C.teal,
-          gap: 2,
+          borderColor: 'rgba(255,255,255,0.25)',
+          gap: 3,
         }}
       >
-        <Ionicons name="log-in-outline" size={13} color={C.teal} />
-        <Text style={{ color: C.teal, fontWeight: '700', fontSize: 11 }}>{t('login')}</Text>
+        <Ionicons name="log-in-outline" size={13} color="#ffffff" />
+        <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 11 }}>{t('login')}</Text>
       </Pressable>
       <Pressable
         accessibilityLabel="Create account"
@@ -72,15 +73,15 @@ function HomeHeaderRight({ navigation }) {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: C.teal,
-          paddingHorizontal: 7,
+          backgroundColor: '#d4af37',
+          paddingHorizontal: 8,
           paddingVertical: 5,
-          borderRadius: 6,
-          gap: 2,
+          borderRadius: 8,
+          gap: 3,
         }}
       >
-        <Ionicons name="person-add-outline" size={12} color="#fff" />
-        <Text style={{ color: '#fff', fontWeight: '700', fontSize: 11 }}>
+        <Ionicons name="person-add-outline" size={12} color="#064e3b" />
+        <Text style={{ color: '#064e3b', fontWeight: '800', fontSize: 11 }}>
           {lang === 'am' ? 'መለያ' : 'Register'}
         </Text>
       </Pressable>
@@ -90,9 +91,9 @@ function HomeHeaderRight({ navigation }) {
 
 /** Header right for Login screen: Language + Create Account */
 function LoginHeaderRight({ navigation }) {
-  const { t, lang } = useApp();
+  const { lang } = useApp();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 4 }}>
       <LangSwitch />
       <Pressable
         accessibilityLabel="Create account"
@@ -100,16 +101,16 @@ function LoginHeaderRight({ navigation }) {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: C.teal,
+          backgroundColor: '#d4af37',
           paddingHorizontal: 8,
           paddingVertical: 5,
-          borderRadius: 6,
+          borderRadius: 8,
           gap: 3,
         }}
       >
-        <Ionicons name="person-add-outline" size={13} color="#fff" />
-        <Text style={{ color: '#fff', fontWeight: '700', fontSize: 11 }}>
-          {lang === 'am' ? 'መለያ ክፈት' : 'Create account'}
+        <Ionicons name="person-add-outline" size={13} color="#064e3b" />
+        <Text style={{ color: '#064e3b', fontWeight: '800', fontSize: 11 }}>
+          {lang === 'am' ? 'መለያ ክፈት' : 'Register'}
         </Text>
       </Pressable>
     </View>
@@ -120,7 +121,7 @@ function LoginHeaderRight({ navigation }) {
 function RegisterHeaderRight({ navigation }) {
   const { t } = useApp();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 4 }}>
       <LangSwitch />
       <Pressable
         accessibilityLabel="Sign in"
@@ -128,17 +129,17 @@ function RegisterHeaderRight({ navigation }) {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#eef6f4',
+          backgroundColor: 'rgba(255,255,255,0.15)',
           paddingHorizontal: 8,
           paddingVertical: 5,
-          borderRadius: 6,
+          borderRadius: 8,
           borderWidth: 1,
-          borderColor: C.teal,
+          borderColor: 'rgba(255,255,255,0.25)',
           gap: 3,
         }}
       >
-        <Ionicons name="log-in-outline" size={14} color={C.teal} />
-        <Text style={{ color: C.teal, fontWeight: '700', fontSize: 11 }}>{t('login')}</Text>
+        <Ionicons name="log-in-outline" size={13} color="#ffffff" />
+        <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 11 }}>{t('login')}</Text>
       </Pressable>
     </View>
   );
@@ -154,7 +155,7 @@ function AuthHeaderRight() {
     ]);
   };
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 2 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 4 }}>
       <LangSwitch />
       <Pressable
         accessibilityLabel="Sign out"
@@ -162,31 +163,39 @@ function AuthHeaderRight() {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#fef2f2',
+          backgroundColor: 'rgba(239, 68, 68, 0.2)',
           paddingHorizontal: 8,
           paddingVertical: 5,
-          borderRadius: 6,
+          borderRadius: 8,
           borderWidth: 1,
-          borderColor: '#fca5a5',
+          borderColor: 'rgba(239, 68, 68, 0.4)',
           gap: 3,
         }}
       >
-        <Ionicons name="log-out-outline" size={14} color={C.brick} />
-        <Text style={{ color: C.brick, fontWeight: '700', fontSize: 11 }}>{t('logout')}</Text>
+        <Ionicons name="log-out-outline" size={13} color="#fee2e2" />
+        <Text style={{ color: '#fee2e2', fontWeight: '700', fontSize: 11 }}>{t('logout')}</Text>
       </Pressable>
     </View>
   );
 }
 
-// Without an icon React Navigation draws a crossed-out box. Ionicons ship with Expo (@expo/vector-icons).
-const icon = (on, off) => ({ color, size, focused }) => <Ionicons name={focused ? on : off} size={size} color={color} />;
+const icon = (on, off) => ({ color, size, focused }) => (
+  <Ionicons name={focused ? on : off} size={size} color={color} />
+);
+
+const sharedHeaderOptions = {
+  headerStyle: { backgroundColor: '#064e3b' },
+  headerTintColor: '#ffffff',
+  headerTitleStyle: { fontWeight: '800', fontSize: 16, letterSpacing: -0.2 },
+  headerShadowVisible: false,
+};
 
 function BookingsStack() {
   const { t } = useApp();
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="MyBookings" component={MyBookings} options={{ title: t('myBookings') }} />
-      <Stack.Screen name="BookingDetail" component={BookingDetail} options={{ title: t('receipt') }} />
+    <Stack.Navigator screenOptions={sharedHeaderOptions}>
+      <Stack.Screen name="MyBookings" component={MyBookings} options={{ title: t('myBookings'), headerRight: () => <AuthHeaderRight /> }} />
+      <Stack.Screen name="BookingDetail" component={BookingDetail} options={{ title: t('receipt'), headerRight: () => <AuthHeaderRight /> }} />
     </Stack.Navigator>
   );
 }
@@ -194,13 +203,33 @@ function BookingsStack() {
 function Root() {
   const { ready, user, t } = useApp();
   if (!ready) return <Loading />;
-  const header = { headerRight: () => <AuthHeaderRight />, tabBarActiveTintColor: C.teal };
+
+  const header = {
+    ...sharedHeaderOptions,
+    headerRight: () => <AuthHeaderRight />,
+    tabBarActiveTintColor: '#047857',
+    tabBarInactiveTintColor: '#64748b',
+    tabBarStyle: {
+      backgroundColor: '#ffffff',
+      borderTopColor: '#e2e8f0',
+      borderTopWidth: 1,
+      height: 60,
+      paddingBottom: 8,
+      paddingTop: 6,
+    },
+    tabBarLabelStyle: {
+      fontSize: 11,
+      fontWeight: '600',
+    },
+  };
+
   const linking = { prefixes: [Linking.createURL('/'), 'museum://'] };
   const verified = !user || user.role !== 'visitor' || (user.emailVerified && user.phoneVerified);
+
   return (
     <NavigationContainer linking={linking}>
       {!user ? (
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={sharedHeaderOptions}>
           <Stack.Screen
             name="Home"
             component={Home}
@@ -225,10 +254,17 @@ function Root() {
               headerRight: () => <RegisterHeaderRight navigation={navigation} />,
             })}
           />
+          <Stack.Screen
+            name="Book"
+            component={Book}
+            options={{
+              title: t('book'),
+              headerRight: () => <HomeHeaderRight navigation={null} />,
+            }}
+          />
         </Stack.Navigator>
       ) : !verified ? (
-        // A visitor who has not verified email AND phone can do nothing else (same rule as the web app).
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={sharedHeaderOptions}>
           <Stack.Screen
             name="Verify"
             component={Verify}
@@ -270,7 +306,7 @@ function Root() {
           <Tabs.Screen name="Account" component={Account} options={{ title: t('tabAccount'), tabBarLabel: t('tabAccount'), tabBarIcon: icon('person-circle', 'person-circle-outline') }} />
         </Tabs.Navigator>
       ) : (
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={sharedHeaderOptions}>
           <Stack.Screen
             name="Account"
             component={Account}
@@ -283,5 +319,12 @@ function Root() {
 }
 
 export default function App() {
-  return (<SafeAreaProvider><AppProvider><StatusBar style="dark" /><Root /></AppProvider></SafeAreaProvider>);
+  return (
+    <SafeAreaProvider>
+      <AppProvider>
+        <StatusBar style="light" />
+        <Root />
+      </AppProvider>
+    </SafeAreaProvider>
+  );
 }
