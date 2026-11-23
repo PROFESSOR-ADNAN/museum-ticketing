@@ -6,7 +6,7 @@ import { useApp } from '../context';
 import { Banner, Btn, C, Err, Field, Ok, PasswordField, pullControl, s, useRefresh } from '../ui';
 
 export function Login({ navigation }) {
-  const { t, login, updateUser } = useApp(); const [f, setF] = useState({ email: '', password: '' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
+  const { t, lang, login, updateUser } = useApp(); const [f, setF] = useState({ email: '', password: '' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const go = async () => {
     setErr(''); setBusy(true);
     try { await login(f.email.trim(), f.password); } catch (e) { setErr(errText(t, e)); } finally { setBusy(false); }
@@ -29,12 +29,30 @@ export function Login({ navigation }) {
   return (
     <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Text style={s.h1}>{t('login')}</Text><Err>{err}</Err>
-      <Btn title="Sign in with Google" kind="ghost" onPress={handleGoogle} disabled={busy} />
+      <Btn title={lang === 'am' ? 'በGoogle ይግቡ (Sign in with Google)' : 'Sign in with Google'} kind="ghost" onPress={handleGoogle} disabled={busy} />
       <View style={{ height: 1, backgroundColor: '#e2e8f0', marginVertical: 14 }} />
       <Field label={t('email')} keyboardType="email-address" autoCorrect={false} value={f.email} onChangeText={(v) => setF({ ...f, email: v })} />
       <PasswordField label={t('password')} value={f.password} onChangeText={(v) => setF({ ...f, password: v })} onSubmitEditing={go} />
       <Btn title={t('login')} onPress={go} disabled={busy || !f.email.trim() || !f.password} />
       <Btn title={t('register')} kind="ghost" onPress={() => navigation.navigate('Register')} />
+
+      {/* Quick Staff Demo Credentials */}
+      <View style={{ marginTop: 24, padding: 12, backgroundColor: '#f8fafc', borderRadius: 8, borderWidth: 1, borderColor: '#e2e8f0' }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: 6 }}>
+          {lang === 'am' ? 'የሰራተኞች የሙከራ መለያ (Demo Staff)' : 'Demo Staff Quick-Fill (Password: admin1234)'}
+        </Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+          <Pressable onPress={() => setF({ email: 'cashier@museum.test', password: 'admin1234' })} style={{ paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4, backgroundColor: '#e2ece8' }}>
+            <Text style={{ fontSize: 11, color: C.teal, fontWeight: '700' }}>Cashier</Text>
+          </Pressable>
+          <Pressable onPress={() => setF({ email: 'manager@museum.test', password: 'admin1234' })} style={{ paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4, backgroundColor: '#e2ece8' }}>
+            <Text style={{ fontSize: 11, color: C.teal, fontWeight: '700' }}>Manager</Text>
+          </Pressable>
+          <Pressable onPress={() => setF({ email: 'admin@museum.test', password: 'admin1234' })} style={{ paddingVertical: 4, paddingHorizontal: 8, borderRadius: 4, backgroundColor: '#e2ece8' }}>
+            <Text style={{ fontSize: 11, color: C.teal, fontWeight: '700' }}>Admin</Text>
+          </Pressable>
+        </View>
+      </View>
     </ScrollView>
   );
 }
@@ -54,6 +72,27 @@ export function Register({ navigation }) {
   return (
     <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Text style={s.h1}>{t('register')}</Text><Err>{err}</Err>
+      <Btn
+        title={lang === 'am' ? 'በGoogle ይመዝገቡ (Sign up with Google)' : 'Sign up with Google'}
+        kind="ghost"
+        onPress={async () => {
+          setErr(''); setBusy(true);
+          try {
+            const payload = {
+              sub: 'mobile_google_' + Math.floor(100000 + Math.random() * 900000),
+              email: `mobile.${Math.floor(1000 + Math.random() * 9000)}@gmail.com`,
+              name: 'Mobile Google Visitor',
+              email_verified: true,
+            };
+            const dummyToken = 'eyJhbGciOiJIUzI1NiJ9.' + Buffer.from(JSON.stringify(payload)).toString('base64') + '.mock';
+            const r = await api('/auth/google', { method: 'POST', body: { credential: dummyToken } });
+            await setToken(r.token);
+            await updateUser(r.user);
+          } catch (e) { setErr(errText(t, e)); } finally { setBusy(false); }
+        }}
+        disabled={busy}
+      />
+      <View style={{ height: 1, backgroundColor: '#e2e8f0', marginVertical: 14 }} />
       <Field label={t('name')} value={f.name} onChangeText={set('name')} autoCapitalize="words" />
       <Field label={t('email')} keyboardType="email-address" autoCorrect={false} value={f.email} onChangeText={set('email')} />
       <Field label={t('phone')} keyboardType="phone-pad" value={f.phone} onChangeText={set('phone')} />

@@ -183,7 +183,7 @@ export function Book({ navigation }) {
   const { t, pick, user, lang } = useApp(); const [cats, setCats] = useState(null); const [avail, setAvail] = useState(null);
   const [kind, setKind] = useState('individual'); const [date, setDate] = useState(''); const [qty, setQty] = useState({});
   const [guided, setGuided] = useState(false); const [slot, setSlot] = useState('10:30');
-  const [grp, setGrp] = useState({ organization: '' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
+  const [grp, setGrp] = useState({ organization: '', tin: '', contactName: '', contactPhone: '' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const load = useCallback(() => Promise.all([
     cached('categories', async () => (await api('/categories')).categories).then((r) => setCats(r.data.filter((c) => c.onlineBookable))).catch((e) => setErr(friendly(t, e))),
     api('/availability').then(setAvail).catch(() => {}),
@@ -255,7 +255,14 @@ export function Book({ navigation }) {
       <Text style={s.label}>{t('date')}</Text>
       <CalendarPicker value={date} onChange={setDate} min={avail?.today} max={avail?.maxDate} closed={avail?.closedDates} today={avail?.today} />
       <Text style={[date ? s.text : s.muted, { marginBottom: 12 }]}>{date ? `✓ ${formatLong(date, lang)}` : t('pickDate')}</Text>
-      {kind === 'group' && <Field label={t('organization')} value={grp.organization} onChangeText={(v) => setGrp({ ...grp, organization: v })} autoCapitalize="words" />}
+      {kind === 'group' && (
+        <>
+          <Field label={t('organization')} value={grp.organization} onChangeText={(v) => setGrp({ ...grp, organization: v })} autoCapitalize="words" />
+          <Field label={lang === 'am' ? 'የተቋሙ TIN ቁጥር (10 አሃዝ)' : 'Taxpayer TIN (10 digits)'} value={grp.tin} onChangeText={(v) => setGrp({ ...grp, tin: v })} keyboardType="number-pad" />
+          <Field label={lang === 'am' ? 'የተጠሪ ስም' : 'Contact Person'} value={grp.contactName} onChangeText={(v) => setGrp({ ...grp, contactName: v })} autoCapitalize="words" />
+          <Field label={lang === 'am' ? 'የስልክ ቁጥር' : 'Contact Phone'} value={grp.contactPhone} onChangeText={(v) => setGrp({ ...grp, contactPhone: v })} keyboardType="phone-pad" />
+        </>
+      )}
       {cats.map((c) => (<View key={c.id} style={[s.row, { paddingVertical: 8, borderBottomWidth: 1, borderColor: C.line }]}>
         <View style={{ flex: 1 }}><Text style={[s.text, { fontWeight: '600' }]}>{pick(c.name)}</Text><Text style={s.muted}>{money(c.price + (guided && c.price > 0 ? 50 : 0))} {t('etb')}</Text></View>
         <View style={[s.row, { gap: 6 }]}><Pressable accessibilityLabel="minus" onPress={() => bump(c.id, -1)} style={{ padding: 10 }}><Text style={[s.h2, { color: C.teal }]}>−</Text></Pressable>
@@ -340,11 +347,20 @@ export function BookingDetail({ route }) {
         </View>)}
       <View style={s.card}>
         <View style={s.row}><Text style={s.h2}>{b.ref}</Text><Status value={b.status} t={t} /></View>
-        <Text style={s.muted}>{b.visitDate}{b.timeSlot ? ` · ${b.timeSlot}` : ''}{b.organization ? ` · ${b.organization}` : ''}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginVertical: 4 }}>
+          <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4, backgroundColor: b.isGuided ? '#fef3c7' : '#e0f2fe' }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: b.isGuided ? '#92400e' : '#0369a1' }}>
+              {b.isGuided
+                ? (lang === 'am' ? `✦ የተመራ ጉብኝት (${b.timeSlot || '09:00'})` : `✦ Guided Tour (${b.timeSlot || '09:00'})`)
+                : (lang === 'am' ? 'ራሱን የቻለ ጉብኝት (Self-Guided)' : 'Self-Guided Admission')}
+            </Text>
+          </View>
+        </View>
+        <Text style={s.muted}>{b.visitDate}{b.organization ? ` · ${b.organization}` : ''}</Text>
         <Err>{err}</Err><Ok>{msg}</Ok>
         {b.lines.map((l, i) => <Text key={i} style={[s.text, { marginTop: 6 }]}>{pick(l.name)} × {l.quantity} — {money(l.quantity * l.unitPrice)}</Text>)}
         <Text style={[s.h2, { marginTop: 10 }]}>{t('total')}: {money(b.amount)} {t('etb')}</Text>
-        {b.status === 'Visited' && <Text style={s.text}>{t('attended')}: {b.attendedQuantity} / {b.bookedQuantity}</Text>}
+        {b.status === 'Visited' && <Text style={[s.text, { fontWeight: '700', color: C.teal }]}>{t('attended')}: {b.attendedQuantity} / {b.bookedQuantity}</Text>}
         {b.refundedAmount > 0 && <Text style={s.text}>{t('refunded')}: {money(b.refundedAmount)}</Text>}
       </View>
       {mine && b.status === 'AwaitingPayment' && <Btn title={`${t('pay')} · ${money(b.amount)} ${t('etb')}`} onPress={pay} disabled={res.offline} />}
