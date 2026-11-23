@@ -1,6 +1,7 @@
-import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './auth.jsx';
-import { useI18n } from './i18n.jsx';
+import SiteHeader from './components/SiteHeader.jsx';
+import SiteFooter from './components/SiteFooter.jsx';
 import Home from './pages/Home.jsx';
 import { Login, Register, Verify } from './pages/Auth.jsx';
 import Book from './pages/Book.jsx';
@@ -12,40 +13,19 @@ import Admin from './pages/Admin.jsx';
 const homeFor = (u) => ({ cashier: '/cashier', manager: '/manager', admin: '/admin' }[u.role] || '/');
 
 function Guard({ roles, children }) {
-  const { user, ready } = useAuth(); const loc = useLocation();
+  const { user, ready } = useAuth();
+  const loc = useLocation();
   if (!ready) return null;
   if (!user) return <Navigate to="/login" state={{ from: loc.pathname }} replace />;
-  if (roles && !roles.includes(user.role)) return <Navigate to={homeFor(user)} replace />;   // wrong role -> that role's own home
+  if (roles && !roles.includes(user.role)) return <Navigate to={homeFor(user)} replace />;
   return children;
 }
 
 export default function App() {
-  const { user, logout } = useAuth(); const { t, lang, setLang } = useI18n();
-  const link = (to, label) => <NavLink to={to} end={to === '/'}>{label}</NavLink>;
   return (
-    <>
-      <nav className="nav" aria-label="Main">
-        <NavLink to="/" className="brand" title={t('brand')}>
-          <img src="/aau-logo.png" alt="Addis Ababa University Logo" className="nav-logo" />
-          <div className="brand-text">
-            <span className="brand-title">{t('brand')}</span>
-            <span className="brand-sub">{t('campus')}</span>
-          </div>
-        </NavLink>
-        {(!user || user.role === 'visitor') && <>{link('/book', t('book'))}{link('/group', t('group'))}</>}
-        {user?.role === 'visitor' && link('/bookings', t('myBookings'))}
-        {user?.role === 'cashier' && link('/cashier', t('cashier'))}
-        {user?.role === 'manager' && link('/manager', t('manager'))}
-        {user?.role === 'admin' && <>{link('/admin', t('admin'))}{link('/manager', t('reports'))}</>}
-        <span className="spacer" />
-        <div className="lang" role="group" aria-label="Language">
-          <button aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button>
-          <button aria-pressed={lang === 'am'} onClick={() => setLang('am')} lang="am">አማ</button>
-        </div>
-        {user ? <><span className="small">{user.name}</span><a href="#out" onClick={(e) => { e.preventDefault(); logout(); }}>{t('logout')}</a></>
-          : <>{link('/login', t('login'))}{link('/register', t('register'))}</>}
-      </nav>
-      <main className="wrap">
+    <div className="site-app-container">
+      <SiteHeader />
+      <main className="site-main-content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -61,6 +41,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-    </>
+      <SiteFooter />
+    </div>
   );
 }

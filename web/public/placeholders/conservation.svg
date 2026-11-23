@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title>Conservation and research placeholder</title>
+  <rect width="1200" height="800" fill="#f1f7fb"/>
+  <path d="M600 100c-170 180-250 300 0 570 250-270 170-390 0-570z" fill="#3a7abc"/>
+  <path d="M600 180v410M600 330c-100-55-150-45-190-25M600 430c100-55 150-45 190-25" stroke="#fff" stroke-width="22" fill="none"/>
+  <text x="600" y="750" fill="#015484" font-family="sans-serif" font-size="42" text-anchor="middle">Conservation — local placeholder</text>
+</svg>

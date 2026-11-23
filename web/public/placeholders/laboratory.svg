@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title>Research laboratory placeholder</title>
+  <rect width="1200" height="800" fill="#eaf4fb"/>
+  <rect x="130" y="130" width="940" height="470" rx="24" fill="#fff" stroke="#3a7abc" stroke-width="18"/>
+  <path d="M320 260h180v250H320zM700 260h180v250H700z" fill="#dfeff8" stroke="#015484" stroke-width="16"/>
+  <path d="M245 610h710M600 180v80M530 220h140" stroke="#015484" stroke-width="20"/>
+  <text x="600" y="735" fill="#015484" font-family="sans-serif" font-size="42" text-anchor="middle">Research laboratory — local placeholder</text>
+</svg>

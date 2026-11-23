@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title>Museum exterior placeholder</title>
+  <rect width="1200" height="800" fill="#dfeff8"/>
+  <rect y="520" width="1200" height="280" fill="#3a7abc"/>
+  <path d="M140 520V270h920v250M90 270h1020L600 90z" fill="#fff" stroke="#015484" stroke-width="16"/>
+  <path d="M230 520V350h110v170M430 520V350h110v170M660 520V350h110v170M860 520V350h110v170" fill="#b6dff7" stroke="#015484" stroke-width="14"/>
+  <text x="600" y="690" fill="#fff" font-family="sans-serif" font-size="44" text-anchor="middle">Museum exterior — local placeholder</text>
+</svg>
