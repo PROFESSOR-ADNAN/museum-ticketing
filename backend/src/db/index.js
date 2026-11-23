@@ -77,6 +77,13 @@ async function ensurePg(pool) {
       if (fs.existsSync(schemaPath)) {
         await pool.query(fs.readFileSync(schemaPath, 'utf8'));
       }
+    } else {
+      // Ensure recently added columns exist in existing PostgreSQL database
+      await pool.query(`
+        ALTER TABLE bookings ADD COLUMN IF NOT EXISTS is_guided BOOLEAN NOT NULL DEFAULT FALSE;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub VARCHAR(255);
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub);
+      `);
     }
   } catch (err) {
     console.warn('[db:pg] ensure schema notice:', err.message);

@@ -128,6 +128,26 @@ export function SiteFooter() {
               <span className="footer-badge-pill">Ethiopian Wildlife Authority</span>
               <span className="footer-badge-pill">AAU Research Center</span>
             </div>
+
+            <div className="footer-staff-section" style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', display: 'block', marginBottom: '0.5rem' }}>
+                {am ? 'የሰራተኞች እና አስተዳደር መግቢያ' : 'Staff & Administration'}
+              </span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', fontSize: '0.8125rem' }}>
+                <Link to="/login?staff=true" style={{ color: '#cbd5e1', textDecoration: 'none' }}>
+                  {am ? 'የሰራተኛ መግቢያ (Login)' : 'Staff Login'}
+                </Link>
+                <Link to="/cashier" style={{ color: '#cbd5e1', textDecoration: 'none' }}>
+                  {am ? 'የበር አሳላፊ (Gate/POS)' : 'Gate Check-In'}
+                </Link>
+                <Link to="/manager" style={{ color: '#cbd5e1', textDecoration: 'none' }}>
+                  {am ? 'ሥራ አስኪያጅ (Manager)' : 'Manager Console'}
+                </Link>
+                <Link to="/admin" style={{ color: '#cbd5e1', textDecoration: 'none' }}>
+                  {am ? 'ዋና አስተዳዳሪ (Admin)' : 'Admin'}
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 

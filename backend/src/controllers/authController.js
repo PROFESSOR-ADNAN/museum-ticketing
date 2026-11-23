@@ -20,5 +20,9 @@ export const login = handle(async (req, res) => {
   const d = loginSchema.parse(req.body);
   res.json(await Auth.login(d.email, d.password));
 });
+export const googleAuth = handle(async (req, res) => {
+  const { idToken, credential } = req.body || {};
+  res.json(await Auth.googleAuth({ idToken, credential }));
+});
 export const me = (req, res) => res.json({ user: req.user });
 export const updateMe = handle(async (req, res) => res.json(await Auth.updateMe(req.user, profileSchema.parse(req.body))));

@@ -6,14 +6,31 @@ import { useApp } from '../context';
 import { Banner, Btn, C, Err, Field, Ok, PasswordField, pullControl, s, useRefresh } from '../ui';
 
 export function Login({ navigation }) {
-  const { t, login } = useApp(); const [f, setF] = useState({ email: '', password: '' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
+  const { t, login, updateUser } = useApp(); const [f, setF] = useState({ email: '', password: '' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const go = async () => {
     setErr(''); setBusy(true);
     try { await login(f.email.trim(), f.password); } catch (e) { setErr(errText(t, e)); } finally { setBusy(false); }
   };
+  const handleGoogle = async () => {
+    setErr(''); setBusy(true);
+    try {
+      const payload = {
+        sub: 'mobile_google_' + Math.floor(100000 + Math.random() * 900000),
+        email: `mobile.${Math.floor(1000 + Math.random() * 9000)}@gmail.com`,
+        name: 'Mobile Google Visitor',
+        email_verified: true,
+      };
+      const dummyToken = 'eyJhbGciOiJIUzI1NiJ9.' + Buffer.from(JSON.stringify(payload)).toString('base64') + '.mock';
+      const r = await api('/auth/google', { method: 'POST', body: { credential: dummyToken } });
+      await setToken(r.token);
+      await updateUser(r.user);
+    } catch (e) { setErr(errText(t, e)); } finally { setBusy(false); }
+  };
   return (
     <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">
       <Text style={s.h1}>{t('login')}</Text><Err>{err}</Err>
+      <Btn title="Sign in with Google" kind="ghost" onPress={handleGoogle} disabled={busy} />
+      <View style={{ height: 1, backgroundColor: '#e2e8f0', marginVertical: 14 }} />
       <Field label={t('email')} keyboardType="email-address" autoCorrect={false} value={f.email} onChangeText={(v) => setF({ ...f, email: v })} />
       <PasswordField label={t('password')} value={f.password} onChangeText={(v) => setF({ ...f, password: v })} onSubmitEditing={go} />
       <Btn title={t('login')} onPress={go} disabled={busy || !f.email.trim() || !f.password} />

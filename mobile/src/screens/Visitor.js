@@ -182,6 +182,7 @@ export function Home({ navigation }) {
 export function Book({ navigation }) {
   const { t, pick, user, lang } = useApp(); const [cats, setCats] = useState(null); const [avail, setAvail] = useState(null);
   const [kind, setKind] = useState('individual'); const [date, setDate] = useState(''); const [qty, setQty] = useState({});
+  const [guided, setGuided] = useState(false); const [slot, setSlot] = useState('10:30');
   const [grp, setGrp] = useState({ organization: '' }); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   const load = useCallback(() => Promise.all([
     cached('categories', async () => (await api('/categories')).categories).then((r) => setCats(r.data.filter((c) => c.onlineBookable))).catch((e) => setErr(friendly(t, e))),
@@ -189,14 +190,19 @@ export function Book({ navigation }) {
   ]), [t]);
   useFocusEffect(useCallback(() => { load(); }, [load]));
   const pull = useRefresh(load);
-  const total = useMemo(() => (cats || []).reduce((sum, c) => sum + c.price * (qty[c.id] || 0), 0), [cats, qty]);
+  const baseTotal = useMemo(() => (cats || []).reduce((sum, c) => sum + c.price * (qty[c.id] || 0), 0), [cats, qty]);
+  const surchargeTotal = useMemo(() => (guided ? (cats || []).reduce((sum, c) => (c.price > 0 ? sum + 50 * (qty[c.id] || 0) : sum), 0) : 0), [guided, cats, qty]);
+  const total = baseTotal + surchargeTotal;
   const lines = (cats || []).filter((c) => qty[c.id] > 0).map((c) => ({ categoryId: c.id, quantity: qty[c.id] }));
   const closed = avail?.closedDates?.includes(date);
   const bump = (id, d) => setQty({ ...qty, [id]: Math.max(0, Math.min(500, (qty[id] || 0) + d)) });
   const submit = async () => {
     setErr(''); setBusy(true);
     try {
-      const r = await api(kind === 'group' ? '/bookings/group' : '/bookings', { method: 'POST', body: { visitDate: date, lines, ...(kind === 'group' ? grp : {}) } });
+      const r = await api(kind === 'group' ? '/bookings/group' : '/bookings', {
+        method: 'POST',
+        body: { visitDate: date, lines, isGuided: guided, timeSlot: guided ? slot : null, ...(kind === 'group' ? grp : {}) },
+      });
       setQty({}); navigation.navigate('Bookings', { screen: 'BookingDetail', params: { id: r.booking.id } });
     } catch (e) { setErr(friendly(t, e)); } finally { setBusy(false); }
   };
@@ -206,12 +212,52 @@ export function Book({ navigation }) {
       <Text style={s.h1}>{kind === 'group' ? t('group') : t('book')}</Text>
       {kind === 'group' && <Text style={[s.muted, { marginBottom: 10 }]}>{t('groupHelp')}</Text>}
       <Err>{err}</Err><Err>{closed ? t('closedDate') : ''}</Err>
+
+      {/* Guided vs Self-Guided toggle */}
+      <View style={{ flexDirection: 'row', gap: 8, marginVertical: 8 }}>
+        <Pressable
+          onPress={() => setGuided(false)}
+          style={[s.btn, { flex: 1, backgroundColor: !guided ? C.teal : '#e2e8f0', paddingVertical: 10 }]}
+        >
+          <Text style={{ color: !guided ? '#fff' : '#475569', fontWeight: '700', textAlign: 'center' }}>
+            {lang === 'am' ? 'ራሱን የቻለ' : 'Self-Guided'}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setGuided(true)}
+          style={[s.btn, { flex: 1, backgroundColor: guided ? C.teal : '#e2e8f0', paddingVertical: 10 }]}
+        >
+          <Text style={{ color: guided ? '#fff' : '#475569', fontWeight: '700', textAlign: 'center' }}>
+            {lang === 'am' ? 'የተመራ (+50 ብር)' : 'Guided (+50 ETB)'}
+          </Text>
+        </Pressable>
+      </View>
+
+      {guided && (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+          {['09:00', '10:30', '13:00', '14:30'].map((time) => (
+            <Pressable
+              key={time}
+              onPress={() => setSlot(time)}
+              style={{
+                paddingVertical: 6,
+                paddingHorizontal: 12,
+                borderRadius: 6,
+                backgroundColor: slot === time ? '#015484' : '#f1f5f9',
+              }}
+            >
+              <Text style={{ color: slot === time ? '#fff' : '#334155', fontWeight: '600' }}>{time}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+
       <Text style={s.label}>{t('date')}</Text>
       <CalendarPicker value={date} onChange={setDate} min={avail?.today} max={avail?.maxDate} closed={avail?.closedDates} today={avail?.today} />
       <Text style={[date ? s.text : s.muted, { marginBottom: 12 }]}>{date ? `✓ ${formatLong(date, lang)}` : t('pickDate')}</Text>
       {kind === 'group' && <Field label={t('organization')} value={grp.organization} onChangeText={(v) => setGrp({ ...grp, organization: v })} autoCapitalize="words" />}
       {cats.map((c) => (<View key={c.id} style={[s.row, { paddingVertical: 8, borderBottomWidth: 1, borderColor: C.line }]}>
-        <View style={{ flex: 1 }}><Text style={[s.text, { fontWeight: '600' }]}>{pick(c.name)}</Text><Text style={s.muted}>{money(c.price)} {t('etb')}</Text></View>
+        <View style={{ flex: 1 }}><Text style={[s.text, { fontWeight: '600' }]}>{pick(c.name)}</Text><Text style={s.muted}>{money(c.price + (guided && c.price > 0 ? 50 : 0))} {t('etb')}</Text></View>
         <View style={[s.row, { gap: 6 }]}><Pressable accessibilityLabel="minus" onPress={() => bump(c.id, -1)} style={{ padding: 10 }}><Text style={[s.h2, { color: C.teal }]}>−</Text></Pressable>
           <Text style={[s.text, { minWidth: 28, textAlign: 'center' }]}>{qty[c.id] || 0}</Text>
           <Pressable accessibilityLabel="plus" onPress={() => bump(c.id, 1)} style={{ padding: 10 }}><Text style={[s.h2, { color: C.teal }]}>+</Text></Pressable></View></View>))}

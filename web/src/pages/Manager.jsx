@@ -3,6 +3,8 @@ import { api, download } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useI18n } from '../i18n.jsx';
 import { Notice, Status, Tabs, useLoad, money } from '../components/ui.jsx';
+import StaffShell from '../components/StaffShell.jsx';
+import { LayoutDashboard, FileSpreadsheet, Building2, CalendarX, TrendingUp, Users } from 'lucide-react';
 
 function Breakdown({ title, map }) {
   const { t, pick } = useI18n(); const entries = Object.entries(map || {}); const max = Math.max(1, ...entries.map(([, v]) => v.visitors));
@@ -108,13 +110,31 @@ function Dates() {
 }
 
 export default function Manager() {
-  const { t } = useI18n(); const { user } = useAuth(); const [tab, setTab] = useState('dash');
-  const tabs = [['dash', t('dashboard')], ['rep', t('reports')], ['grp', t('groupRequests')], ['dates', t('dates')]];
+  const { t, lang } = useI18n();
+  const { user } = useAuth();
+  const [tab, setTab] = useState('dash');
+  const am = lang === 'am';
+
+  const tabs = [
+    ['dash', am ? 'ዋና ዳሽቦርድ (Overview)' : 'Overview Dashboard'],
+    ['rep', am ? 'የገቢ ሪፖርቶች እና ኤክስፖርት' : 'Reports & Exports'],
+    ['grp', am ? 'የትምህርት ቤት ጉብኝቶች (Approvals)' : 'School Tour Approvals'],
+    ['dates', am ? 'የቀን መዝጊያ (Closures)' : 'Date Closures'],
+  ];
+
   return (
-    <>
-      <h2>{user.role === 'admin' ? t('reports') : t('manager')}</h2>
+    <StaffShell
+      title={user.role === 'admin' ? (am ? 'የሥራ አስኪያጅ ሪፖርቶች' : 'Executive Reports') : (am ? 'የሙዚየም ሥራ አስኪያጅ ፖርታል' : 'Museum Manager Operations & Analytics')}
+      subtitle={am ? 'የዕለቱ የጎብኚዎች ቁጥር፣ የገቢ ሪፖርቶች፣ የትምህርት ቤት ቡድን ማጽደቂያ እና የቀን መዝጊያ' : 'Track daily visitor attendance, revenue dashboards, export data, and review school visit applications.'}
+      roleTitle={am ? 'የሙዚየም ሥራ አስኪያጅ (Museum Manager)' : 'Museum Manager'}
+    >
       <Tabs tabs={tabs} value={tab} onChange={setTab} />
-      {tab === 'dash' && <Dashboard />}{tab === 'rep' && <Reports />}{tab === 'grp' && <Groups />}{tab === 'dates' && <Dates />}
-    </>
+      <div style={{ marginTop: '1.25rem' }}>
+        {tab === 'dash' && <Dashboard />}
+        {tab === 'rep' && <Reports />}
+        {tab === 'grp' && <Groups />}
+        {tab === 'dates' && <Dates />}
+      </div>
+    </StaffShell>
   );
 }

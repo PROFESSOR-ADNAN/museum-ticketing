@@ -3,6 +3,8 @@ import jsQR from 'jsqr';
 import { api } from '../api.js';
 import { useI18n } from '../i18n.jsx';
 import { Notice, Receipt, Status, Tabs, useLoad, money } from '../components/ui.jsx';
+import StaffShell from '../components/StaffShell.jsx';
+import { Scan as ScanIcon, ShoppingBag, CheckSquare, Clock, ArrowRightLeft, History as HistoryIcon } from 'lucide-react';
 
 function Attendance({ b, onDone }) {
   const { t, pick } = useI18n();
@@ -405,12 +407,34 @@ function Scan() {
 }
 
 export default function Cashier() {
-  const { t } = useI18n(); const [tab, setTab] = useState('pos');
+  const { t, lang } = useI18n();
+  const [tab, setTab] = useState('pos');
+  const am = lang === 'am';
+
+  const tabs = [
+    ['pos', am ? 'በበር ላይ ሽያጭ (Walk-in POS)' : 'Walk-in POS'],
+    ['scan', am ? 'የQR ትኬት ቅኝት (Scanner)' : 'Gate QR Scanner'],
+    ['in', am ? 'በመለያ ቁጥር ማረጋገጫ (Lookup)' : 'Code Lookup'],
+    ['today', am ? 'የዛሬ ጎብኚዎች (Today)' : 'Today Arrivals'],
+    ['xfer', am ? 'የዕለት ገቢ ማስተላለፊያ (Settlement)' : 'Shift Settlement'],
+    ['hist', am ? 'የማስተላለፊያ ታሪክ' : 'Transfer History'],
+  ];
+
   return (
-    <>
-      <h2>{t('cashier')}</h2>
-      <Tabs value={tab} onChange={setTab} tabs={[['pos', t('posWalkIn')], ['scan', t('cashierScan')], ['in', t('cashierCheckin')], ['today', t('cashierToday')], ['xfer', t('cashierTransfer')], ['hist', t('cashierHistory')]]} />
-      {tab === 'pos' && <PosWalkIn />}{tab === 'scan' && <Scan />}{tab === 'in' && <CheckIn />}{tab === 'today' && <Today />}{tab === 'xfer' && <Transfer />}{tab === 'hist' && <History />}
-    </>
+    <StaffShell
+      title={am ? 'የበር አሳላፊ እና የገንዘብ ተቀባይ መድረክ' : 'Gate Admission & Point-of-Sale (POS) Terminal'}
+      subtitle={am ? 'የQR ትኬት ቅኝት፣ በበር ላይ ፈጣን የትኬት ሽያጭ፣ የጎብኚዎች መግቢያ እና የዕለት ገቢ ማጠቃለያ' : 'Scan entrance passes, issue walk-in tickets with printed receipts, and reconcile cashier shifts.'}
+      roleTitle={am ? 'የበር አሳላፊ (Gate & POS Cashier)' : 'Gate Cashier'}
+    >
+      <Tabs value={tab} onChange={setTab} tabs={tabs} />
+      <div style={{ marginTop: '1.25rem' }}>
+        {tab === 'pos' && <PosWalkIn />}
+        {tab === 'scan' && <Scan />}
+        {tab === 'in' && <CheckIn />}
+        {tab === 'today' && <Today />}
+        {tab === 'xfer' && <Transfer />}
+        {tab === 'hist' && <History />}
+      </div>
+    </StaffShell>
   );
 }

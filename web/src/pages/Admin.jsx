@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { api, download } from '../api.js';
 import { useI18n } from '../i18n.jsx';
 import { Notice, Tabs, useLoad, money } from '../components/ui.jsx';
+import StaffShell from '../components/StaffShell.jsx';
+import { Shield, Users, Tag, AlertTriangle, FileText, Database } from 'lucide-react';
 
 /** FR-CAT-001/002 + FR-LOC-004: each language maintained independently. */
 function Categories() {
@@ -89,7 +91,32 @@ function Audit() {
 }
 
 export default function Admin() {
-  const { t } = useI18n(); const [tab, setTab] = useState('cat');
-  return (<><h2>{t('admin')}</h2><Tabs value={tab} onChange={setTab} tabs={[['cat', t('categories')], ['staff', t('staff')], ['ref', t('refundsTab')], ['audit', t('audit')]]} />
-    {tab === 'cat' && <Categories />}{tab === 'staff' && <Staff />}{tab === 'ref' && <Refunds />}{tab === 'audit' && <Audit />}</>);
+  const { t, lang } = useI18n();
+  const [tab, setTab] = useState('cat');
+  const am = lang === 'am';
+
+  return (
+    <StaffShell
+      title={am ? 'የሲስተም እና ሰራተኞች አስተዳደር' : 'Platform Administration & System Console'}
+      subtitle={am ? 'የሰራተኞች ሂሳብ፣ የትኬት ክፍሎች እና ዋጋ፣ የኦዲት መዝገብ እና የዳታቤዝ ምትክ' : 'Configure ticket categories, manage staff credentials, monitor audit logs, and download backups.'}
+      roleTitle={am ? 'ዋና አስተዳዳሪ (Platform Admin)' : 'Platform Administrator'}
+    >
+      <Tabs
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          ['cat', am ? 'የትኬት ክፍሎች (Categories)' : 'Ticket Categories'],
+          ['staff', am ? 'የሰራተኞች መለያዎች (Staff Accounts)' : 'Staff Accounts'],
+          ['ref', am ? 'ያልተጠናቀቁ ተመላሾች (Refunds)' : 'Refunds Queue'],
+          ['audit', am ? 'የኦዲት መዝገብ (Audit Logs)' : 'Audit Logs & Backups'],
+        ]}
+      />
+      <div style={{ marginTop: '1.25rem' }}>
+        {tab === 'cat' && <Categories />}
+        {tab === 'staff' && <Staff />}
+        {tab === 'ref' && <Refunds />}
+        {tab === 'audit' && <Audit />}
+      </div>
+    </StaffShell>
+  );
 }

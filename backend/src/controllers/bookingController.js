@@ -10,10 +10,18 @@ import { config } from '../config.js';
 
 const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const lineSchema = z.object({ categoryId: z.number().int().positive(), quantity: z.number().int().min(1).max(config.maxQuantityPerLine) });
-const individualSchema = z.object({ visitDate: dateStr, lines: z.array(lineSchema).min(1).max(10) });
+const individualSchema = z.object({
+  visitDate: dateStr,
+  lines: z.array(lineSchema).min(1).max(10),
+  isGuided: z.boolean().optional(),
+  guided: z.boolean().optional(),
+  timeSlot: z.string().min(1).max(50).optional(),
+  slotTime: z.string().min(1).max(50).optional(),
+});
 const groupSchema = individualSchema.extend({
   organization: z.string().min(2).max(150),
-  timeSlot: z.string().min(1).max(40).optional(),
+  tin: z.string().min(8).max(30).optional(),
+  timeSlot: z.string().min(1).max(50).optional(),
   contactName: z.string().min(2).max(100).optional(),
   contactPhone: z.string().min(6).max(20).optional(),
 });
@@ -39,11 +47,19 @@ const paymentUnavailable = (e) => {
   return new AppError('PAYMENT_UNAVAILABLE', 502);
 };
 
-export const create = handle(async (req, res) =>                        // FR-BOOK-001
-  res.status(201).json({ booking: await createBooking({ visitor: req.user, kind: 'individual', ...individualSchema.parse(req.body) }) }));
+export const create = handle(async (req, res) => {                      // FR-BOOK-001
+  const d = individualSchema.parse(req.body);
+  const isGuided = Boolean(d.isGuided ?? d.guided);
+  const timeSlot = d.timeSlot || d.slotTime || null;
+  res.status(201).json({ booking: await createBooking({ visitor: req.user, kind: 'individual', ...d, isGuided, timeSlot }) });
+});
 
-export const createGroup = handle(async (req, res) =>                   // FR-BOOK-003 (goes to the Manager for approval)
-  res.status(201).json({ booking: await createBooking({ visitor: req.user, kind: 'group', ...groupSchema.parse(req.body) }) }));
+export const createGroup = handle(async (req, res) => {                 // FR-BOOK-003 (goes to the Manager for approval)
+  const d = groupSchema.parse(req.body);
+  const isGuided = Boolean(d.isGuided ?? d.guided);
+  const timeSlot = d.timeSlot || d.slotTime || null;
+  res.status(201).json({ booking: await createBooking({ visitor: req.user, kind: 'group', ...d, isGuided, timeSlot }) });
+});
 
 export const list = handle(async (req, res) => {                        // FR-ACC-004
   const all = isStaff(req.user) && req.query.all === '1';

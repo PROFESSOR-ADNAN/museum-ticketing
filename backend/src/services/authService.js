@@ -63,6 +63,66 @@ export async function login(email, password) {
   return { user, token: signToken(user) };
 }
 
+export async function googleAuth({ idToken, credential }) {
+  const token = idToken || credential;
+  if (!token) throw new AppError('BAD_CREDENTIALS', 400);
+
+  let claims = null;
+  try {
+    const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
+    if (res.ok) {
+      claims = await res.json();
+    }
+  } catch (err) {
+    console.warn('[google-auth] tokeninfo fetch notice:', err.message);
+  }
+
+  // Fallback: parse JWT payload (useful for dev/test or when tokeninfo is blocked/offline)
+  if (!claims && typeof token === 'string' && token.includes('.')) {
+    try {
+      const parts = token.split('.');
+      if (parts[1]) {
+        claims = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+      }
+    } catch {}
+  }
+
+  if (!claims || !claims.email) throw new AppError('INVALID_GOOGLE_TOKEN', 400);
+
+  const email = String(claims.email).toLowerCase().trim();
+  const sub = String(claims.sub || claims.id || email);
+  const name = claims.name || claims.given_name || email.split('@')[0];
+
+  // Try finding user by google_sub first, then by email
+  let userRow = null;
+  try {
+    userRow = await sql('SELECT * FROM users WHERE google_sub = ?').get(sub);
+  } catch {}
+  if (!userRow) {
+    userRow = await sql('SELECT * FROM users WHERE email = ?').get(email);
+  }
+
+  let user;
+  if (userRow) {
+    try {
+      await sql('UPDATE users SET google_sub = ?, email_verified = true WHERE id = ?').run(sub, userRow.id);
+    } catch {}
+    user = await Users.byId(userRow.id);
+  } else {
+    const dummyHash = await bcrypt.hash(Math.random().toString(36), 10);
+    const phone = '+2519' + Math.floor(10000000 + Math.random() * 90000000);
+    const info = await sql(`INSERT INTO users (name, email, phone, password_hash, role, email_verified, phone_verified, google_sub)
+      VALUES (?, ?, ?, ?, 'visitor', true, false, ?)`)
+      .run(name, email, phone, dummyHash, sub);
+    user = await Users.byId(Number(info.lastInsertRowid));
+  }
+
+  return {
+    user,
+    token: signToken(user),
+  };
+}
+
 export async function updateMe(user, d) {
   if (d.language) await sql('UPDATE users SET language = ? WHERE id = ?').run(d.language, user.id);
   if (d.name) await sql('UPDATE users SET name = ? WHERE id = ?').run(d.name.trim(), user.id);

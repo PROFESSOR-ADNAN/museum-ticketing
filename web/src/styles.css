@@ -2124,3 +2124,157 @@ th { font-size: .84rem; color: #64748b; font-weight: 700; }
   .receipt { border-width: 1px; box-shadow: none; margin: 0; }
   .wallet-pass-ticket { box-shadow: none; border-color: #000; }
 }
+
+/* Staff Portal & Shell Styles */
+.staff-portal-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem 1rem;
+}
+
+.staff-portal-topbar {
+  background: #0f172a;
+  color: #f8fafc;
+  border-radius: 12px;
+  padding: 10px 18px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.staff-topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.staff-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8125rem;
+}
+
+.staff-topbar-badge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.02em;
+}
+
+.staff-topbar-sep {
+  color: #475569;
+}
+
+.staff-role-indicator {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.staff-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.staff-console-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 6px;
+  border-radius: 8px;
+}
+
+.switcher-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-right: 2px;
+}
+
+.console-switch-btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #cbd5e1;
+  transition: all 0.15s ease;
+}
+
+.console-switch-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.console-switch-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.staff-user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.staff-public-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.staff-public-link:hover {
+  color: #ffffff;
+}
+
+.staff-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.staff-page-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 4px 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.staff-page-subtitle {
+  font-size: 0.9375rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.staff-page-body {
+  background: transparent;
+}
+
+.staff-highlight {
+  background: rgba(1, 84, 132, 0.08);
+  border: 1px solid rgba(1, 84, 132, 0.2);
+  border-radius: 8px;
+  font-weight: 700 !important;
+  color: #015484 !important;
+}
+
+.staff-link-hint {
+  font-size: 0.85rem;
+  color: #0369a1 !important;
+  font-weight: 600;
+}
+

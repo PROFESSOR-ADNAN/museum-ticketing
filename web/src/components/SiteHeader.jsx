@@ -99,19 +99,35 @@ export function SiteHeader() {
                     <span>{t('myBookings')}</span>
                   </NavLink>
                 )}
+                {!user && (
+                  <Link to="/login?staff=true" className="site-nav-item staff-link-hint">
+                    <ShieldCheck size={14} className="inline mr-1 text-sky-600" />
+                    <span>{am ? 'የሰራተኛ ፖርታል' : 'Staff Portal'}</span>
+                  </Link>
+                )}
               </>
             )}
 
             {user?.role === 'cashier' && (
-              <NavLink to="/cashier" className="site-nav-item">{t('cashier')}</NavLink>
+              <NavLink to="/cashier" className="site-nav-item staff-highlight">
+                <ShieldCheck size={14} className="inline mr-1 text-emerald-600" />
+                <span>{am ? 'የበር አሳላፊ (Gate & POS)' : 'Gate & POS Console'}</span>
+              </NavLink>
             )}
             {user?.role === 'manager' && (
-              <NavLink to="/manager" className="site-nav-item">{t('manager')}</NavLink>
+              <NavLink to="/manager" className="site-nav-item staff-highlight">
+                <ShieldCheck size={14} className="inline mr-1 text-sky-600" />
+                <span>{am ? 'ሥራ አስኪያጅ (Manager)' : 'Manager Console'}</span>
+              </NavLink>
             )}
             {user?.role === 'admin' && (
               <>
-                <NavLink to="/admin" className="site-nav-item">{t('admin')}</NavLink>
+                <NavLink to="/admin" className="site-nav-item staff-highlight">
+                  <ShieldCheck size={14} className="inline mr-1 text-purple-600" />
+                  <span>{am ? 'ዋና አስተዳዳሪ (Admin)' : 'Admin Console'}</span>
+                </NavLink>
                 <NavLink to="/manager" className="site-nav-item">{t('reports')}</NavLink>
+                <NavLink to="/cashier" className="site-nav-item">{t('cashier')}</NavLink>
               </>
             )}
           </nav>
@@ -219,16 +235,23 @@ export function SiteHeader() {
             )}
 
             {user?.role === 'cashier' && (
-              <Link to="/cashier" onClick={closeMobile} className="mobile-nav-link">{t('cashier')}</Link>
+              <Link to="/cashier" onClick={closeMobile} className="mobile-nav-link">{am ? 'የበር አሳላፊ (Gate & POS)' : 'Gate & POS Console'}</Link>
             )}
             {user?.role === 'manager' && (
-              <Link to="/manager" onClick={closeMobile} className="mobile-nav-link">{t('manager')}</Link>
+              <Link to="/manager" onClick={closeMobile} className="mobile-nav-link">{am ? 'ሥራ አስኪያጅ (Manager)' : 'Manager Console'}</Link>
             )}
             {user?.role === 'admin' && (
               <>
-                <Link to="/admin" onClick={closeMobile} className="mobile-nav-link">{t('admin')}</Link>
+                <Link to="/admin" onClick={closeMobile} className="mobile-nav-link">{am ? 'ዋና አስተዳዳሪ (Admin)' : 'Admin Console'}</Link>
                 <Link to="/manager" onClick={closeMobile} className="mobile-nav-link">{t('reports')}</Link>
+                <Link to="/cashier" onClick={closeMobile} className="mobile-nav-link">{t('cashier')}</Link>
               </>
+            )}
+            {!user && (
+              <Link to="/login?staff=true" onClick={closeMobile} className="mobile-nav-link" style={{ color: '#015484' }}>
+                <ShieldCheck size={18} />
+                <span>{am ? 'የሰራተኛ ፖርታል መግቢያ' : 'Staff Portal Login'}</span>
+              </Link>
             )}
 
             <div className="mobile-drawer-footer">

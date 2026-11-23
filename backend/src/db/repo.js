@@ -7,6 +7,7 @@ const bool = (v) => !!v;
 export const mapUser = (r, secrets = false) => r && ({
   id: r.id, name: r.name, email: r.email, phone: r.phone, role: r.role,
   emailVerified: bool(r.email_verified), phoneVerified: bool(r.phone_verified), language: r.language, active: bool(r.active),
+  googleLinked: Boolean(r.google_sub),
   ...(secrets ? { passwordHash: r.password_hash, emailCode: r.email_code, phoneCode: r.phone_code, codeExpiresAt: r.code_expires_at, codeAttempts: r.code_attempts } : {}),
 });
 export const Users = {
@@ -35,6 +36,7 @@ export function mapBooking(r, lines = [], visitor = null) {
     id: r.id, ref: r.ref,
     visitor: visitor ? { id: visitor.id, name: visitor.name, email: visitor.email, phone: visitor.phone } : { id: r.visitor_id },
     kind: r.kind, visitDate: r.visit_date, timeSlot: r.time_slot, organization: r.organization,
+    isGuided: Boolean(r.is_guided),
     contactName: r.contact_name, contactPhone: r.contact_phone,
     lines: lines.map(mapLine), bookedQuantity: r.booked_quantity, amount: fromCents(r.amount_cents),
     status: r.status, channel: r.channel,

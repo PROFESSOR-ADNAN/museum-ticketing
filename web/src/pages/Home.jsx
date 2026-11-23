@@ -87,6 +87,10 @@ export default function Home() {
               <span>{am ? 'ፈጣን ዲጂታል QR ትኬት' : 'Instant Digital QR Pass'}</span>
             </span>
             <span className="hero-chip">
+              <Sparkles size={14} className="text-amber-500" />
+              <span>{am ? 'የተመራ እና ራሱን የቻለ ጉብኝት' : 'Guided & Self-Guided Tours'}</span>
+            </span>
+            <span className="hero-chip">
               <CreditCard size={14} className="text-teal" />
               <span>{am ? 'ቴሌብር፣ ሲቢኢ ብር እና ካርዶች' : 'Telebirr, CBE Birr & Cards'}</span>
             </span>

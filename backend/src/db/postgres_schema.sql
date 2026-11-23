@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS users (
   code_attempts INT NOT NULL DEFAULT 0,
   language VARCHAR(10) NOT NULL DEFAULT 'en' CHECK (language IN ('en','am')),
   active BOOLEAN NOT NULL DEFAULT TRUE,
+  google_sub VARCHAR(255) UNIQUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -69,6 +70,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   ref VARCHAR(50) NOT NULL UNIQUE,
   visitor_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   kind VARCHAR(20) NOT NULL DEFAULT 'individual' CHECK (kind IN ('individual','group')),
+  is_guided BOOLEAN NOT NULL DEFAULT FALSE,
   visit_date DATE NOT NULL,
   time_slot VARCHAR(50),
   organization VARCHAR(255),

@@ -18,6 +18,7 @@ r.post('/register', ...guard, C.register);
 r.post('/verify', ...guard, C.verify);
 r.post('/resend', ...guard, C.resend);
 r.post('/login', ...guard, C.login);
+r.post('/google', ...guard, C.googleAuth);
 r.get('/me', requireAuth, C.me);
 r.patch('/me', requireAuth, C.updateMe);
 export default r;

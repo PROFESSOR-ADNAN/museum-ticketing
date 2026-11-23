@@ -419,7 +419,23 @@ export function BookingDetail() {
                 </span>
               </div>
 
-              {b.timeSlot && (
+              <div className="pass-field">
+                <span className="field-lbl">{am ? 'የጉብኝት አይነት' : 'Visit Mode'}</span>
+                <span className="field-val">
+                  {b.isGuided ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#b45309', fontWeight: 700 }}>
+                      <Sparkles size={13} className="text-amber-500" />
+                      {am ? `የተመራ ጉብኝት (${b.timeSlot || 'ጠዋት'})` : `Guided Tour (${b.timeSlot || 'Scheduled'})`}
+                    </span>
+                  ) : (
+                    <span style={{ color: '#0369a1', fontWeight: 600 }}>
+                      {am ? 'ራሱን የቻለ ጉብኝት' : 'Self-Guided Admission'}
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              {b.timeSlot && !b.isGuided && (
                 <div className="pass-field">
                   <span className="field-lbl">{am ? 'የጉብኝት ሰዓት' : 'Time Slot'}</span>
                   <span className="field-val">

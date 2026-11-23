@@ -35,7 +35,10 @@ export default function App() {
           <Route path="/group" element={<Guard roles={['visitor']}><Book kind="group" /></Guard>} />
           <Route path="/bookings" element={<Guard roles={['visitor']}><MyBookings /></Guard>} />
           <Route path="/bookings/:id" element={<Guard><BookingDetail /></Guard>} />
-          <Route path="/cashier" element={<Guard roles={['cashier']}><Cashier /></Guard>} />
+          <Route path="/cashier" element={<Guard roles={['cashier', 'admin']}><Cashier /></Guard>} />
+          <Route path="/gate" element={<Navigate to="/cashier" replace />} />
+          <Route path="/staff" element={<Navigate to="/login?staff=true" replace />} />
+          <Route path="/staff/login" element={<Navigate to="/login?staff=true" replace />} />
           <Route path="/manager" element={<Guard roles={['manager', 'admin']}><Manager /></Guard>} />
           <Route path="/admin" element={<Guard roles={['admin']}><Admin /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />

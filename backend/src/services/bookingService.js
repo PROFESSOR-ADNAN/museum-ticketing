@@ -17,8 +17,9 @@ export async function assertBookableDate(date) {
   if (await sql('SELECT 1 FROM date_closures WHERE date = ?').get(date)) throw new AppError('DATE_CLOSED');
 }
 
-/** Prices always come from the server-side categories, never from the client. Returns amounts in santim. */
-export async function buildLines(inputLines) {
+/** Prices always come from the server-side categories, never from the client. Returns amounts in santim.
+ * If isGuided is true, a guided tour surcharge (50 ETB = 5000 santim) is added to non-free categories. */
+export async function buildLines(inputLines, isGuided = false) {
   const ids = [...new Set(inputLines.map((l) => l.categoryId))];
   const cats = await sql(`SELECT * FROM categories WHERE active = 1 AND online_bookable = 1 AND id IN (${placeholders(ids.length)})`).all(...ids);
   const byId = new Map(cats.map((c) => [c.id, c]));
@@ -27,9 +28,11 @@ export async function buildLines(inputLines) {
     if (!byId.has(l.categoryId)) throw new AppError('BAD_CATEGORY');
     merged.set(l.categoryId, (merged.get(l.categoryId) || 0) + l.quantity);
   }
+  const guidedSurchargeCents = isGuided ? 5000 : 0;
   const lines = [...merged].map(([id, quantity]) => {
     const c = byId.get(id);
-    return { categoryId: id, key: c.key, nameEn: c.name_en, nameAm: c.name_am, unitPriceCents: c.price_cents, quantity };
+    const unitPrice = c.price_cents + (c.price_cents > 0 ? guidedSurchargeCents : 0);
+    return { categoryId: id, key: c.key, nameEn: c.name_en, nameAm: c.name_am, unitPriceCents: unitPrice, quantity };
   });
   return {
     lines,
@@ -38,17 +41,17 @@ export async function buildLines(inputLines) {
   };
 }
 
-export async function createBooking({ visitor, kind, visitDate, timeSlot, organization, contactName, contactPhone, lines, channel = 'online', status }) {
+export async function createBooking({ visitor, kind, visitDate, timeSlot, organization, contactName, contactPhone, lines, channel = 'online', status, isGuided = false }) {
   await assertBookableDate(visitDate);
-  const built = await buildLines(lines);
+  const built = await buildLines(lines, Boolean(isGuided));
   const st = status || 'AwaitingPayment';
   for (let i = 0; i < 5; i++) {
     try {
       const id = await tx(async () => {
         const info = await sql(`INSERT INTO bookings (ref, visitor_id, kind, visit_date, time_slot, organization, contact_name, contact_phone,
-            booked_quantity, amount_cents, status, channel) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
+            booked_quantity, amount_cents, status, channel, is_guided) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`)
           .run(bookingRef(), visitor.id, kind, visitDate, timeSlot ?? null, organization ?? null, contactName ?? null, contactPhone ?? null,
-            built.bookedQuantity, built.amountCents, st, channel);
+            built.bookedQuantity, built.amountCents, st, channel, isGuided ? 1 : 0);
         for (const l of built.lines) {
           await sql(`INSERT INTO booking_lines (booking_id, category_id, key, name_en, name_am, unit_price_cents, quantity) VALUES (?,?,?,?,?,?,?)`)
             .run(info.lastInsertRowid, l.categoryId, l.key, l.nameEn, l.nameAm, l.unitPriceCents, l.quantity);
