@@ -11,30 +11,30 @@ function AuthBranding({ am }) {
     <View style={{ alignItems: 'center', marginBottom: 20 }}>
       <View
         style={{
-          width: 64,
-          height: 64,
-          borderRadius: 32,
+          width: 68,
+          height: 68,
+          borderRadius: 34,
           backgroundColor: '#ffffff',
           alignItems: 'center',
           justifyContent: 'center',
-          shadowColor: '#000',
+          shadowColor: '#013859',
           shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.08,
+          shadowOpacity: 0.1,
           shadowRadius: 6,
           elevation: 3,
           marginBottom: 10,
-          borderWidth: 1,
+          borderWidth: 1.5,
           borderColor: '#e2e8f0',
         }}
       >
-        <Image source={require('../../assets/aau-logo.png')} style={{ width: 48, height: 48, resizeMode: 'contain' }} />
+        <Image source={require('../../assets/aau-logo.png')} style={{ width: 50, height: 50, resizeMode: 'contain' }} />
       </View>
-      <View style={{ backgroundColor: '#ecfdf5', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20, marginBottom: 6 }}>
-        <Text style={{ fontSize: 11, fontWeight: '800', color: C.tealDark, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-          ✦ AAU · CNCS
+      <View style={{ backgroundColor: '#e0f2fe', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20, marginBottom: 6, borderWidth: 1, borderColor: '#bae6fd' }}>
+        <Text style={{ fontSize: 11, fontWeight: '800', color: C.teal, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          ✦ AAU · CNCS 4 KILO
         </Text>
       </View>
-      <Text style={[s.h1, { fontSize: 22, textAlign: 'center', marginBottom: 2 }]}>
+      <Text style={[s.h1, { fontSize: 22, textAlign: 'center', marginBottom: 2, color: C.ink }]}>
         {am ? 'የዙኦሎጂ የተፈጥሮ ታሪክ ሙዚየም' : 'Zoological Natural History Museum'}
       </Text>
       <Text style={[s.muted, { textAlign: 'center', fontSize: 13 }]}>
@@ -92,7 +92,7 @@ export function Login({ navigation }) {
         <Text style={[s.h2, { marginBottom: 14 }]}>{t('login')}</Text>
         <Err>{err}</Err>
 
-        {/* Google OAuth Branded Button */}
+        {/* Branded Google OAuth Button */}
         <Pressable
           onPress={handleGoogle}
           disabled={busy}
@@ -164,8 +164,8 @@ export function Login({ navigation }) {
       {/* Quick Staff Demo Credentials */}
       <View style={[s.card, { backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-          <Ionicons name="shield-outline" size={16} color={C.tealDark} />
-          <Text style={{ fontSize: 12, fontWeight: '800', color: C.tealDark, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          <Ionicons name="shield-outline" size={16} color={C.teal} />
+          <Text style={{ fontSize: 12, fontWeight: '800', color: C.teal, textTransform: 'uppercase', letterSpacing: 0.5 }}>
             {am ? 'የሰራተኞች የሙከራ መግቢያ (Staff Demo)' : 'Staff Portals Quick Demo'}
           </Text>
         </View>
@@ -175,9 +175,9 @@ export function Login({ navigation }) {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           <Pressable
             onPress={() => setF({ email: 'cashier@museum.test', password: 'admin1234' })}
-            style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6, backgroundColor: '#ecfdf5', borderWidth: 1, borderColor: '#a7f3d0' }}
+            style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6, backgroundColor: '#e0f2fe', borderWidth: 1, borderColor: '#bae6fd' }}
           >
-            <Text style={{ fontSize: 12, color: C.tealDark, fontWeight: '700' }}>Gate Cashier / POS</Text>
+            <Text style={{ fontSize: 12, color: '#0369a1', fontWeight: '700' }}>Gate Cashier / POS</Text>
           </Pressable>
           <Pressable
             onPress={() => setF({ email: 'manager@museum.test', password: 'admin1234' })}
@@ -250,7 +250,7 @@ export function Register({ navigation }) {
         <Text style={[s.h2, { marginBottom: 14 }]}>{t('register')}</Text>
         <Err>{err}</Err>
 
-        {/* Google OAuth Button */}
+        {/* Branded Google OAuth Button */}
         <Pressable
           onPress={handleGoogle}
           disabled={busy}
@@ -369,8 +369,8 @@ export function Verify() {
 
   const row = (label, done) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-      <Ionicons name={done ? 'checkmark-circle' : 'ellipse-outline'} size={18} color={done ? '#059669' : '#94a3b8'} />
-      <Text style={{ color: done ? '#065f46' : C.soft, fontWeight: '700', fontSize: 14 }}>{label}</Text>
+      <Ionicons name={done ? 'checkmark-circle' : 'ellipse-outline'} size={18} color={done ? '#0284c7' : '#94a3b8'} />
+      <Text style={{ color: done ? '#015484' : C.soft, fontWeight: '700', fontSize: 14 }}>{label}</Text>
     </View>
   );
 
@@ -384,8 +384,8 @@ export function Verify() {
         {row(t('phoneVerified'), user.phoneVerified)}
 
         {devCodes && (
-          <View style={{ backgroundColor: '#ecfdf5', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#a7f3d0', marginVertical: 12 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: C.tealDark, marginBottom: 4 }}>
+          <View style={{ backgroundColor: '#e0f2fe', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#bae6fd', marginVertical: 12 }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: C.teal, marginBottom: 4 }}>
               DEV TEST CODES:
             </Text>
             {devCodes.emailCode && <Text style={{ fontSize: 13, color: C.ink }}>Email Code: {devCodes.emailCode}</Text>}

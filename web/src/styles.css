@@ -2278,3 +2278,51 @@ th { font-size: .84rem; color: #64748b; font-weight: 700; }
   font-weight: 600;
 }
 
+.staff-lang-switch {
+  display: inline-flex;
+}
+
+.staff-lang-btn {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f8fafc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.staff-lang-btn:hover {
+  background: #f2a62b;
+  color: #0f172a;
+  border-color: #f2a62b;
+}
+
+.staff-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.staff-logout-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.staff-main-container {
+  padding-top: 10px;
+}
+
+

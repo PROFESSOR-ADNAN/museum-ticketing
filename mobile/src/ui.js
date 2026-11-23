@@ -5,19 +5,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { useApp } from './context';
 
 export const C = {
-  ink: '#0f172a',
-  soft: '#475569',
+  ink: '#0f2733',
+  soft: '#4b6670',
   muted: '#64748b',
   paper: '#f8fafc',
   card: '#ffffff',
   line: '#e2e8f0',
-  teal: '#047857',
-  tealDark: '#064e3b',
-  tealLight: '#ecfdf5',
-  amber: '#d97706',
-  amberLight: '#fffbeb',
+  teal: '#015484',       // AAU Primary Blue (exact match with web --teal)
+  tealDark: '#013859',   // AAU Deep Navy (exact match with web --teal-deep)
+  navy: '#013859',
+  navyDark: '#01273d',   // AAU Darkest Navy (exact match with web --navy)
+  tealLight: '#e0f2fe',  // Soft Blue Tint
+  amber: '#f2a62b',      // AAU Gold / Amber (exact match with web --amber)
+  amberLight: '#fef3c7',
   gold: '#d4af37',
-  brick: '#dc2626',
+  brick: '#bf3f2b',      // Brick Red (exact match with web --brick)
   brickLight: '#fef2f2',
   blue: '#0284c7',
   blueLight: '#f0f9ff',
@@ -35,7 +37,7 @@ export const s = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
     marginBottom: 14,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2733',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
@@ -68,7 +70,7 @@ export const s = StyleSheet.create({
     marginTop: 6,
     shadowColor: C.teal,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.18,
     shadowRadius: 4,
     elevation: 2,
   },
@@ -106,9 +108,9 @@ export const s = StyleSheet.create({
   },
   ok: {
     backgroundColor: C.tealLight,
-    borderColor: '#a7f3d0',
+    borderColor: '#7dd3fc',
     borderWidth: 1,
-    color: '#065f46',
+    color: '#0369a1',
     padding: 12,
     borderRadius: 10,
     marginBottom: 14,
@@ -181,11 +183,11 @@ export const Loading = () => <ActivityIndicator style={{ marginTop: 40 }} color=
 
 const BADGE = {
   Pending: ['#fef3c7', '#92400e'],
-  Visited: ['#d1fae5', '#065f46'],
+  Visited: ['#e0f2fe', '#0369a1'],
   Cancelled: ['#fee2e2', '#991b1b'],
   Declined: ['#fee2e2', '#991b1b'],
-  Refunded: ['#e0f2fe', '#075985'],
-  AwaitingPayment: ['#f3e8ff', '#6b21a8'],
+  Refunded: ['#ede9fe', '#5b21b6'],
+  AwaitingPayment: ['#fef3c7', '#b45309'],
   PendingApproval: ['#ede9fe', '#5b21b6'],
 };
 

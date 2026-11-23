@@ -219,7 +219,7 @@ export function Home({ navigation }) {
           borderColor: '#e2e8f0',
           marginBottom: 16,
           gap: 12,
-          shadowColor: '#000',
+          shadowColor: '#013859',
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.05,
           shadowRadius: 3,
@@ -232,8 +232,8 @@ export function Home({ navigation }) {
         />
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-            <Ionicons name="school" size={13} color={C.tealDark} />
-            <Text style={{ fontSize: 10, fontWeight: '800', color: C.tealDark, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            <Ionicons name="school" size={13} color={C.teal} />
+            <Text style={{ fontSize: 10, fontWeight: '800', color: C.teal, textTransform: 'uppercase', letterSpacing: 0.5 }}>
               {am ? 'አዲስ አበባ ዩኒቨርሲቲ' : 'ADDIS ABABA UNIVERSITY'}
             </Text>
           </View>
@@ -246,21 +246,21 @@ export function Home({ navigation }) {
         </View>
       </View>
 
-      {/* Hero Presentation Card */}
+      {/* Hero Presentation Card - AAU Deep Navy Blue (#013859) with Gold Accent */}
       <View
         style={{
-          backgroundColor: '#064e3b',
+          backgroundColor: '#013859',
           borderRadius: 16,
           padding: 20,
           marginBottom: 16,
-          shadowColor: '#064e3b',
+          shadowColor: '#01273d',
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.25,
           shadowRadius: 10,
           elevation: 4,
         }}
       >
-        <View style={{ backgroundColor: 'rgba(212, 175, 55, 0.2)', borderWidth: 1, borderColor: '#d4af37', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, alignSelf: 'flex-start', marginBottom: 10 }}>
+        <View style={{ backgroundColor: 'rgba(242, 166, 43, 0.2)', borderWidth: 1, borderColor: '#f2a62b', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, alignSelf: 'flex-start', marginBottom: 10 }}>
           <Text style={{ color: '#fef08a', fontSize: 11, fontWeight: '800', letterSpacing: 0.5 }}>
             ✦ {am ? 'የኢትዮጵያ የተፈጥሮ ቅርስ መዘክር' : 'ETHIOPIAN NATURAL HERITAGE'}
           </Text>
@@ -270,7 +270,7 @@ export function Home({ navigation }) {
           {am ? 'የዙኦሎጂ የተፈጥሮ ታሪክ ሙዚየም' : 'Zoological Natural History Museum'}
         </Text>
 
-        <Text style={{ fontSize: 14, fontWeight: '700', color: '#a7f3d0', marginBottom: 10 }}>
+        <Text style={{ fontSize: 14, fontWeight: '700', color: '#7dd3fc', marginBottom: 10 }}>
           {am ? 'የኢትዮጵያን የተፈጥሮ ቅርሶች በአንድነት የያዘ' : 'Preserving Ethiopia’s Living Heritage'}
         </Text>
 
@@ -280,13 +280,13 @@ export function Home({ navigation }) {
             : 'Step into a world of preserved mammals, birds, reptiles, and insects from Ethiopia’s diverse ecosystems. Curated by university zoologists over six decades at Arat Kilo Campus.'}
         </Text>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons - Gold (#f2a62b) and Outline */}
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 18 }}>
           <Pressable
             onPress={() => navigation.navigate(user ? 'Book' : 'Login')}
             style={{
               flex: 1,
-              backgroundColor: '#d4af37',
+              backgroundColor: '#f2a62b',
               borderRadius: 10,
               paddingVertical: 12,
               paddingHorizontal: 14,
@@ -296,11 +296,11 @@ export function Home({ navigation }) {
               gap: 6,
             }}
           >
-            <Ionicons name="ticket" size={17} color="#064e3b" />
-            <Text style={{ color: '#064e3b', fontWeight: '800', fontSize: 14 }}>
+            <Ionicons name="ticket" size={17} color="#01273d" />
+            <Text style={{ color: '#01273d', fontWeight: '800', fontSize: 14 }}>
               {am ? 'ትኬት ይቁረጡ' : 'Book Your Visit'}
             </Text>
-            <Ionicons name="arrow-forward" size={15} color="#064e3b" />
+            <Ionicons name="arrow-forward" size={15} color="#01273d" />
           </Pressable>
         </View>
 
@@ -318,13 +318,13 @@ export function Home({ navigation }) {
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 5,
-                backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                backgroundColor: 'rgba(255, 255, 255, 0.14)',
                 paddingHorizontal: 9,
                 paddingVertical: 5,
                 borderRadius: 20,
               }}
             >
-              <Ionicons name={chip.icon} size={12} color="#a7f3d0" />
+              <Ionicons name={chip.icon} size={12} color="#7dd3fc" />
               <Text style={{ color: '#ffffff', fontSize: 11, fontWeight: '600' }}>{chip.text}</Text>
             </View>
           ))}
@@ -336,9 +336,9 @@ export function Home({ navigation }) {
         <Pressable
           onPress={() => navigation.navigate('Bookings')}
           style={{
-            backgroundColor: '#ecfdf5',
+            backgroundColor: '#e0f2fe',
             borderWidth: 1.5,
-            borderColor: '#a7f3d0',
+            borderColor: '#7dd3fc',
             borderRadius: 14,
             padding: 14,
             marginBottom: 16,
@@ -347,14 +347,14 @@ export function Home({ navigation }) {
             gap: 12,
           }}
         >
-          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#047857', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#015484', alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name="ticket" size={20} color="#ffffff" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 14, fontWeight: '800', color: '#064e3b' }}>
+            <Text style={{ fontSize: 14, fontWeight: '800', color: '#013859' }}>
               {am ? 'የእርስዎ ትኬቶች እና ቦታ ማስያዣዎች' : 'Your Digital Tickets & Passes'}
             </Text>
-            <Text style={{ fontSize: 12, color: '#047857' }}>
+            <Text style={{ fontSize: 12, color: '#0284c7' }}>
               {am
                 ? `${userBookings.length} ቦታ ማስያዣ(ዎች) ተገኝተዋል። ዲጂታል የQR ትኬትዎን ይመልከቱ →`
                 : `${userBookings.length} active pass(es) ready. Tap to view your gate QR →`}
@@ -384,8 +384,8 @@ export function Home({ navigation }) {
             }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Ionicons name="person" size={14} color={visitType === 'individual' ? C.tealDark : C.muted} />
-              <Text style={{ fontWeight: '700', fontSize: 13, color: visitType === 'individual' ? C.tealDark : C.muted }}>
+              <Ionicons name="person" size={14} color={visitType === 'individual' ? C.teal : C.muted} />
+              <Text style={{ fontWeight: '700', fontSize: 13, color: visitType === 'individual' ? C.teal : C.muted }}>
                 {am ? 'የግል / ቤተሰብ' : 'Individual / Family'}
               </Text>
             </View>
@@ -405,8 +405,8 @@ export function Home({ navigation }) {
             }}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Ionicons name="school" size={14} color={visitType === 'group' ? C.tealDark : C.muted} />
-              <Text style={{ fontWeight: '700', fontSize: 13, color: visitType === 'group' ? C.tealDark : C.muted }}>
+              <Ionicons name="school" size={14} color={visitType === 'group' ? C.teal : C.muted} />
+              <Text style={{ fontWeight: '700', fontSize: 13, color: visitType === 'group' ? C.teal : C.muted }}>
                 {am ? 'የትምህርት ቤት / ተቋም' : 'School / Group'}
               </Text>
             </View>
@@ -442,9 +442,9 @@ export function Home({ navigation }) {
                 paddingVertical: 7,
                 paddingHorizontal: 14,
                 borderRadius: 20,
-                backgroundColor: activeGalleryTab === tab.id ? C.tealDark : '#ffffff',
+                backgroundColor: activeGalleryTab === tab.id ? C.teal : '#ffffff',
                 borderWidth: 1,
-                borderColor: activeGalleryTab === tab.id ? C.tealDark : '#e2e8f0',
+                borderColor: activeGalleryTab === tab.id ? C.teal : '#e2e8f0',
               }}
             >
               <Text
@@ -473,9 +473,9 @@ export function Home({ navigation }) {
                 borderWidth: 1,
                 borderColor: '#e2e8f0',
                 overflow: 'hidden',
-                shadowColor: '#000',
+                shadowColor: '#013859',
                 shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.06,
+                shadowOpacity: 0.08,
                 shadowRadius: 5,
                 elevation: 3,
               }}
@@ -485,12 +485,12 @@ export function Home({ navigation }) {
                   source={item.img}
                   style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
                 />
-                <View style={{ position: 'absolute', top: 8, left: 8, backgroundColor: item.endemic ? '#b45309' : C.tealDark, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 }}>
-                  <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: '800' }}>
+                <View style={{ position: 'absolute', top: 8, left: 8, backgroundColor: item.endemic ? '#f2a62b' : C.teal, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 }}>
+                  <Text style={{ color: item.endemic ? '#01273d' : '#ffffff', fontSize: 10, fontWeight: '800' }}>
                     {item.endemic ? (am ? '★ ብርቅዬ' : '★ Endemic') : (am ? item.categoryAm : item.categoryEn)}
                   </Text>
                 </View>
-                <View style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', padding: 4, borderRadius: 14 }}>
+                <View style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(1, 39, 61, 0.7)', padding: 4, borderRadius: 14 }}>
                   <Ionicons name="expand-outline" size={14} color="#ffffff" />
                 </View>
               </View>
@@ -505,7 +505,7 @@ export function Home({ navigation }) {
                 <Text numberOfLines={2} style={{ fontSize: 12, color: C.soft, lineHeight: 17, marginBottom: 8 }}>
                   {am ? item.descAm : item.descEn}
                 </Text>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: C.tealDark }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: C.teal }}>
                   {am ? 'ዝርዝር መረጃ ይመልከቱ →' : 'View Specimen Details →'}
                 </Text>
               </View>
@@ -535,7 +535,7 @@ export function Home({ navigation }) {
                   backgroundColor: '#ffffff',
                   borderRadius: 12,
                   borderWidth: 1,
-                  borderColor: isStudent ? '#a7f3d0' : '#e2e8f0',
+                  borderColor: isStudent ? '#7dd3fc' : '#e2e8f0',
                   padding: 14,
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -553,8 +553,8 @@ export function Home({ navigation }) {
                       {pick(c.name)}
                     </Text>
                     {isStudent && (
-                      <View style={{ backgroundColor: '#ecfdf5', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                        <Text style={{ fontSize: 10, fontWeight: '800', color: '#047857' }}>
+                      <View style={{ backgroundColor: '#e0f2fe', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                        <Text style={{ fontSize: 10, fontWeight: '800', color: C.teal }}>
                           {am ? 'ቅናሽ' : 'SPECIAL RATE'}
                         </Text>
                       </View>
@@ -566,22 +566,22 @@ export function Home({ navigation }) {
                 </View>
 
                 <View style={{ alignItems: 'flex-end', gap: 4 }}>
-                  <Text style={{ fontSize: 18, fontWeight: '900', color: isFree ? C.soft : C.tealDark }}>
+                  <Text style={{ fontSize: 18, fontWeight: '900', color: isFree ? C.soft : C.teal }}>
                     {isFree ? (am ? 'ነፃ' : 'Free') : `${money(c.price)} ETB`}
                   </Text>
                   {c.onlineBookable ? (
                     <Pressable
                       onPress={() => navigation.navigate(user ? 'Book' : 'Login')}
                       style={{
-                        backgroundColor: '#ecfdf5',
+                        backgroundColor: '#e0f2fe',
                         borderWidth: 1,
-                        borderColor: '#a7f3d0',
+                        borderColor: '#7dd3fc',
                         paddingHorizontal: 10,
                         paddingVertical: 5,
                         borderRadius: 6,
                       }}
                     >
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: C.tealDark }}>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: C.teal }}>
                         {am ? 'ይምረጡ' : 'Select'}
                       </Text>
                     </Pressable>
@@ -597,32 +597,32 @@ export function Home({ navigation }) {
         </View>
       </View>
 
-      {/* Guided Tour Highlight Card */}
+      {/* Guided Tour Highlight Card - Sky Blue Tone */}
       <View
         style={{
-          backgroundColor: '#f0fdf4',
+          backgroundColor: '#f0f9ff',
           borderRadius: 14,
           borderWidth: 1.5,
-          borderColor: '#86efac',
+          borderColor: '#bae6fd',
           padding: 16,
           marginBottom: 24,
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#059669', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#0284c7', alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name="sparkles" size={18} color="#ffffff" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 15, fontWeight: '800', color: '#064e3b' }}>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: '#013859' }}>
               {am ? 'የዩኒቨርሲቲ ምሁራን የተመራ ጉብኝት' : 'University Docent Guided Tours'}
             </Text>
-            <Text style={{ fontSize: 11, color: '#047857', fontWeight: '600' }}>
+            <Text style={{ fontSize: 11, color: '#0284c7', fontWeight: '700' }}>
               {am ? 'በሰው +50 ብር ተጨማሪ ብቻ' : 'Only +50 ETB surcharge per attendee'}
             </Text>
           </View>
         </View>
 
-        <Text style={{ fontSize: 13, color: '#166534', lineHeight: 19, marginBottom: 12 }}>
+        <Text style={{ fontSize: 13, color: '#0369a1', lineHeight: 19, marginBottom: 12 }}>
           {am
             ? 'ከአዲስ አበባ ዩኒቨርሲቲ የዙኦሎጂ ባለሙያዎች ጋር በመሆን የኢትዮጵያን ስነ-ህይወት፣ ዝርያዎችና ታሪክ በጥልቀት ይረዱ።'
             : 'Gain in-depth scientific insights led by university zoologists. Select your preferred departure time slot during booking.'}
@@ -630,9 +630,9 @@ export function Home({ navigation }) {
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
           {['09:00 AM', '10:30 AM', '01:00 PM', '02:30 PM'].map((tSlot) => (
-            <View key={tSlot} style={{ backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#bbf7d0', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 6, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <Ionicons name="time-outline" size={12} color="#059669" />
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#065f46' }}>{tSlot}</Text>
+            <View key={tSlot} style={{ backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#7dd3fc', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 6, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Ionicons name="time-outline" size={12} color="#0284c7" />
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#015484' }}>{tSlot}</Text>
             </View>
           ))}
         </View>
@@ -640,7 +640,6 @@ export function Home({ navigation }) {
         <Btn
           title={visitType === 'individual' ? (am ? 'ትኬት ይቁረጡ (Book Now)' : 'Book Individual Visit') : (am ? 'የትምህርት ቤት ጉብኝት ያስይዙ' : 'Book School Delegation')}
           onPress={() => navigation.navigate(user ? 'Book' : 'Login')}
-          style={{ backgroundColor: '#059669' }}
         />
       </View>
 
@@ -666,7 +665,7 @@ export function Home({ navigation }) {
                   backgroundColor: '#ffffff',
                   borderRadius: 12,
                   borderWidth: 1,
-                  borderColor: isOpen ? '#a7f3d0' : '#e2e8f0',
+                  borderColor: isOpen ? '#7dd3fc' : '#e2e8f0',
                   overflow: 'hidden',
                 }}
               >
@@ -684,7 +683,7 @@ export function Home({ navigation }) {
                     <Ionicons
                       name="help-circle"
                       size={18}
-                      color={isOpen ? C.tealDark : C.muted}
+                      color={isOpen ? C.teal : C.muted}
                     />
                     <Text style={{ fontSize: 13, fontWeight: '700', color: C.ink, flex: 1 }}>
                       {q}
@@ -710,14 +709,14 @@ export function Home({ navigation }) {
         </View>
       </View>
 
-      {/* AAU CNCS Academic Footer Card */}
+      {/* AAU CNCS Academic Footer Card - Deep Navy (#013859) */}
       <View
         style={{
-          backgroundColor: '#064e3b',
+          backgroundColor: '#013859',
           borderRadius: 16,
           padding: 18,
           borderWidth: 1,
-          borderColor: '#047857',
+          borderColor: '#015484',
         }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -729,14 +728,14 @@ export function Home({ navigation }) {
             <Text style={{ color: '#ffffff', fontWeight: '800', fontSize: 14 }}>
               {am ? 'የዙኦሎጂ የተፈጥሮ ታሪክ ሙዚየም' : 'Zoological Natural History Museum'}
             </Text>
-            <Text style={{ color: '#a7f3d0', fontSize: 11 }}>
+            <Text style={{ color: '#7dd3fc', fontSize: 11 }}>
               {am ? 'አዲስ አበባ ዩኒቨርሲቲ · የተፈጥሮ ሳይንስ' : 'Addis Ababa University · CNCS'}
             </Text>
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, marginBottom: 14 }}>
-          <Ionicons name="shield-checkmark" size={15} color="#34d399" />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.12)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, marginBottom: 14 }}>
+          <Ionicons name="shield-checkmark" size={15} color="#38bdf8" />
           <Text style={{ color: '#ffffff', fontSize: 11, fontWeight: '700' }}>
             {am ? 'ይፋዊ የአዲስ አበባ ዩኒቨርሲቲ መድረክ' : 'Official AAU Verified Platform'}
           </Text>
@@ -744,7 +743,7 @@ export function Home({ navigation }) {
 
         <View style={{ gap: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-            <Ionicons name="location-outline" size={15} color="#a7f3d0" style={{ marginTop: 2 }} />
+            <Ionicons name="location-outline" size={15} color="#7dd3fc" style={{ marginTop: 2 }} />
             <Text style={{ color: '#e2e8f0', fontSize: 12, flex: 1, lineHeight: 17 }}>
               {am
                 ? 'አዲስ አበባ ዩኒቨርሲቲ፣ አራት ኪሎ ካምፓስ፣ የተፈጥሮና ኮምፒውቲንግ ሳይንስ ኮሌጅ፣ ኪንግ ጆርጅ 6ኛ ጎዳና'
@@ -752,17 +751,17 @@ export function Home({ navigation }) {
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="time-outline" size={15} color="#a7f3d0" />
+            <Ionicons name="time-outline" size={15} color="#7dd3fc" />
             <Text style={{ color: '#e2e8f0', fontSize: 12 }}>
               {am ? 'ሰኞ – ቅዳሜ፦ 8:30 ጠዋት – 5:30 ከሰዓት' : 'Monday – Saturday: 8:30 AM – 5:30 PM'}
             </Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="call-outline" size={15} color="#a7f3d0" />
+            <Ionicons name="call-outline" size={15} color="#7dd3fc" />
             <Text style={{ color: '#e2e8f0', fontSize: 12 }}>+251 11 123 9700</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Ionicons name="mail-outline" size={15} color="#a7f3d0" />
+            <Ionicons name="mail-outline" size={15} color="#7dd3fc" />
             <Text style={{ color: '#e2e8f0', fontSize: 12 }}>info@museum.aau.edu.et</Text>
           </View>
         </View>
@@ -770,7 +769,7 @@ export function Home({ navigation }) {
 
       {/* Specimen Detail Modal */}
       <Modal visible={!!selectedSpecimen} transparent animationType="fade" onRequestClose={() => setSelectedSpecimen(null)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(1, 39, 61, 0.75)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
           <View style={{ backgroundColor: '#ffffff', borderRadius: 16, width: '100%', maxWidth: 400, overflow: 'hidden' }}>
             {selectedSpecimen && (
               <>
@@ -778,12 +777,12 @@ export function Home({ navigation }) {
                   <Image source={selectedSpecimen.img} style={{ width: '100%', height: '100%', resizeMode: 'cover' }} />
                   <Pressable
                     onPress={() => setSelectedSpecimen(null)}
-                    style={{ position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center' }}
+                    style={{ position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(1, 39, 61, 0.7)', alignItems: 'center', justifyContent: 'center' }}
                   >
                     <Ionicons name="close" size={20} color="#ffffff" />
                   </Pressable>
-                  <View style={{ position: 'absolute', bottom: 10, left: 10, backgroundColor: selectedSpecimen.endemic ? '#b45309' : C.tealDark, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
-                    <Text style={{ color: '#ffffff', fontSize: 11, fontWeight: '800' }}>
+                  <View style={{ position: 'absolute', bottom: 10, left: 10, backgroundColor: selectedSpecimen.endemic ? '#f2a62b' : C.teal, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+                    <Text style={{ color: selectedSpecimen.endemic ? '#01273d' : '#ffffff', fontSize: 11, fontWeight: '800' }}>
                       {selectedSpecimen.endemic ? (am ? '★ ብርቅዬ የኢትዮጵያ ዝርያ' : '★ Endemic Ethiopian Species') : (am ? selectedSpecimen.categoryAm : selectedSpecimen.categoryEn)}
                     </Text>
                   </View>
@@ -844,7 +843,6 @@ export function Book({ navigation }) {
   const baseTotal = useMemo(() => (cats || []).reduce((sum, c) => sum + c.price * (qty[c.id] || 0), 0), [cats, qty]);
   const surchargeTotal = useMemo(() => (guided ? (cats || []).reduce((sum, c) => (c.price > 0 ? sum + 50 * (qty[c.id] || 0) : sum), 0) : 0), [guided, cats, qty]);
   const total = baseTotal + surchargeTotal;
-  const totalAttendees = useMemo(() => Object.values(qty).reduce((a, b) => a + b, 0), [qty]);
 
   const lines = (cats || []).filter((c) => qty[c.id] > 0).map((c) => ({ categoryId: c.id, quantity: qty[c.id] }));
   const closed = avail?.closedDates?.includes(date);
@@ -902,17 +900,17 @@ export function Book({ navigation }) {
               paddingVertical: 12,
               paddingHorizontal: 10,
               borderRadius: 10,
-              backgroundColor: !guided ? '#ecfdf5' : '#f8fafc',
+              backgroundColor: !guided ? '#e0f2fe' : '#f8fafc',
               borderWidth: 1.5,
-              borderColor: !guided ? '#059669' : '#e2e8f0',
+              borderColor: !guided ? '#015484' : '#e2e8f0',
               alignItems: 'center',
             }}
           >
-            <Ionicons name="walk" size={20} color={!guided ? '#064e3b' : '#64748b'} />
-            <Text style={{ fontWeight: '800', fontSize: 13, color: !guided ? '#064e3b' : '#64748b', marginTop: 4 }}>
+            <Ionicons name="walk" size={20} color={!guided ? '#013859' : '#64748b'} />
+            <Text style={{ fontWeight: '800', fontSize: 13, color: !guided ? '#013859' : '#64748b', marginTop: 4 }}>
               {am ? 'ራሱን የቻለ' : 'Self-Guided'}
             </Text>
-            <Text style={{ fontSize: 11, color: !guided ? '#047857' : '#94a3b8' }}>
+            <Text style={{ fontSize: 11, color: !guided ? '#015484' : '#94a3b8' }}>
               {am ? 'መደበኛ መግቢያ' : 'Standard'}
             </Text>
           </Pressable>
@@ -924,25 +922,25 @@ export function Book({ navigation }) {
               paddingVertical: 12,
               paddingHorizontal: 10,
               borderRadius: 10,
-              backgroundColor: guided ? '#ecfdf5' : '#f8fafc',
+              backgroundColor: guided ? '#e0f2fe' : '#f8fafc',
               borderWidth: 1.5,
-              borderColor: guided ? '#059669' : '#e2e8f0',
+              borderColor: guided ? '#015484' : '#e2e8f0',
               alignItems: 'center',
             }}
           >
-            <Ionicons name="sparkles" size={20} color={guided ? '#064e3b' : '#64748b'} />
-            <Text style={{ fontWeight: '800', fontSize: 13, color: guided ? '#064e3b' : '#64748b', marginTop: 4 }}>
+            <Ionicons name="sparkles" size={20} color={guided ? '#013859' : '#64748b'} />
+            <Text style={{ fontWeight: '800', fontSize: 13, color: guided ? '#013859' : '#64748b', marginTop: 4 }}>
               {am ? 'የተመራ ጉብኝት' : 'Guided Tour'}
             </Text>
-            <Text style={{ fontSize: 11, color: guided ? '#059669' : '#94a3b8', fontWeight: '700' }}>
+            <Text style={{ fontSize: 11, color: guided ? '#0284c7' : '#94a3b8', fontWeight: '700' }}>
               +50 ETB / person
             </Text>
           </Pressable>
         </View>
 
         {guided && (
-          <View style={{ backgroundColor: '#f0fdf4', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#bbf7d0', marginTop: 4 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: '#065f46', marginBottom: 8 }}>
+          <View style={{ backgroundColor: '#f0f9ff', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#bae6fd', marginTop: 4 }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#013859', marginBottom: 8 }}>
               {am ? 'የመነሻ ሰዓት ይምረጡ (Departure Time Slot):' : 'Select Departure Time Slot:'}
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
@@ -954,9 +952,9 @@ export function Book({ navigation }) {
                     paddingVertical: 8,
                     paddingHorizontal: 14,
                     borderRadius: 8,
-                    backgroundColor: slot === time ? '#064e3b' : '#ffffff',
+                    backgroundColor: slot === time ? '#013859' : '#ffffff',
                     borderWidth: 1,
-                    borderColor: slot === time ? '#064e3b' : '#cbd5e1',
+                    borderColor: slot === time ? '#013859' : '#cbd5e1',
                   }}
                 >
                   <Text style={{ color: slot === time ? '#ffffff' : '#334155', fontWeight: '700', fontSize: 12 }}>
@@ -976,8 +974,8 @@ export function Book({ navigation }) {
         </Text>
         <CalendarPicker value={date} onChange={setDate} min={avail?.today} max={avail?.maxDate} closed={avail?.closedDates} today={avail?.today} />
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 }}>
-          <Ionicons name={date ? 'calendar-sharp' : 'information-circle-outline'} size={16} color={date ? '#059669' : C.muted} />
-          <Text style={{ fontSize: 13, fontWeight: date ? '700' : '500', color: date ? '#065f46' : C.muted }}>
+          <Ionicons name={date ? 'calendar-sharp' : 'information-circle-outline'} size={16} color={date ? '#0284c7' : C.muted} />
+          <Text style={{ fontSize: 13, fontWeight: date ? '700' : '500', color: date ? '#015484' : C.muted }}>
             {date ? `${formatLong(date, lang)}` : (am ? 'እባክዎ ከቀን መቁጠሪያው ቀን ይምረጡ' : 'Please select a date from above')}
           </Text>
         </View>
@@ -1079,7 +1077,7 @@ export function Book({ navigation }) {
                     width: 34,
                     height: 34,
                     borderRadius: 8,
-                    backgroundColor: '#047857',
+                    backgroundColor: C.teal,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
@@ -1099,14 +1097,14 @@ export function Book({ navigation }) {
           </View>
           {guided && (
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-              <Text style={{ fontSize: 13, color: '#059669' }}>{am ? 'የተመራ ጉብኝት ክፍያ (+50)' : 'Guided Tour Docent Fee:'}</Text>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#059669' }}>+{money(surchargeTotal)} ETB</Text>
+              <Text style={{ fontSize: 13, color: '#0284c7' }}>{am ? 'የተመራ ጉብኝት ክፍያ (+50)' : 'Guided Tour Docent Fee:'}</Text>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#0284c7' }}>+{money(surchargeTotal)} ETB</Text>
             </View>
           )}
           <View style={{ height: 1, backgroundColor: '#e2e8f0', marginVertical: 8 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 16, fontWeight: '800', color: C.ink }}>{t('total')}:</Text>
-            <Text style={{ fontSize: 20, fontWeight: '900', color: C.tealDark }}>{money(total)} ETB</Text>
+            <Text style={{ fontSize: 20, fontWeight: '900', color: C.teal }}>{money(total)} ETB</Text>
           </View>
         </View>
       </View>
@@ -1183,7 +1181,7 @@ export function MyBookings({ navigation }) {
             s.card,
             {
               borderLeftWidth: 4,
-              borderLeftColor: b.isGuided ? '#d4af37' : C.tealDark,
+              borderLeftColor: b.isGuided ? '#f2a62b' : C.teal,
             },
           ]}
           onPress={() => navigation.navigate('BookingDetail', { id: b.id })}
@@ -1202,12 +1200,12 @@ export function MyBookings({ navigation }) {
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#f1f5f9' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Ionicons name={b.isGuided ? 'sparkles' : 'walk'} size={14} color={b.isGuided ? '#b45309' : C.tealDark} />
-              <Text style={{ fontSize: 12, fontWeight: '700', color: b.isGuided ? '#b45309' : C.tealDark }}>
+              <Ionicons name={b.isGuided ? 'sparkles' : 'walk'} size={14} color={b.isGuided ? '#b45309' : C.teal} />
+              <Text style={{ fontSize: 12, fontWeight: '700', color: b.isGuided ? '#b45309' : C.teal }}>
                 {b.isGuided ? `Guided (${b.timeSlot || '09:00'})` : 'Self-Guided'}
               </Text>
             </View>
-            <Text style={{ fontSize: 15, fontWeight: '900', color: C.tealDark }}>
+            <Text style={{ fontSize: 15, fontWeight: '900', color: C.teal }}>
               {money(b.amount)} ETB
             </Text>
           </View>
@@ -1329,7 +1327,7 @@ export function BookingDetail({ route, navigation }) {
       <Err>{err}</Err>
       <Ok>{msg}</Ok>
 
-      {/* Digital Wallet Pass - Perforated Header Style */}
+      {/* Digital Wallet Pass - Perforated Header Style matching web wallet pass */}
       <View
         style={{
           backgroundColor: '#ffffff',
@@ -1338,17 +1336,17 @@ export function BookingDetail({ route, navigation }) {
           borderColor: '#e2e8f0',
           overflow: 'hidden',
           marginBottom: 16,
-          shadowColor: '#000',
+          shadowColor: '#013859',
           shadowOffset: { width: 0, height: 3 },
-          shadowOpacity: 0.08,
+          shadowOpacity: 0.1,
           shadowRadius: 8,
           elevation: 3,
         }}
       >
-        {/* Pass Academic Top Header */}
+        {/* Pass Academic Top Header - AAU Deep Navy Blue (#013859) */}
         <View
           style={{
-            backgroundColor: '#064e3b',
+            backgroundColor: '#013859',
             padding: 16,
             flexDirection: 'row',
             alignItems: 'center',
@@ -1358,7 +1356,7 @@ export function BookingDetail({ route, navigation }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Image source={require('../../assets/aau-logo.png')} style={{ width: 36, height: 36, resizeMode: 'contain' }} />
             <View>
-              <Text style={{ fontSize: 10, fontWeight: '800', color: '#a7f3d0', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <Text style={{ fontSize: 10, fontWeight: '800', color: '#7dd3fc', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 AAU · CNCS 4 KILO
               </Text>
               <Text style={{ fontSize: 14, fontWeight: '800', color: '#ffffff' }}>
@@ -1385,7 +1383,7 @@ export function BookingDetail({ route, navigation }) {
           </View>
         ) : (
           <View style={{ padding: 18, alignItems: 'center', backgroundColor: '#fffbeb' }}>
-            <Ionicons name="time" size={32} color="#d97706" />
+            <Ionicons name="time" size={32} color="#f2a62b" />
             <Text style={{ fontSize: 15, fontWeight: '800', color: '#92400e', marginTop: 6 }}>
               {b.status === 'AwaitingPayment' ? (am ? 'ክፍያ ይጠበቃል' : 'Awaiting Payment') : (am ? 'ትኬት በመዘጋጀት ላይ' : 'Pass Processing')}
             </Text>
@@ -1399,17 +1397,17 @@ export function BookingDetail({ route, navigation }) {
         <View style={{ padding: 16 }}>
           {/* Progress Bar if Visited */}
           {b.status === 'Visited' && (
-            <View style={{ backgroundColor: '#ecfdf5', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#a7f3d0', marginBottom: 14 }}>
+            <View style={{ backgroundColor: '#e0f2fe', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#7dd3fc', marginBottom: 14 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: '#065f46' }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#013859' }}>
                   {am ? 'የጉብኝት ማረጋገጫ' : 'Attendance Progress'}
                 </Text>
-                <Text style={{ fontSize: 12, fontWeight: '800', color: '#065f46' }}>
+                <Text style={{ fontSize: 12, fontWeight: '800', color: '#015484' }}>
                   {b.attendedQuantity} / {b.bookedQuantity} ({attendanceProgress}%)
                 </Text>
               </View>
               <View style={{ height: 6, backgroundColor: '#cbd5e1', borderRadius: 3, overflow: 'hidden' }}>
-                <View style={{ height: '100%', width: `${attendanceProgress}%`, backgroundColor: '#059669' }} />
+                <View style={{ height: '100%', width: `${attendanceProgress}%`, backgroundColor: '#015484' }} />
               </View>
             </View>
           )}
@@ -1424,13 +1422,13 @@ export function BookingDetail({ route, navigation }) {
                 paddingHorizontal: 10,
                 paddingVertical: 5,
                 borderRadius: 8,
-                backgroundColor: b.isGuided ? '#fef3c7' : '#f0fdf4',
+                backgroundColor: b.isGuided ? '#fef3c7' : '#e0f2fe',
                 borderWidth: 1,
-                borderColor: b.isGuided ? '#fde68a' : '#bbf7d0',
+                borderColor: b.isGuided ? '#fde68a' : '#bae6fd',
               }}
             >
-              <Ionicons name={b.isGuided ? 'sparkles' : 'walk'} size={14} color={b.isGuided ? '#b45309' : '#166534'} />
-              <Text style={{ fontSize: 12, fontWeight: '800', color: b.isGuided ? '#b45309' : '#166534' }}>
+              <Ionicons name={b.isGuided ? 'sparkles' : 'walk'} size={14} color={b.isGuided ? '#b45309' : '#015484'} />
+              <Text style={{ fontSize: 12, fontWeight: '800', color: b.isGuided ? '#b45309' : '#015484' }}>
                 {b.isGuided
                   ? (am ? `የተመራ ጉብኝት (${b.timeSlot || '09:00'})` : `Guided Tour (${b.timeSlot || '09:00'})`)
                   : (am ? 'ራሱን የቻለ ጉብኝት (Self-Guided)' : 'Self-Guided Admission')}
@@ -1473,7 +1471,7 @@ export function BookingDetail({ route, navigation }) {
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTopWidth: 1.5, borderTopColor: '#e2e8f0' }}>
             <Text style={{ fontSize: 16, fontWeight: '800', color: C.ink }}>{t('total')}:</Text>
-            <Text style={{ fontSize: 22, fontWeight: '900', color: C.tealDark }}>{money(b.amount)} ETB</Text>
+            <Text style={{ fontSize: 22, fontWeight: '900', color: C.teal }}>{money(b.amount)} ETB</Text>
           </View>
         </View>
       </View>

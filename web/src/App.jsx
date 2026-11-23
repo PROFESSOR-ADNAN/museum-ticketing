@@ -10,7 +10,7 @@ import Cashier from './pages/Cashier.jsx';
 import Manager from './pages/Manager.jsx';
 import Admin from './pages/Admin.jsx';
 
-const homeFor = (u) => ({ cashier: '/cashier', manager: '/manager', admin: '/admin' }[u.role] || '/');
+const homeFor = (u) => ({ cashier: '/cashier', manager: '/manager', admin: '/admin' }[u?.role] || '/');
 
 function Guard({ roles, children }) {
   const { user, ready } = useAuth();
@@ -22,10 +22,17 @@ function Guard({ roles, children }) {
 }
 
 export default function App() {
+  const location = useLocation();
+  const isStaffRoute = ['/manager', '/admin', '/cashier', '/staff', '/gate'].some((path) =>
+    location.pathname.startsWith(path)
+  );
+
   return (
-    <div className="site-app-container">
-      <SiteHeader />
-      <main className="site-main-content">
+    <div className={`site-app-container ${isStaffRoute ? 'staff-shell-active' : ''}`}>
+      {/* Visitor public header is ONLY rendered for visitors, not on staff consoles */}
+      {!isStaffRoute && <SiteHeader />}
+
+      <main className={`site-main-content ${isStaffRoute ? 'staff-main-container' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -44,7 +51,9 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      <SiteFooter />
+
+      {/* Visitor public footer is ONLY rendered for visitors, not on staff consoles */}
+      {!isStaffRoute && <SiteFooter />}
     </div>
   );
 }

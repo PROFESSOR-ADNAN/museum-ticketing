@@ -22,7 +22,7 @@ const Tabs = createBottomTabNavigator();
 function LangSwitch() {
   const { lang, setLang } = useApp();
   return (
-    <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', borderRadius: 20, overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.15)' }}>
+    <View style={{ flexDirection: 'row', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', borderRadius: 20, overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.18)' }}>
       {['en', 'am'].map((l) => (
         <Pressable
           key={l}
@@ -31,10 +31,10 @@ function LangSwitch() {
           style={{
             paddingHorizontal: 8,
             paddingVertical: 4,
-            backgroundColor: lang === l ? '#d4af37' : 'transparent',
+            backgroundColor: lang === l ? '#f2a62b' : 'transparent',
           }}
         >
-          <Text style={{ color: lang === l ? '#064e3b' : '#ffffff', fontSize: 11, fontWeight: '800' }}>
+          <Text style={{ color: lang === l ? '#01273d' : '#ffffff', fontSize: 11, fontWeight: '800' }}>
             {l === 'en' ? 'EN' : 'አማ'}
           </Text>
         </Pressable>
@@ -51,7 +51,7 @@ function HomeHeaderRight({ navigation }) {
       <LangSwitch />
       <Pressable
         accessibilityLabel="Sign in"
-        onPress={() => navigation.navigate('Login')}
+        onPress={() => navigation?.navigate('Login')}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -69,19 +69,19 @@ function HomeHeaderRight({ navigation }) {
       </Pressable>
       <Pressable
         accessibilityLabel="Create account"
-        onPress={() => navigation.navigate('Register')}
+        onPress={() => navigation?.navigate('Register')}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#d4af37',
+          backgroundColor: '#f2a62b',
           paddingHorizontal: 8,
           paddingVertical: 5,
           borderRadius: 8,
           gap: 3,
         }}
       >
-        <Ionicons name="person-add-outline" size={12} color="#064e3b" />
-        <Text style={{ color: '#064e3b', fontWeight: '800', fontSize: 11 }}>
+        <Ionicons name="person-add-outline" size={12} color="#01273d" />
+        <Text style={{ color: '#01273d', fontWeight: '800', fontSize: 11 }}>
           {lang === 'am' ? 'መለያ' : 'Register'}
         </Text>
       </Pressable>
@@ -101,15 +101,15 @@ function LoginHeaderRight({ navigation }) {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#d4af37',
+          backgroundColor: '#f2a62b',
           paddingHorizontal: 8,
           paddingVertical: 5,
           borderRadius: 8,
           gap: 3,
         }}
       >
-        <Ionicons name="person-add-outline" size={13} color="#064e3b" />
-        <Text style={{ color: '#064e3b', fontWeight: '800', fontSize: 11 }}>
+        <Ionicons name="person-add-outline" size={13} color="#01273d" />
+        <Text style={{ color: '#01273d', fontWeight: '800', fontSize: 11 }}>
           {lang === 'am' ? 'መለያ ክፈት' : 'Register'}
         </Text>
       </Pressable>
@@ -183,8 +183,9 @@ const icon = (on, off) => ({ color, size, focused }) => (
   <Ionicons name={focused ? on : off} size={size} color={color} />
 );
 
+// Consistent AAU Deep Navy Blue header options matching web --navy / --teal-deep
 const sharedHeaderOptions = {
-  headerStyle: { backgroundColor: '#064e3b' },
+  headerStyle: { backgroundColor: '#013859' },
   headerTintColor: '#ffffff',
   headerTitleStyle: { fontWeight: '800', fontSize: 16, letterSpacing: -0.2 },
   headerShadowVisible: false,
@@ -207,7 +208,7 @@ function Root() {
   const header = {
     ...sharedHeaderOptions,
     headerRight: () => <AuthHeaderRight />,
-    tabBarActiveTintColor: '#047857',
+    tabBarActiveTintColor: '#015484', // AAU Blue
     tabBarInactiveTintColor: '#64748b',
     tabBarStyle: {
       backgroundColor: '#ffffff',
