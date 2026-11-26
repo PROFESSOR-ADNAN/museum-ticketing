@@ -29,8 +29,8 @@ export default function App() {
 
   return (
     <div className={`site-app-container ${isStaffRoute ? 'staff-shell-active' : ''}`}>
-      {/* Visitor public header is ONLY rendered for visitors, not on staff consoles */}
-      {!isStaffRoute && <SiteHeader />}
+      {/* SiteHeader is always present so official branding & navigation never disappears */}
+      <SiteHeader />
 
       <main className={`site-main-content ${isStaffRoute ? 'staff-main-container' : ''}`}>
         <Routes>

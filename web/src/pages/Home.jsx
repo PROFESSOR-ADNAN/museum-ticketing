@@ -37,8 +37,6 @@ export default function Home() {
   const { data } = useLoad(() => api('/categories'));
   const bookingsLoad = useLoad(() => (user?.role === 'visitor' ? api('/bookings') : Promise.resolve({ bookings: [] })), [user]);
   const userBookings = bookingsLoad.data?.bookings || [];
-  const [activeVisitType, setActiveVisitType] = useState('individual');
-
   const categories = (data?.categories && data.categories.length > 0) ? data.categories : fallbackCats;
 
   return (
@@ -46,38 +44,32 @@ export default function Home() {
       {/* Hero Section */}
       <section className="hero-landing">
         <div className="hero-content">
-          <div className="hero-institution-badge">
-            <img src="/aau-logo.png" alt="AAU Crest" className="hero-mini-logo" />
-            <span>
-              {am
-                ? 'አዲስ አበባ ዩኒቨርሲቲ · የተፈጥሮና ኮምፒውቲንግ ሳይንስ ኮሌጅ'
-                : 'Addis Ababa University · College of Natural & Computational Sciences'}
-            </span>
+          <p className="hero-eyebrow">
+            {am ? 'የአዲስ አበባ ዩኒቨርሲቲ ሙዚየም' : 'A museum of Addis Ababa University'}
+          </p>
+          <div aria-hidden="true" className="hero-accent-bar">
+            <span className="accent-rose" />
+            <span className="accent-blue" />
           </div>
 
           <h1 className="hero-title">
             {am ? 'የዙኦሎጂ የተፈጥሮ ታሪክ ሙዚየም' : 'Zoological Natural History Museum'}
           </h1>
 
-          <p className="hero-tagline">
-            {am ? 'የኢትዮጵያን የተፈጥሮ ቅርሶች በአንድነት የያዘ' : 'Preserving Ethiopia’s Living Heritage'}
-          </p>
-
           <p className="hero-sub">
             {am
-              ? 'ከኢትዮጵያ የተለያዩ የተፈጥሮ ክፍሎች የተሰበሰቡና የተጠበቁ አጥቢ እንስሳትን፣ ወፎችን፣ ተሳቢዎችንና ነፍሳትን በቅርብ ይመልከቱ። በአዲስ አበባ ዩኒቨርሲቲ የዙኦሎጂ ባለሙያዎች ከስድስት አስርት ዓመታት በላይ የተጠበቀ ብሔራዊ ቅርስ።'
-              : 'Step into a world of preserved mammals, birds, reptiles, and insects from Ethiopia’s diverse ecosystems. Curated by university zoologists over six decades, discover the natural treasures of the Horn of Africa.'}
+              ? 'ከኢትዮጵያ የዱር እንስሳት ስብስብ የተጠበቁ አጥቢ እንስሳትን፣ ወፎችን፣ ተሳቢ እንስሳትን እና ነፍሳትን ይወቁ። ጉብኝትዎን ያቅዱ፣ በደህና ይክፈሉ እና የQR ትኬትዎን በስልክዎ ዝግጁ ያድርጉ።'
+              : 'Discover preserved mammals, birds, reptiles and insects from Ethiopia’s wildlife collection. Plan your visit, pay securely and keep your QR ticket ready on your phone.'}
           </p>
 
           <div className="hero-cta-group">
             <Link to="/book" className="btn hero-primary-btn">
               <Ticket size={18} />
-              <span>{am ? 'ትኬት ይቁረጡ' : 'Book Your Visit'}</span>
+              <span>{am ? 'ጉብኝት ይያዙ' : 'Book a visit'}</span>
               <ArrowRight size={16} />
             </Link>
-            <a href="#collection" className="btn ghost hero-secondary-btn">
-              <Compass size={18} />
-              <span>{am ? 'ስብስቦችን ይመልከቱ' : 'Explore Exhibits'}</span>
+            <a href="#how-it-works" className="btn ghost hero-secondary-btn">
+              <span>{am ? 'እንዴት ይሰራል' : 'How booking works'}</span>
             </a>
           </div>
 
@@ -125,56 +117,6 @@ export default function Home() {
               </div>
             </div>
           )}
-
-          {/* Interactive Visit Type Switcher */}
-          <div className="cta-box card">
-            <h3>{am ? 'የጉብኝት አይነት ይምረጡ' : 'Choose Your Visit Type'}</h3>
-            <div className="visit-type-tabs">
-              <button
-                type="button"
-                className={`type-btn ${activeVisitType === 'individual' ? 'active' : ''}`}
-                onClick={() => setActiveVisitType('individual')}
-              >
-                <Users size={16} />
-                <span>{t('bookPersonal')}</span>
-              </button>
-              <button
-                type="button"
-                className={`type-btn ${activeVisitType === 'group' ? 'active' : ''}`}
-                onClick={() => setActiveVisitType('group')}
-              >
-                <GraduationCap size={16} />
-                <span>{t('bookSchool')}</span>
-              </button>
-            </div>
-            <div style={{ marginTop: 14 }}>
-              {activeVisitType === 'individual' ? (
-                <div className="type-summary">
-                  <p className="small muted">
-                    {am
-                      ? 'ለግል፣ ለቤተሰብ እና ለወዳጆች ጉብኝት። ፈጣን የመስመር ላይ ክፍያ በቴሌብር፣ በሲቢኢ ብር ወይም በካርድ።'
-                      : 'For individuals, families, and friends. Instant online payment via Telebirr, CBE Birr, or debit/credit cards.'}
-                  </p>
-                  <Link className="btn" to="/book" style={{ width: '100%', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                    <span>{t('bookPersonal')}</span>
-                    <ArrowRight size={16} />
-                  </Link>
-                </div>
-              ) : (
-                <div className="type-summary">
-                  <p className="small muted">
-                    {am
-                      ? 'ለትምህርት ቤቶች፣ ኮሌጆችና ቡድኖች። ባለ 10 አሃዝ የTIN ደረሰኝ በማካተት አስቀድሞ የሚመራ ጉብኝት ማስያዝ ይችላሉ።'
-                      : 'Special subsidized rates for school groups and university students with an official 10-digit TIN receipt.'}
-                  </p>
-                  <Link className="btn" to="/group" style={{ width: '100%', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                    <span>{t('bookSchool')}</span>
-                    <ArrowRight size={16} />
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Live Ticket Price Stub */}

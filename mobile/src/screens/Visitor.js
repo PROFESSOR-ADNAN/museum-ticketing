@@ -176,7 +176,6 @@ export function Home({ navigation }) {
   const am = lang === 'am';
   const [res, setRes] = useState(null);
   const [userBookings, setUserBookings] = useState([]);
-  const [visitType, setVisitType] = useState('individual');
   const [activeGalleryTab, setActiveGalleryTab] = useState('all');
   const [selectedSpecimen, setSelectedSpecimen] = useState(null);
   const [openFaq, setOpenFaq] = useState(0);
@@ -207,45 +206,6 @@ export function Home({ navigation }) {
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 50 }]} refreshControl={pullControl(pull)}>
       <Banner>{offlineText(t, res)}</Banner>
 
-      {/* AAU Academic Institution Credentials Strip */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          backgroundColor: '#ffffff',
-          padding: 12,
-          borderRadius: 12,
-          borderWidth: 1,
-          borderColor: '#e2e8f0',
-          marginBottom: 16,
-          gap: 12,
-          shadowColor: '#013859',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.05,
-          shadowRadius: 3,
-          elevation: 2,
-        }}
-      >
-        <Image
-          source={require('../../assets/aau-logo.png')}
-          style={{ width: 44, height: 44, resizeMode: 'contain' }}
-        />
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 2 }}>
-            <Ionicons name="school" size={13} color={C.teal} />
-            <Text style={{ fontSize: 10, fontWeight: '800', color: C.teal, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              {am ? 'አዲስ አበባ ዩኒቨርሲቲ' : 'ADDIS ABABA UNIVERSITY'}
-            </Text>
-          </View>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: C.ink }}>
-            {am ? 'የተፈጥሮና ኮምፒውቲንግ ሳይንስ ኮሌጅ' : 'College of Natural & Computational Sciences'}
-          </Text>
-          <Text style={{ fontSize: 11, color: C.muted }}>
-            {am ? 'አራት ኪሎ ካምፓስ · አዲስ አበባ' : 'Arat Kilo Campus · Addis Ababa'}
-          </Text>
-        </View>
-      </View>
-
       {/* Hero Presentation Card - AAU Deep Navy Blue (#013859) with Gold Accent */}
       <View
         style={{
@@ -262,7 +222,7 @@ export function Home({ navigation }) {
       >
         <View style={{ backgroundColor: 'rgba(242, 166, 43, 0.2)', borderWidth: 1, borderColor: '#f2a62b', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, alignSelf: 'flex-start', marginBottom: 10 }}>
           <Text style={{ color: '#fef08a', fontSize: 11, fontWeight: '800', letterSpacing: 0.5 }}>
-            ✦ {am ? 'የኢትዮጵያ የተፈጥሮ ቅርስ መዘክር' : 'ETHIOPIAN NATURAL HERITAGE'}
+            ✦ {am ? 'የአዲስ አበባ ዩኒቨርሲቲ ሙዚየም' : 'ADDIS ABABA UNIVERSITY'}
           </Text>
         </View>
 
@@ -276,8 +236,8 @@ export function Home({ navigation }) {
 
         <Text style={{ fontSize: 13, color: '#e2e8f0', lineHeight: 20, marginBottom: 18 }}>
           {am
-            ? 'ከኢትዮጵያ የተለያዩ የተፈጥሮ ክፍሎች የተሰበሰቡና የተጠበቁ አጥቢ እንስሳትን፣ ወፎችን፣ ተሳቢዎችንና ነፍሳትን በቅርብ ይመልከቱ። በአዲስ አበባ ዩኒቨርሲቲ ከስድስት አስርት ዓመታት በላይ የተጠበቀ ብሔራዊ ቅርስ።'
-            : 'Step into a world of preserved mammals, birds, reptiles, and insects from Ethiopia’s diverse ecosystems. Curated by university zoologists over six decades at Arat Kilo Campus.'}
+            ? 'ከኢትዮጵያ የዱር እንስሳት ስብስብ የተጠበቁ አጥቢ እንስሳትን፣ ወፎችን፣ ተሳቢዎችንና ነፍሳትን ይወቁ። በአዲስ አበባ ዩኒቨርሲቲ የተጠበቀ ብሔራዊ ቅርስ።'
+            : 'Discover preserved mammals, birds, reptiles, and insects from Ethiopia’s diverse wildlife collection curated at Arat Kilo Campus.'}
         </Text>
 
         {/* CTA Buttons - Gold (#f2a62b) and Outline */}
@@ -298,7 +258,7 @@ export function Home({ navigation }) {
           >
             <Ionicons name="ticket" size={17} color="#01273d" />
             <Text style={{ color: '#01273d', fontWeight: '800', fontSize: 14 }}>
-              {am ? 'ትኬት ይቁረጡ' : 'Book Your Visit'}
+              {am ? 'ትኬት ይቁረጡ' : 'Book a Visit'}
             </Text>
             <Ionicons name="arrow-forward" size={15} color="#01273d" />
           </Pressable>
@@ -362,57 +322,6 @@ export function Home({ navigation }) {
           </View>
         </Pressable>
       )}
-
-      {/* Visit Mode Switcher */}
-      <View style={{ marginBottom: 18 }}>
-        <Text style={[s.h2, { fontSize: 17, marginBottom: 8 }]}>
-          {am ? 'የጉብኝት አይነት ይምረጡ' : 'Select Visit Category'}
-        </Text>
-        <View style={{ flexDirection: 'row', backgroundColor: '#e2e8f0', borderRadius: 10, padding: 4 }}>
-          <Pressable
-            onPress={() => setVisitType('individual')}
-            style={{
-              flex: 1,
-              paddingVertical: 10,
-              borderRadius: 8,
-              backgroundColor: visitType === 'individual' ? '#ffffff' : 'transparent',
-              alignItems: 'center',
-              shadowColor: visitType === 'individual' ? '#000' : 'transparent',
-              shadowOpacity: 0.08,
-              shadowRadius: 2,
-              elevation: visitType === 'individual' ? 2 : 0,
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Ionicons name="person" size={14} color={visitType === 'individual' ? C.teal : C.muted} />
-              <Text style={{ fontWeight: '700', fontSize: 13, color: visitType === 'individual' ? C.teal : C.muted }}>
-                {am ? 'የግል / ቤተሰብ' : 'Individual / Family'}
-              </Text>
-            </View>
-          </Pressable>
-          <Pressable
-            onPress={() => setVisitType('group')}
-            style={{
-              flex: 1,
-              paddingVertical: 10,
-              borderRadius: 8,
-              backgroundColor: visitType === 'group' ? '#ffffff' : 'transparent',
-              alignItems: 'center',
-              shadowColor: visitType === 'group' ? '#000' : 'transparent',
-              shadowOpacity: 0.08,
-              shadowRadius: 2,
-              elevation: visitType === 'group' ? 2 : 0,
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Ionicons name="school" size={14} color={visitType === 'group' ? C.teal : C.muted} />
-              <Text style={{ fontWeight: '700', fontSize: 13, color: visitType === 'group' ? C.teal : C.muted }}>
-                {am ? 'የትምህርት ቤት / ተቋም' : 'School / Group'}
-              </Text>
-            </View>
-          </Pressable>
-        </View>
-      </View>
 
       {/* Specimen Exhibition Gallery */}
       <View style={{ marginBottom: 24 }}>
@@ -638,7 +547,7 @@ export function Home({ navigation }) {
         </View>
 
         <Btn
-          title={visitType === 'individual' ? (am ? 'ትኬት ይቁረጡ (Book Now)' : 'Book Individual Visit') : (am ? 'የትምህርት ቤት ጉብኝት ያስይዙ' : 'Book School Delegation')}
+          title={am ? 'ትኬት ይቁረጡ (Book a Visit)' : 'Book a Visit'}
           onPress={() => navigation.navigate(user ? 'Book' : 'Login')}
         />
       </View>

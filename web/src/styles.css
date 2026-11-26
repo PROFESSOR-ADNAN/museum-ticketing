@@ -368,6 +368,49 @@ h4 { font-size: 1.05rem; font-weight: 600; }
   .hero-landing { grid-template-columns: 1fr; gap: 30px; }
 }
 
+.hero-eyebrow {
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+
+.hero-accent-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.hero-accent-bar .accent-rose {
+  display: inline-block;
+  height: 4px;
+  width: 40px;
+  border-radius: 2px;
+  background-color: #f27076;
+}
+
+.hero-accent-bar .accent-blue {
+  display: inline-block;
+  height: 4px;
+  width: 64px;
+  border-radius: 2px;
+  background-color: #72b6d8;
+}
+
+.site-user-role-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #e0f2fe;
+  color: #015484;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
 .hero-institution-badge {
   display: inline-flex;
   align-items: center;

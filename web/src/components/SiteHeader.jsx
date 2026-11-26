@@ -109,16 +109,23 @@ export function SiteHeader() {
             )}
 
             {user?.role === 'cashier' && (
-              <NavLink to="/cashier" className="site-nav-item staff-highlight">
-                <ShieldCheck size={14} className="inline mr-1 text-emerald-600" />
-                <span>{am ? 'የበር አሳላፊ (Gate & POS)' : 'Gate & POS Console'}</span>
-              </NavLink>
+              <>
+                <NavLink to="/cashier" className="site-nav-item staff-highlight">
+                  <ShieldCheck size={14} className="inline mr-1 text-emerald-600" />
+                  <span>{am ? 'የበር አሳላፊ (Gate & POS)' : 'Gate & POS Console'}</span>
+                </NavLink>
+                <NavLink to="/" end className="site-nav-item">{am ? 'ወደ ድረ-ገጹ' : 'Public Site'}</NavLink>
+              </>
             )}
             {user?.role === 'manager' && (
-              <NavLink to="/manager" className="site-nav-item staff-highlight">
-                <ShieldCheck size={14} className="inline mr-1 text-sky-600" />
-                <span>{am ? 'ሥራ አስኪያጅ (Manager)' : 'Manager Console'}</span>
-              </NavLink>
+              <>
+                <NavLink to="/manager" className="site-nav-item staff-highlight">
+                  <ShieldCheck size={14} className="inline mr-1 text-sky-600" />
+                  <span>{am ? 'ሥራ አስኪያጅ (Manager)' : 'Manager Console'}</span>
+                </NavLink>
+                <NavLink to="/cashier" className="site-nav-item">{am ? 'በር / ፖስ' : 'Gate / POS'}</NavLink>
+                <NavLink to="/" end className="site-nav-item">{am ? 'ወደ ድረ-ገጹ' : 'Public Site'}</NavLink>
+              </>
             )}
             {user?.role === 'admin' && (
               <>
@@ -128,6 +135,7 @@ export function SiteHeader() {
                 </NavLink>
                 <NavLink to="/manager" className="site-nav-item">{t('reports')}</NavLink>
                 <NavLink to="/cashier" className="site-nav-item">{t('cashier')}</NavLink>
+                <NavLink to="/" end className="site-nav-item">{am ? 'ወደ ድረ-ገጹ' : 'Public Site'}</NavLink>
               </>
             )}
           </nav>
@@ -159,6 +167,9 @@ export function SiteHeader() {
                 <span className="site-user-name">
                   <User size={14} />
                   <span>{user.name.split(' ')[0]}</span>
+                  {user.role && user.role !== 'visitor' && (
+                    <span className="site-user-role-tag">{user.role}</span>
+                  )}
                 </span>
                 <button
                   type="button"
@@ -235,16 +246,24 @@ export function SiteHeader() {
             )}
 
             {user?.role === 'cashier' && (
-              <Link to="/cashier" onClick={closeMobile} className="mobile-nav-link">{am ? 'የበር አሳላፊ (Gate & POS)' : 'Gate & POS Console'}</Link>
+              <>
+                <Link to="/cashier" onClick={closeMobile} className="mobile-nav-link">{am ? 'የበር አሳላፊ (Gate & POS)' : 'Gate & POS Console'}</Link>
+                <Link to="/" onClick={closeMobile} className="mobile-nav-link">{am ? 'ወደ ድረ-ገጹ' : 'Public Site'}</Link>
+              </>
             )}
             {user?.role === 'manager' && (
-              <Link to="/manager" onClick={closeMobile} className="mobile-nav-link">{am ? 'ሥራ አስኪያጅ (Manager)' : 'Manager Console'}</Link>
+              <>
+                <Link to="/manager" onClick={closeMobile} className="mobile-nav-link">{am ? 'ሥራ አስኪያጅ (Manager)' : 'Manager Console'}</Link>
+                <Link to="/cashier" onClick={closeMobile} className="mobile-nav-link">{am ? 'በር / ፖስ' : 'Gate / POS'}</Link>
+                <Link to="/" onClick={closeMobile} className="mobile-nav-link">{am ? 'ወደ ድረ-ገጹ' : 'Public Site'}</Link>
+              </>
             )}
             {user?.role === 'admin' && (
               <>
                 <Link to="/admin" onClick={closeMobile} className="mobile-nav-link">{am ? 'ዋና አስተዳዳሪ (Admin)' : 'Admin Console'}</Link>
                 <Link to="/manager" onClick={closeMobile} className="mobile-nav-link">{t('reports')}</Link>
                 <Link to="/cashier" onClick={closeMobile} className="mobile-nav-link">{t('cashier')}</Link>
+                <Link to="/" onClick={closeMobile} className="mobile-nav-link">{am ? 'ወደ ድረ-ገጹ' : 'Public Site'}</Link>
               </>
             )}
             {!user && (
