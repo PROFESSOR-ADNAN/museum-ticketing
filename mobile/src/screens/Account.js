@@ -22,14 +22,14 @@ export default function Account({ navigation }) {
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} refreshControl={pullControl(pull)}>
       {/* Profile Hero Card */}
       <View style={{
-        backgroundColor: '#0e3740',
+        backgroundColor: '#013859',
         borderRadius: 16,
         padding: 20,
         marginBottom: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
+        shadowColor: '#01273d',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
         elevation: 3,
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
@@ -37,9 +37,9 @@ export default function Account({ navigation }) {
             width: 60,
             height: 60,
             borderRadius: 30,
-            backgroundColor: '#1b505c',
+            backgroundColor: '#015484',
             borderWidth: 2,
-            borderColor: '#398494',
+            borderColor: '#7dd3fc',
             alignItems: 'center',
             justifyContent: 'center',
           }}>
@@ -62,9 +62,9 @@ export default function Account({ navigation }) {
           </View>
         </View>
 
-        <View style={{ marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.12)', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View style={{ marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.15)', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Image source={require('../../assets/aau-logo.png')} style={{ width: 22, height: 22, resizeMode: 'contain' }} />
-          <Text style={{ color: '#b2d5cc', fontSize: 12, fontWeight: '600', flex: 1 }} numberOfLines={1}>
+          <Text style={{ color: '#7dd3fc', fontSize: 12, fontWeight: '600', flex: 1 }} numberOfLines={1}>
             {t('campus')}
           </Text>
         </View>
@@ -81,30 +81,30 @@ export default function Account({ navigation }) {
               flexDirection: 'row',
               alignItems: 'center',
               gap: 14,
-              borderColor: '#86efac',
-              backgroundColor: '#f0fdf4',
+              borderColor: '#7dd3fc',
+              backgroundColor: '#f0f9ff',
               paddingVertical: 14,
               opacity: pressed ? 0.85 : 1,
             },
           ]}
         >
-          <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#dcfce7', alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="qr-code" size={22} color="#166534" />
+          <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#e0f2fe', alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name="qr-code" size={22} color="#015484" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: '#166534' }}>{t('myTicketsTitle')}</Text>
-            <Text style={{ fontSize: 12, color: '#15803d' }}>{t('myTicketsSub')}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: '#013859' }}>{t('myTicketsTitle')}</Text>
+            <Text style={{ fontSize: 12, color: '#0284c7' }}>{t('myTicketsSub')}</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#166534" />
+          <Ionicons name="chevron-forward" size={20} color="#015484" />
         </Pressable>
       )}
 
       {staffOnWeb && (
-        <View style={[s.card, { backgroundColor: '#f0fdf4', borderColor: '#86efac', marginBottom: 14 }]}>
-          <Text style={{ color: '#166534', fontSize: 13, lineHeight: 18, fontWeight: '600' }}>
+        <View style={[s.card, { backgroundColor: '#f0f9ff', borderColor: '#bae6fd', marginBottom: 14 }]}>
+          <Text style={{ color: '#013859', fontSize: 13, lineHeight: 18, fontWeight: '700' }}>
             🏛 {user.role === 'admin' ? t('role_admin') : t('role_manager')}: {t('campus')}
           </Text>
-          <Text style={{ color: '#15803d', fontSize: 12, marginTop: 4 }}>
+          <Text style={{ color: '#0284c7', fontSize: 12, marginTop: 4 }}>
             {lang === 'am'
               ? 'ዳሽቦርድ፣ የቡድን ፈቃዶች፣ ሪፖርቶች እና የትኬት ስካነር ከታች ባሉት ታቦች ይገኛሉ።'
               : 'Live dashboard, school group requests, revenue reports, and gate scanner are active in your bottom navigation.'}
@@ -166,8 +166,8 @@ export default function Account({ navigation }) {
                   borderRadius: 10,
                   alignItems: 'center',
                   borderWidth: 1.5,
-                  borderColor: active ? C.teal : '#cfdeda',
-                  backgroundColor: active ? C.teal : '#f7faf9',
+                  borderColor: active ? C.teal : '#e2e8f0',
+                  backgroundColor: active ? C.teal : '#f8fafc',
                 }}
               >
                 <Text style={{ color: active ? '#fff' : C.ink, fontWeight: '700', fontSize: 15 }}>{name}</Text>

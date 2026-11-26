@@ -1,13 +1,33 @@
+import './support/env.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import bcrypt from 'bcryptjs';
 import { createApp } from '../src/app.js';
-import { openDb } from '../src/db/index.js';
+import { openDb, sql } from '../src/db/index.js';
 import { Users } from '../src/db/repo.js';
 import { buildLines, createBooking } from '../src/services/bookingService.js';
 import { addDays, addisDateOf } from '../src/utils/dates.js';
 
+function seedData() {
+  const cats = [
+    ['student', 'Student', 'ተማሪ', 50, 1, 1],
+    ['adult', 'Adult / Teacher', 'አዋቂ / መምህር', 100, 1, 2],
+    ['foreign_resident', 'Foreign Resident', 'ነዋሪ የውጭ ዜጋ', 300, 1, 3],
+    ['non_resident', 'Non-Resident', 'ነዋሪ ያልሆነ', 500, 1, 4],
+    ['exempt', 'Exempt / Free (AAU staff)', 'ነጻ (የአዲስ አበባ ዩኒቨርሲቲ ሠራተኛ)', 0, 0, 5],
+  ];
+  for (const [key, en, am, price, online, order] of cats) {
+    sql(`INSERT OR IGNORE INTO categories (key, name_en, name_am, price_cents, online_bookable, sort_order) VALUES (?,?,?,?,?,?)`)
+      .run(key, en, am, price * 100, online, order);
+  }
+  const hash = bcrypt.hashSync('admin1234', 4);
+  sql(`INSERT OR IGNORE INTO users (name, email, phone, password_hash, role, email_verified, phone_verified) VALUES (?,?,?,?,?,1,1)`)
+    .run('Demo Visitor', 'visitor@museum.test', '+251911000004', hash, 'visitor');
+}
+
 test('tours: buildLines applies guided surcharge when isGuided is true', async () => {
   openDb(':memory:');
+  seedData();
   const normal = await buildLines([{ categoryId: 1, quantity: 2 }], false);
   const guided = await buildLines([{ categoryId: 1, quantity: 2 }], true);
 
@@ -19,6 +39,7 @@ test('tours: buildLines applies guided surcharge when isGuided is true', async (
 
 test('tours: createBooking records is_guided and time_slot', async () => {
   openDb(':memory:');
+  seedData();
   const visitor = await Users.byEmail('visitor@museum.test');
   const date = addDays(addisDateOf(), 3);
 

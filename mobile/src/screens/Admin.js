@@ -101,7 +101,7 @@ function StaffSection() {
                   borderRadius: 8,
                   borderWidth: selected ? 2 : 1,
                   borderColor: selected ? C.teal : C.line,
-                  backgroundColor: selected ? '#e6f3f0' : '#fff',
+                  backgroundColor: selected ? '#e0f2fe' : '#fff',
                   alignItems: 'center',
                 }}
               >
@@ -340,7 +340,7 @@ function RefundsSection() {
       <Text style={[s.muted, { marginBottom: 12 }]}>{t('refundHelpAdmin')}</Text>
 
       {/* Filter Tabs */}
-      <View style={{ flexDirection: 'row', backgroundColor: '#e0ebe7', borderRadius: 8, padding: 4, marginBottom: 14 }}>
+      <View style={{ flexDirection: 'row', backgroundColor: '#e2e8f0', borderRadius: 8, padding: 4, marginBottom: 14 }}>
         <Pressable
           onPress={() => setAll(false)}
           style={{ flex: 1, paddingVertical: 8, borderRadius: 6, backgroundColor: !all ? '#fff' : 'transparent', alignItems: 'center' }}
@@ -479,7 +479,7 @@ export default function AdminScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: C.paper }}>
       {/* Top Segment Navigation */}
-      <View style={{ flexDirection: 'row', backgroundColor: '#e0ebe7', padding: 4, marginHorizontal: 16, marginTop: 12, borderRadius: 8 }}>
+      <View style={{ flexDirection: 'row', backgroundColor: '#e2e8f0', padding: 4, marginHorizontal: 16, marginTop: 12, borderRadius: 8 }}>
         {[
           ['staff', t('staff')],
           ['categories', t('categories')],

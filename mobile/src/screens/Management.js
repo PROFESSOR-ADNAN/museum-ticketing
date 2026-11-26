@@ -43,12 +43,9 @@ export function Dashboard() {
   return (
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} refreshControl={pullControl(pull)}>
       <View style={[s.row, { marginBottom: 12 }]}>
-        <View>
-          <Text style={s.h1}>{t('dashboard')}</Text>
-          <Text style={s.muted}>{t('campus')}</Text>
-        </View>
-        <Pressable onPress={load} style={{ padding: 8 }} accessibilityRole="button" accessibilityLabel={t('refresh')}>
-          <Ionicons name="refresh" size={22} color={C.teal} />
+        <Text style={s.muted}>{t('campus')}</Text>
+        <Pressable onPress={load} style={{ padding: 6 }} accessibilityRole="button" accessibilityLabel={t('refresh')}>
+          <Ionicons name="refresh" size={20} color={C.teal} />
         </Pressable>
       </View>
 
@@ -139,7 +136,6 @@ export function GroupRequests() {
 
   return (
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} refreshControl={pullControl(pull)}>
-      <Text style={s.h1}>{t('groupRequests')}</Text>
       <Err>{err}</Err>
       {!data && <Loading />}
       {data && !bookings.length && (
@@ -245,7 +241,6 @@ export function DateClosures() {
 
   return (
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} keyboardShouldPersistTaps="handled" refreshControl={pullControl(pull)}>
-      <Text style={s.h1}>{t('dates')}</Text>
       <Err>{err}</Err>
       <Ok>{ok}</Ok>
 
@@ -300,11 +295,10 @@ export function Reports() {
 
   return (
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} refreshControl={pullControl(pull)}>
-      <Text style={s.h1}>{t('reports')}</Text>
       <Err>{err}</Err>
 
       {/* Period Selector Tabs */}
-      <View style={{ flexDirection: 'row', backgroundColor: '#e0ebe7', borderRadius: 8, padding: 4, marginBottom: 14 }}>
+      <View style={{ flexDirection: 'row', backgroundColor: '#e2e8f0', borderRadius: 8, padding: 4, marginBottom: 14 }}>
         {['day', 'week', 'month', 'year'].map((period) => {
           const active = g === period;
           return (

@@ -784,13 +784,50 @@ export function Book({ navigation }) {
 
   return (
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} keyboardShouldPersistTaps="handled" refreshControl={pullControl(pull)}>
-      <View style={{ marginBottom: 14 }}>
-        <Text style={s.h1}>{kind === 'group' ? (am ? 'የትምህርት ቤት / ተቋም ጉብኝት' : 'School & Institutional Booking') : (am ? 'የግል ትኬት መቁረጫ' : 'Book Admission Pass')}</Text>
-        <Text style={[s.muted, { fontSize: 13 }]}>
-          {kind === 'group'
-            ? (am ? 'ለትምህርት ቤቶችና ቡድኖች ይፋዊ ደረሰኝ ከ10-አሃዝ TIN ጋር' : 'Special educational rate with institutional TIN receipt')
-            : (am ? 'የአዲስ አበባ ዩኒቨርሲቲ ዙኦሎጂ ሙዚየም መግቢያ' : 'Official admission to AAU Zoological Natural History Museum')}
-        </Text>
+      {/* Visit Type Segment Selector */}
+      <View style={{ flexDirection: 'row', backgroundColor: '#e2e8f0', borderRadius: 10, padding: 4, marginBottom: 14 }}>
+        <Pressable
+          onPress={() => setKind('individual')}
+          style={{
+            flex: 1,
+            paddingVertical: 10,
+            borderRadius: 8,
+            backgroundColor: kind === 'individual' ? '#ffffff' : 'transparent',
+            alignItems: 'center',
+            shadowColor: kind === 'individual' ? '#000' : 'transparent',
+            shadowOpacity: 0.08,
+            shadowRadius: 2,
+            elevation: kind === 'individual' ? 2 : 0,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name="person" size={14} color={kind === 'individual' ? C.teal : C.muted} />
+            <Text style={{ fontWeight: '700', fontSize: 13, color: kind === 'individual' ? C.teal : C.muted }}>
+              {am ? 'የግል / ቤተሰብ' : 'Individual / Family'}
+            </Text>
+          </View>
+        </Pressable>
+        <Pressable
+          onPress={() => setKind('group')}
+          style={{
+            flex: 1,
+            paddingVertical: 10,
+            borderRadius: 8,
+            backgroundColor: kind === 'group' ? '#ffffff' : 'transparent',
+            alignItems: 'center',
+            shadowColor: kind === 'group' ? '#000' : 'transparent',
+            shadowOpacity: 0.08,
+            shadowRadius: 2,
+            elevation: kind === 'group' ? 2 : 0,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name="school" size={14} color={kind === 'group' ? C.teal : C.muted} />
+            <Text style={{ fontWeight: '700', fontSize: 13, color: kind === 'group' ? C.teal : C.muted }}>
+              {am ? 'የትምህርት ቤት / ተቋም' : 'School / Institution'}
+            </Text>
+          </View>
+        </Pressable>
       </View>
 
       <Err>{err}</Err>
@@ -1025,14 +1062,6 @@ export function Book({ navigation }) {
         disabled={busy || !lines.length || !date || closed || !user}
         icon={<Ionicons name="checkmark-circle-outline" size={18} color="#ffffff" />}
       />
-
-      <View style={{ marginTop: 10 }}>
-        <Btn
-          kind="ghost"
-          title={kind === 'group' ? (am ? 'ወደ የግል ጉብኝት ቀይር' : 'Switch to Individual Visit') : (am ? 'ወደ ትምህርት ቤት / ተቋም ቀይር' : 'Switch to School / Institutional Booking')}
-          onPress={() => setKind(kind === 'group' ? 'individual' : 'group')}
-        />
-      </View>
     </ScrollView>
   );
 }
@@ -1063,12 +1092,9 @@ export function MyBookings({ navigation }) {
     >
       <Banner>{offlineText(t, res)}</Banner>
 
-      <View style={{ marginBottom: 12 }}>
-        <Text style={s.h1}>{t('myBookings')}</Text>
-        <Text style={[s.muted, { fontSize: 13 }]}>
-          {am ? 'የእርስዎ ዲጂታል ትኬቶችና የመግቢያ ፓሶች' : 'Your digital tickets and gate passes for entry'}
-        </Text>
-      </View>
+      <Text style={[s.muted, { fontSize: 13, marginBottom: 12 }]}>
+        {am ? 'የእርስዎ ዲጂታል ትኬቶችና የመግቢያ ፓሶች' : 'Your digital tickets and gate passes for entry'}
+      </Text>
 
       {!res.data.length && (
         <View style={[s.card, { alignItems: 'center', paddingVertical: 40 }]}>

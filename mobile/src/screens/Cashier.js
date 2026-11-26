@@ -188,7 +188,7 @@ export function CheckIn() {
   const pull = useRefresh(async () => { if (items) await find(); });
   return (
     <ScrollView style={s.screen} contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled" refreshControl={pullControl(pull)}>
-      <Text style={s.h1}>{t('cashierCheckin')}</Text><Err>{err}</Err>
+      <Err>{err}</Err>
       <Field label={t('lookupRef')} value={ref} onChangeText={(v) => setRef(v.toUpperCase())} placeholder="MSB-XXXXXX" />
       <Field label={t('lookupName')} value={q} onChangeText={setQ} />
       <Btn title={t('lookup')} onPress={find} disabled={!ref && q.trim().length < 2} />
@@ -251,11 +251,10 @@ export function Transfer() {
 
   return (
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} refreshControl={pullControl(pull)}>
-      <Text style={s.h1}>{t('cashierTransfer')}</Text>
       <Err>{err}</Err>
 
       {/* Pending vs History toggle */}
-      <View style={{ flexDirection: 'row', backgroundColor: '#e0ebe7', borderRadius: 8, padding: 4, marginBottom: 14 }}>
+      <View style={{ flexDirection: 'row', backgroundColor: '#e2e8f0', borderRadius: 8, padding: 4, marginBottom: 14 }}>
         <Pressable
           onPress={() => setTab('pending')}
           style={{ flex: 1, paddingVertical: 8, borderRadius: 6, backgroundColor: tab === 'pending' ? '#fff' : 'transparent', alignItems: 'center' }}
@@ -384,7 +383,6 @@ export function PosWalkIn() {
 
   return (
     <ScrollView style={s.screen} contentContainerStyle={[s.pad, { paddingBottom: 40 }]} keyboardShouldPersistTaps="handled" refreshControl={pullControl(pull)}>
-      <Text style={s.h1}>{t('posWalkIn')}</Text>
       <Text style={[s.muted, { marginBottom: 12 }]}>{t('priceNote')}</Text>
       <Err>{err}</Err>
 
@@ -401,7 +399,7 @@ export function PosWalkIn() {
               <Pressable
                 onPress={() => changeQty(c.id, -1)}
                 disabled={qty === 0}
-                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: qty === 0 ? '#f1f5f4' : '#e0ebe7', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: qty === 0 ? '#f1f5f9' : '#e0f2fe', alignItems: 'center', justifyContent: 'center' }}
               >
                 <Text style={{ fontSize: 18, fontWeight: '700', color: qty === 0 ? '#cbd5e1' : C.ink }}>−</Text>
               </Pressable>
