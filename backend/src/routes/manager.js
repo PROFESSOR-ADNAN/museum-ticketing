@@ -3,7 +3,7 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 import * as C from '../controllers/managerController.js';
 
 const r = Router();
-r.use(requireAuth, requireRole('manager', 'admin'));
+r.use(requireAuth, requireRole('manager', 'museum_manager', 'director', 'operation_director', 'admin'));
 
 r.get('/closures', C.listClosures);
 r.post('/closures', C.closeDate);

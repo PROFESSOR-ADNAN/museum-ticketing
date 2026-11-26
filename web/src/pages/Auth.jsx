@@ -272,6 +272,13 @@ export function Login() {
               <button
                 type="button"
                 className="ghost small"
+                onClick={() => setStaffCredential('director@museum.test', 'admin1234')}
+              >
+                Operation Director
+              </button>
+              <button
+                type="button"
+                className="ghost small"
                 onClick={() => setStaffCredential('admin@museum.test', 'admin1234')}
               >
                 Platform Admin

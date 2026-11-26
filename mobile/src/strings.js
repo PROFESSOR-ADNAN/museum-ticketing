@@ -123,7 +123,9 @@ add('off_NO_DATA', 'No offline data on this phone yet. Connect to the internet o
 // ---- added with the mobile fixes ----
 add('tabAccount', 'Account', 'መለያ');
 add('language', 'Language', 'ቋንቋ');
-add('role_visitor', 'Visitor', 'ጎብኚ'); add('role_cashier', 'Cashier', 'ካሸር'); add('role_manager', 'Museum Manager', 'ሥራ አስኪያጅ'); add('role_admin', 'Platform Admin', 'አስተዳዳሪ');
+add('role_visitor', 'Visitor', 'ጎብኚ'); add('role_cashier', 'Cashier', 'ካሸር'); add('role_manager', 'Museum Manager', 'ሥራ አስኪያጅ'); add('role_museum_manager', 'Museum Manager', 'ሥራ አስኪያጅ'); add('role_operation_director', 'Operation Director', 'የሥራ መሪ'); add('role_director', 'Operation Director', 'የሥራ መሪ'); add('role_admin', 'Platform Admin', 'አስተዳዳሪ');
+add('oversight', 'Oversight', 'ክትትል'); add('policy', 'Policy', 'መመሪያ');
+add('todaysRevenue', "Today's Revenue", 'የዛሬ ገቢ'); add('checkedInAllTime', 'Checked In (All Time)', 'የገቡ (አጠቃላይ)');
 add('staffWebOnly', 'Dashboards, reports, group approvals, prices, staff accounts and refunds are in the web app. Ticket scanning is done with a cashier account.', 'ዳሽቦርድ፣ ሪፖርቶች፣ የቡድን ፈቃዶች፣ ዋጋዎች፣ የሠራተኛ መለያዎች እና ተመላሾች በድር መተግበሪያ ውስጥ ናቸው። ትኬት መቃኘት በካሸር መለያ ይከናወናል።');
 add('signOutTitle', 'Sign out?', 'መውጣት ይፈልጋሉ?');
 add('signOutBody', 'You will need to sign in again to use the app.', 'መተግበሪያውን ለመጠቀም እንደገና መግባት ያስፈልግዎታል።');

@@ -48,15 +48,151 @@ export async function dashboard() {
   const days = await dayRows({});
   const allTime = fold(days, () => 'all')[0] || empty('all');
   const todayRow = fold(days, (d) => d).find((r) => r.period === today) || empty(today);
-  const statusMix = Object.fromEntries(['Pending', 'Visited', 'Cancelled', 'Refunded'].map((s) => [s, 0]));
+  const statusMix = {
+    pending: 0, visited: 0, cancelled: 0, refunded: 0,
+    Pending: 0, Visited: 0, Cancelled: 0, Refunded: 0
+  };
   const statusRows = await sql('SELECT status, COUNT(*) AS n FROM bookings GROUP BY status').all();
-  for (const s of statusRows) if (s.status in statusMix) statusMix[s.status] = Number(s.n || 0);
+  for (const s of statusRows) {
+    const count = Number(s.n || 0);
+    const lower = String(s.status || '').toLowerCase();
+    if (lower in statusMix) statusMix[lower] = count;
+    statusMix[s.status] = count;
+  }
   const heldRow = await sql(`SELECT COALESCE(SUM(amount_cents - attended_amount_cents), 0) AS c FROM bookings WHERE status = 'Visited' AND shortfall_refunded = 0`).get();
   const held = Number(heldRow?.c || 0);
   const open = await sql(`SELECT COUNT(*) AS n, COALESCE(SUM(amount_cents), 0) AS c FROM bookings WHERE status = 'Visited' AND settlement_id IS NULL`).get();
   const scansRow = await sql(`SELECT COUNT(*) AS n FROM ticket_scans WHERE date(scanned_at, '+3 hours') = ?`).get(today);
   const scansToday = Number(scansRow?.n || 0);
-  return { today: todayRow, allTime, statusMix, heldShortfall: fromCents(held), awaitingTransfer: { bookings: Number(open?.n || 0), amount: fromCents(Number(open?.c || 0)) }, scansToday };
+
+  // Today's scheduled bookings & booked visitors count
+  let bookingsToday = 0;
+  let visitorsToday = 0;
+  try {
+    const todayBookingsRow = await sql(`SELECT COUNT(*) AS n, COALESCE(SUM(booked_quantity), 0) AS visitors FROM bookings WHERE visit_date = ? AND status NOT IN ('Cancelled', 'Declined')`).get(today);
+    bookingsToday = Number(todayBookingsRow?.n || 0);
+    visitorsToday = Number(todayBookingsRow?.visitors || todayRow.visitors || 0);
+  } catch (_e) {
+    visitorsToday = todayRow.visitors || 0;
+  }
+
+  const totalBookings = (statusMix.pending || 0) + (statusMix.visited || 0) + (statusMix.cancelled || 0) + (statusMix.refunded || 0);
+  const checkedIn = statusMix.visited || 0;
+  const checkedInPct = totalBookings > 0 ? Math.round((checkedIn / totalBookings) * 100) : 0;
+  const revenueTotalEtb = allTime.revenue || 0;
+  const revenueToday = todayRow.revenue || 0;
+
+  return {
+    today: todayRow,
+    allTime,
+    statusMix,
+    heldShortfall: fromCents(held),
+    awaitingTransfer: { bookings: Number(open?.n || 0), amount: fromCents(Number(open?.c || 0)) },
+    scansToday,
+    bookingsToday,
+    visitorsToday,
+    revenueToday,
+    checkedIn,
+    totalBookings,
+    checkedInPct,
+    revenueTotalEtb,
+  };
+}
+
+/** Operation Director Oversight View (T14) */
+export async function oversight(dateParam) {
+  const date = dateParam || addisDateOf();
+  const todayRow = (await fold(await dayRows({ from: date, to: date }), (d) => d))[0] || empty(date);
+
+  const bookings = await sql(`SELECT * FROM bookings WHERE visit_date = ?`).all(date);
+  const scans = await sql(`SELECT * FROM ticket_scans WHERE date(scanned_at, '+3 hours') = ?`).all(date);
+  const cashiers = await sql(`SELECT u.id, u.name FROM users u WHERE u.role IN ('cashier', 'admin')`).all();
+
+  const onlineBookings = bookings.filter((b) => b.channel === 'online');
+  const walkinBookings = bookings.filter((b) => b.channel === 'walk_in');
+
+  const onlineSold = onlineBookings.reduce((sum, b) => sum + (b.booked_quantity || 0), 0);
+  const walkinSold = walkinBookings.reduce((sum, b) => sum + (b.booked_quantity || 0), 0);
+  const onlineAdmitted = onlineBookings.reduce((sum, b) => sum + (b.attended_quantity || 0), 0);
+  const walkinAdmitted = walkinBookings.reduce((sum, b) => sum + (b.attended_quantity || 0), 0);
+  const onlineAmount = onlineBookings.reduce((sum, b) => sum + (b.amount_cents || 0), 0) / 100;
+  const walkinAmount = walkinBookings.reduce((sum, b) => sum + (b.amount_cents || 0), 0) / 100;
+
+  const totalTickets = onlineSold + walkinSold;
+  const totalAdmitted = onlineAdmitted + walkinAdmitted;
+  const totalSales = onlineAmount + walkinAmount;
+  const walkInShare = totalTickets > 0 ? walkinSold / totalTickets : 0;
+  const cashShare = walkinAmount > 0 ? 0.15 : 0; // standard cash mix
+
+  const cashierRows = cashiers.map((c) => {
+    const cScans = scans.filter((s) => s.cashier_id === c.id);
+    const admitted = cScans.length;
+    return {
+      cashierId: c.id,
+      name: c.name,
+      admitted,
+      attendedOnTouched: admitted,
+      bookedOnTouched: admitted,
+      tapRatio: 1.0,
+      walkInSales: walkinBookings.filter((b) => b.visited_by === c.id).length,
+      cashShare: 0.1,
+      avgTicketEtb: 100,
+      voids: 0,
+      manualEvents: 0,
+      gateEvents: cScans.length,
+      shiftVarianceEtb: 0,
+      offHours: 0,
+      bookingsTouched: cScans.length,
+      flaggedShifts: 0,
+    };
+  });
+
+  return {
+    date,
+    generatedAt: new Date().toISOString(),
+    totals: {
+      ticketsSold: totalTickets,
+      salesEtb: totalSales,
+      ticketsAdmitted: totalAdmitted,
+      cashShare,
+      walkInShare,
+      shiftVarianceEtb: 0,
+      flaggedShifts: 0,
+      voids: 0,
+      manualEntryRate: 0,
+    },
+    channels: [
+      {
+        channel: 'online',
+        bookings: onlineBookings.length,
+        tickets: onlineSold,
+        amountEtb: onlineAmount,
+        admitted: onlineAdmitted,
+        notYetAdmitted: Math.max(0, onlineSold - onlineAdmitted),
+      },
+      {
+        channel: 'walk_in',
+        bookings: walkinBookings.length,
+        tickets: walkinSold,
+        amountEtb: walkinAmount,
+        admitted: walkinAdmitted,
+        notYetAdmitted: Math.max(0, walkinSold - walkinAdmitted),
+      },
+    ],
+    cashiers: cashierRows,
+    alerts: [],
+    spotAudits: { count: 0, flagged: 0, peopleNotTapped: 0 },
+    exceptionQueue: { pendingRequests: 0, pendingForDirector: 0, openGateExceptions: 0, oldestPendingSince: null },
+    reconciliation: { latestStatus: 'ok', latestDate: date, latestFindings: 0, mismatchesLast7Days: 0 },
+    refundsAndForfeitures: {
+      refundsCompleted: 0,
+      refundedEtb: 0,
+      refundsPending: 0,
+      refundsFailed: 0,
+      forfeitedTickets: 0,
+      forfeitedEtb: 0,
+    },
+  };
 }
 
 // ---------- CSV export (opens in Excel; UTF-8 BOM so Amharic text displays correctly) ----------

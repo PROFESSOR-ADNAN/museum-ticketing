@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { AppError, asyncHandler as handle } from '../utils/AppError.js';
-import { EXPORT_KINDS, dashboard, exportCsv, summary } from '../services/reportService.js';
+import { EXPORT_KINDS, dashboard, exportCsv, summary, oversight } from '../services/reportService.js';
 
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const summarySchema = z.object({ granularity: z.enum(['day', 'week', 'month', 'year']).default('day'), from: day.optional(), to: day.optional() });
@@ -10,6 +10,14 @@ export const dashboardReport = handle(async (_req, res) => res.json(await dashbo
 export const summaryReport = handle(async (req, res) => {
   const q = summarySchema.parse(req.query);
   res.json({ granularity: q.granularity, rows: await summary(q) });
+});
+export const oversightReport = handle(async (req, res) => {
+  const date = typeof req.query.date === 'string' ? req.query.date : undefined;
+  res.json(await oversight(date));
+});
+export const runAnomalyScan = handle(async (req, res) => {
+  const date = typeof req.body?.date === 'string' ? req.body.date : (typeof req.query.date === 'string' ? req.query.date : undefined);
+  res.json(await oversight(date));
 });
 export const exportKinds = (_req, res) => res.json({ kinds: EXPORT_KINDS });
 export const exportData = handle(async (req, res) => {

@@ -15,7 +15,7 @@ export default function Account({ navigation }) {
   }, [refresh]));
 
   const verified = Boolean(user.emailVerified && user.phoneVerified);
-  const staffOnWeb = user.role === 'manager' || user.role === 'admin';
+  const staffOnWeb = ['manager', 'museum_manager', 'director', 'operation_director', 'admin'].includes(user.role);
   const initial = (user.name || 'U').trim().charAt(0).toUpperCase();
 
   return (
@@ -102,7 +102,7 @@ export default function Account({ navigation }) {
       {staffOnWeb && (
         <View style={[s.card, { backgroundColor: '#f0f9ff', borderColor: '#bae6fd', marginBottom: 14 }]}>
           <Text style={{ color: '#013859', fontSize: 13, lineHeight: 18, fontWeight: '700' }}>
-            🏛 {user.role === 'admin' ? t('role_admin') : t('role_manager')}: {t('campus')}
+            🏛 {user.role === 'admin' ? t('role_admin') : ((user.role === 'operation_director' || user.role === 'director') ? t('role_operation_director') : t('role_manager'))}: {t('campus')}
           </Text>
           <Text style={{ color: '#0284c7', fontSize: 12, marginTop: 4 }}>
             {lang === 'am'

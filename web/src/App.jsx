@@ -10,7 +10,14 @@ import Cashier from './pages/Cashier.jsx';
 import Manager from './pages/Manager.jsx';
 import Admin from './pages/Admin.jsx';
 
-const homeFor = (u) => ({ cashier: '/cashier', manager: '/manager', admin: '/admin' }[u?.role] || '/');
+const homeFor = (u) => ({
+  cashier: '/cashier',
+  manager: '/manager',
+  museum_manager: '/manager',
+  director: '/director',
+  operation_director: '/director',
+  admin: '/admin',
+}[u?.role] || '/');
 
 function Guard({ roles, children }) {
   const { user, ready } = useAuth();
@@ -23,7 +30,7 @@ function Guard({ roles, children }) {
 
 export default function App() {
   const location = useLocation();
-  const isStaffRoute = ['/manager', '/admin', '/cashier', '/staff', '/gate'].some((path) =>
+  const isStaffRoute = ['/manager', '/director', '/admin', '/cashier', '/staff', '/gate'].some((path) =>
     location.pathname.startsWith(path)
   );
 
@@ -46,7 +53,22 @@ export default function App() {
           <Route path="/gate" element={<Navigate to="/cashier" replace />} />
           <Route path="/staff" element={<Navigate to="/login?staff=true" replace />} />
           <Route path="/staff/login" element={<Navigate to="/login?staff=true" replace />} />
-          <Route path="/manager" element={<Guard roles={['manager', 'admin']}><Manager /></Guard>} />
+          <Route
+            path="/manager"
+            element={
+              <Guard roles={['manager', 'museum_manager', 'director', 'operation_director', 'admin']}>
+                <Manager />
+              </Guard>
+            }
+          />
+          <Route
+            path="/director"
+            element={
+              <Guard roles={['director', 'operation_director', 'manager', 'museum_manager', 'admin']}>
+                <Manager />
+              </Guard>
+            }
+          />
           <Route path="/admin" element={<Guard roles={['admin']}><Admin /></Guard>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

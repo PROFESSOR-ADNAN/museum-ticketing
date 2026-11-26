@@ -2365,7 +2365,344 @@ th { font-size: .84rem; color: #64748b; font-weight: 700; }
 }
 
 .staff-main-container {
-  padding-top: 10px;
+  padding-top: 0;
+}
+
+/* Kalab Design: AAU Staff Console Sidebar & Dashboard */
+.staff-console-layout {
+  display: flex;
+  min-height: calc(100vh - 68px);
+  background: #f8fafc;
+}
+
+.staff-sidebar-panel {
+  width: 256px;
+  min-width: 256px;
+  background: #013859;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(1, 56, 89, 0.12);
+  z-index: 10;
+}
+
+.staff-sidebar-header {
+  padding: 16px 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.staff-sidebar-nav {
+  flex: 1;
+  padding: 10px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.staff-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.staff-nav-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.staff-nav-item.active {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.staff-nav-item svg {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.staff-sidebar-user {
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.staff-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9375rem;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.staff-user-avatar.manager {
+  background: #0284c7;
+}
+
+.staff-user-avatar.director {
+  background: #d97706;
+}
+
+.staff-user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.staff-user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.staff-role-badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+
+.staff-role-badge.manager {
+  background: rgba(14, 165, 233, 0.3);
+  color: #bae6fd;
+}
+
+.staff-role-badge.director {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.staff-console-content {
+  flex: 1;
+  padding: 32px 40px;
+  overflow-y: auto;
+  background: #f8fafc;
+}
+
+.staff-dashboard-header {
+  margin-bottom: 24px;
+}
+
+.staff-welcome-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.staff-welcome-title {
+  font-family: 'Noto Serif', Georgia, serif;
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.staff-date-text {
+  font-size: 0.9375rem;
+  color: #64748b;
+  margin: 0 0 16px 0;
+}
+
+.staff-dashboard-note {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 24px;
+}
+
+.staff-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.staff-stat-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.staff-stat-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.staff-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+
+.staff-stat-value.green {
+  color: #16a34a;
+}
+
+.staff-stat-value.primary {
+  color: #0284c7;
+}
+
+.staff-stat-value.blue {
+  color: #2563eb;
+}
+
+.staff-stat-sub {
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.staff-dashboard-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.staff-card-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.staff-panel-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 18px 0;
+}
+
+.staff-quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 12px;
+}
+
+.staff-quick-action-btn:last-child {
+  margin-bottom: 0;
+}
+
+.staff-quick-action-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #013859;
+}
+
+.staff-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9375rem;
+}
+
+.staff-status-label {
+  color: #64748b;
+}
+
+.staff-status-count {
+  font-family: monospace;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.staff-status-count.danger {
+  color: #ef4444;
+}
+
+.staff-total-revenue-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  margin-top: 6px;
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.staff-total-revenue-label {
+  color: #0f172a;
+}
+
+.staff-total-revenue-value {
+  font-family: monospace;
+  font-size: 1.25rem;
+  color: #015484;
+}
+
+@media (max-width: 900px) {
+  .staff-console-layout {
+    flex-direction: column;
+  }
+  .staff-sidebar-panel {
+    width: 100%;
+    min-width: 100%;
+  }
+  .staff-stat-grid {
+    grid-template-columns: 1fr;
+  }
+  .staff-dashboard-cols {
+    grid-template-columns: 1fr;
+  }
+  .staff-console-content {
+    padding: 20px 16px;
+  }
 }
 
 

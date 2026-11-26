@@ -16,8 +16,11 @@ for (const [key, en, am, price, online, order] of cats) {
 sql(`UPDATE categories SET desc_en = 'Counter only, on presentation of ID.', desc_am = 'በቆጣሪ ላይ ብቻ፣ መታወቂያ በማሳየት።' WHERE key = 'exempt' AND desc_en IS NULL`).run();
 
 const users = [
-  ['Platform Admin', 'admin@museum.test', '+251911000001', 'admin'], ['Museum Manager', 'manager@museum.test', '+251911000002', 'manager'],
-  ['Front Cashier', 'cashier@museum.test', '+251911000003', 'cashier'], ['Demo Visitor', 'visitor@museum.test', '+251911000004', 'visitor'],
+  ['Platform Admin', 'admin@museum.test', '+251911000001', 'admin'],
+  ['Demo Museum Manager', 'manager@museum.test', '+251911000002', 'museum_manager'],
+  ['Demo Operation Director', 'director@museum.test', '+251911000005', 'operation_director'],
+  ['Front Cashier', 'cashier@museum.test', '+251911000003', 'cashier'],
+  ['Demo Visitor', 'visitor@museum.test', '+251911000004', 'visitor'],
 ];
 const hash = await bcrypt.hash(pw, 10);
 for (const [name, email, phone, role] of users) {
